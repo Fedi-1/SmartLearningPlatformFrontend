@@ -1,0 +1,96 @@
+<div class="auth-page">
+
+  <!-- Background orbs -->
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+
+  <div class="auth-container">
+
+    <!-- Brand -->
+    <div class="brand fade-in">
+      <a routerLink="/" class="brand__logo">
+        <span class="brand__icon">✦</span>
+        <span class="brand__name">LearnAI</span>
+      </a>
+      <p class="brand__tagline">Your intelligent learning companion</p>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card fade-in" [class.shake]="shakeForm">
+      <div class="auth-card__header">
+        <h1>Welcome back</h1>
+        <p>Sign in to continue your learning journey</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <div class="input-wrapper" [class.input-wrapper--error]="email.invalid && email.touched">
+            <span class="input-icon">✉</span>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="form-control"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+          </div>
+          @if (email.invalid && email.touched) {
+            <span class="form-error">
+              @if (email.errors?.['required']) { Email is required }
+              @else if (email.errors?.['email']) { Enter a valid email address }
+            </span>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <div class="label-row">
+            <label for="password">Password</label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+          <div class="input-wrapper" [class.input-wrapper--error]="password.invalid && password.touched">
+            <span class="input-icon">🔒</span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              class="form-control"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+            <button type="button" class="eye-toggle" (click)="togglePassword()">
+              {{ showPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+          @if (password.invalid && password.touched) {
+            <span class="form-error">Password is required</span>
+          }
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg submit-btn"
+          [disabled]="loading"
+        >
+          @if (loading) {
+            <span class="spinner"></span> Signing in...
+          } @else {
+            Sign in
+          }
+        </button>
+
+      </form>
+
+      <p class="auth-switch">
+        Don't have an account?
+        <a routerLink="/register">Create one free</a>
+      </p>
+    </div>
+
+  </div>
+</div>

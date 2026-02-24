@@ -1,0 +1,171 @@
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+%sk {
+  background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: var(--radius-md, 8px);
+}
+
+.sk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.sk-card { @extend %sk; height: 200px; }
+
+// ── States ────────────────────────────────────────────────────────────────────
+.state-error,
+.state-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--gray-500, #64748B);
+  span { font-size: 2.5rem; }
+  h2 { color: var(--gray-900, #0F172A); font-size: 1.1rem; margin: 0; }
+  p  { font-size: 0.875rem; margin: 0; max-width: 320px; }
+}
+
+// ── Courses grid ──────────────────────────────────────────────────────────────
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.course-card {
+  background: #fff;
+  border: 1px solid var(--gray-200, #E2E8F0);
+  border-radius: var(--radius-md, 8px);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color var(--transition-fast, 150ms ease),
+              box-shadow   var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-primary, #1E3A5F);
+    box-shadow: var(--shadow-elevated, 0 4px 12px rgba(0,0,0,0.08));
+  }
+
+  &__header {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    min-height: 22px;
+  }
+
+  &__title {
+    font-family: var(--font-heading, 'Inter', sans-serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--gray-900, #0F172A);
+    margin: 0;
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  &__progress {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  &__meta {
+    font-size: 0.75rem;
+    color: var(--gray-500, #64748B);
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: auto;
+  }
+}
+
+// ── Badges ────────────────────────────────────────────────────────────────────
+.badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--color-primary-subtle, #E8EFF7);
+  color: var(--color-primary, #1E3A5F);
+  border: 1px solid rgba(30, 58, 95, 0.2);
+  white-space: nowrap;
+
+  &--gold {
+    background: rgba(245, 158, 11, 0.1);
+    color: #B45309;
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+}
+
+// ── Progress bar ──────────────────────────────────────────────────────────────
+.progress-bar {
+  flex: 1;
+  height: 5px;
+  background: var(--gray-200, #E2E8F0);
+  border-radius: 99px;
+  overflow: hidden;
+
+  &__fill {
+    height: 100%;
+    background: var(--color-primary, #1E3A5F);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+}
+
+.progress-bar__pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gray-500, #64748B);
+  min-width: 32px;
+  text-align: right;
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+.btn {
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.8rem;
+  font-family: inherit;
+  padding: 0.45rem 1rem;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+
+  &--indigo,
+  &--primary {
+    background: var(--color-primary, #1E3A5F);
+    color: #fff;
+    &:hover:not([disabled]) { background: var(--color-primary-light, #2D5F8A); }
+  }
+
+  &--outline {
+    background: #fff;
+    border: 1px solid var(--gray-200, #E2E8F0);
+    color: var(--gray-700, #334155);
+    &:hover:not([disabled]) { background: var(--gray-100, #F1F5F9); }
+  }
+
+  &--disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}

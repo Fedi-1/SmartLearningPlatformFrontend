@@ -1,0 +1,84 @@
+@if (loading) {
+  <div class="sk-wrap">
+    <div class="sk-avatar"></div>
+    <div class="sk-panel"></div>
+    <div class="sk-panel" style="height:180px"></div>
+  </div>
+}
+
+@else {
+  <div class="profile-layout">
+
+    <!-- Avatar + name header -->
+    <div class="profile-header">
+      <div class="avatar">{{ initials }}</div>
+      <div>
+        <h2 class="profile-header__name">{{ profile.firstName }} {{ profile.lastName }}</h2>
+        <p class="profile-header__email">{{ profile.email }}</p>
+      </div>
+    </div>
+
+    <!-- Profile form -->
+    <section class="panel">
+      <h3 class="panel__title">Personal Information</h3>
+      <form class="form" (ngSubmit)="saveProfile()">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input class="form-input" type="text" [(ngModel)]="profile.firstName" name="firstName" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input class="form-input" type="text" [(ngModel)]="profile.lastName" name="lastName" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input class="form-input" type="tel" [(ngModel)]="profile.phoneNumber" name="phone" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date of Birth</label>
+            <input class="form-input" type="date" [(ngModel)]="profile.dateOfBirth" name="dob" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input form-input--disabled" type="email" [value]="profile.email" readonly />
+        </div>
+        <div class="form-actions">
+          <button class="btn btn--indigo" type="submit" [disabled]="saving">
+            {{ saving ? 'Saving…' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Password section -->
+    <section class="panel">
+      <h3 class="panel__title">Change Password</h3>
+      <form class="form" (ngSubmit)="changePassword()">
+        <div class="form-group">
+          <label class="form-label">Current Password</label>
+          <input class="form-input" type="password" [(ngModel)]="pw.current" name="current" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <input class="form-input" type="password" [(ngModel)]="pw.newPw" name="newPw" required minlength="8" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password</label>
+            <input class="form-input" type="password" [(ngModel)]="pw.confirm" name="confirm" required />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn--indigo" type="submit" [disabled]="pwSaving">
+            {{ pwSaving ? 'Updating…' : 'Update Password' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+  </div>
+}

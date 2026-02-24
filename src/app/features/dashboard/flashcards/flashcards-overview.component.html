@@ -1,0 +1,38 @@
+@if (loading) {
+  <div class="sk-wrap">
+    @for (i of [1,2,3]; track i) { <div class="sk-row"></div> }
+  </div>
+}
+
+@else if (error) {
+  <div class="state-error"><span>⚠️</span><p>Failed to load flashcard data.</p></div>
+}
+
+@else if (allCaughtUp) {
+  <div class="all-good">
+    <span class="all-good__emoji">🎉</span>
+    <h2>All caught up!</h2>
+    <p>No flashcards are due right now. Great job keeping up with your reviews.</p>
+  </div>
+}
+
+@else {
+  <div class="panel">
+    <h2 class="panel__title">Flashcards Due by Course</h2>
+
+    @for (fc of dueList; track fc.courseId) {
+      @if (fc.dueCount > 0) {
+        <div class="fc-row">
+          <div class="fc-row__left">
+            <span class="fc-row__course">{{ fc.courseTitle }}</span>
+            <span class="fc-due-badge">{{ fc.dueCount }} due</span>
+          </div>
+          <button class="btn btn--indigo" (click)="startReview(fc.courseId)">
+            Start Review →
+          </button>
+        </div>
+      }
+    }
+
+  </div>
+}

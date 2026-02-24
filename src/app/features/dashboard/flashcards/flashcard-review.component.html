@@ -1,0 +1,67 @@
+@if (loading) {
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <p>Loading flashcards…</p>
+  </div>
+}
+
+@else if (sessionComplete) {
+  <div class="complete-wrap">
+    <button class="btn-back" (click)="goBack()">← Back to Flashcards</button>
+    <div class="complete-card">
+      <div class="complete-card__emoji">🎉</div>
+      <h2>Session Complete!</h2>
+      <p>You reviewed all due cards for this course.</p>
+      <div class="summary">
+        <div class="summary__item summary__item--red">
+          <span class="summary__count">{{ summary.again }}</span>
+          <span class="summary__label">Again</span>
+        </div>
+        <div class="summary__item summary__item--gold">
+          <span class="summary__count">{{ summary.good }}</span>
+          <span class="summary__label">Good</span>
+        </div>
+        <div class="summary__item summary__item--green">
+          <span class="summary__count">{{ summary.easy }}</span>
+          <span class="summary__label">Easy</span>
+        </div>
+      </div>
+      @if (nextUpcomingDate) {
+        <p class="next-review">Next review: <strong>{{ nextUpcomingDate | date:'mediumDate' }}</strong></p>
+      }
+      <button class="btn btn--indigo" (click)="goBack()">Done</button>
+    </div>
+  </div>
+}
+
+@else if (currentCard) {
+  <div class="review-wrap">
+    <div class="review-header">
+      <button class="btn-back" (click)="goBack()">← Back</button>
+      <span class="review-progress">{{ totalCards }} card{{ totalCards !== 1 ? 's' : '' }} remaining</span>
+    </div>
+
+    <div class="flashcard" [class.flashcard--flipped]="cardFlipped" (click)="flipCard()">
+      <div class="flashcard__inner">
+        <div class="flashcard__front">
+          <span class="flashcard__hint">Tap to reveal</span>
+          <p class="flashcard__text">{{ currentCard.term }}</p>
+        </div>
+        <div class="flashcard__back">
+          <p class="flashcard__term-small">{{ currentCard.term }}</p>
+          <p class="flashcard__definition">{{ currentCard.definition }}</p>
+        </div>
+      </div>
+    </div>
+
+    @if (cardFlipped) {
+      <div class="rating-row">
+        <button class="rating-btn rating-btn--again" [disabled]="ratingSubmitting" (click)="rateCard('AGAIN')">Again</button>
+        <button class="rating-btn rating-btn--good"  [disabled]="ratingSubmitting" (click)="rateCard('GOOD')">Good</button>
+        <button class="rating-btn rating-btn--easy"  [disabled]="ratingSubmitting" (click)="rateCard('EASY')">Easy</button>
+      </div>
+    } @else {
+      <p class="flip-hint">Click the card to reveal the answer</p>
+    }
+  </div>
+}

@@ -1,0 +1,69 @@
+@if (loading) {
+  <div class="sk-grid">
+    @for (i of [1,2,3,4,5,6]; track i) {
+      <div class="sk-card"></div>
+    }
+  </div>
+}
+
+@else if (error) {
+  <div class="state-error"><span>⚠️</span><p>Failed to load courses.</p></div>
+}
+
+@else if (courses.length === 0) {
+  <div class="state-empty">
+    <span>📚</span>
+    <h2>No courses yet</h2>
+    <p>Upload a document in Documents to generate your first course.</p>
+    <a routerLink="/dashboard/documents" class="btn btn--indigo">Go to Documents</a>
+  </div>
+}
+
+@else {
+  <div class="courses-grid">
+    @for (course of courses; track course.courseId) {
+      <div class="course-card">
+
+        <div class="course-card__header">
+          @if (course.category) {
+            <span class="badge">{{ course.category }}</span>
+          }
+          @if (course.examPassed) {
+            <span class="badge badge--gold">🏆 Passed</span>
+          }
+        </div>
+
+        <h3 class="course-card__title">{{ course.title }}</h3>
+
+        <div class="course-card__progress">
+          <div class="progress-bar">
+            <div class="progress-bar__fill" [style.width.%]="course.progressPercentage"></div>
+          </div>
+          <span class="progress-bar__pct">{{ course.progressPercentage }}%</span>
+        </div>
+
+        <p class="course-card__meta">
+          {{ course.completedLessons }}/{{ course.totalLessons }} lessons
+          &nbsp;·&nbsp;
+          {{ course.quizzesPassed }}/{{ course.totalQuizzes }} quizzes
+        </p>
+
+        <div class="course-card__actions">
+          <a
+            class="btn btn--indigo"
+            [routerLink]="['/dashboard/courses', course.courseId]">
+            {{ course.completedLessons === 0 ? 'Start' : 'Continue' }}
+          </a>
+          <button
+            class="btn btn--outline"
+            [disabled]="!canTakeExam(course)"
+            [class.btn--disabled]="!canTakeExam(course)"
+            [title]="course.examPassed ? 'Exam passed' : canTakeExam(course) ? 'Take the final exam' : 'Complete all lessons & quizzes first'">
+            {{ course.examPassed ? '🏆 Passed' : (canTakeExam(course) ? 'Take Exam' : '🔒 Locked') }}
+          </button>
+        </div>
+
+      </div>
+    }
+  </div>
+}

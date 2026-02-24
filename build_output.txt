@@ -1,0 +1,20 @@
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m              [2m | [22m [1mRaw size[22m
+[32mchunk-USGXSQ3K.js[39m  [2m | [22m[2m-[22m                  [2m | [22m  [36m1.28 MB[39m[2m | [22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m               [2m | [22m[36m168.87 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m          [2m | [22m [36m90.20 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m             [2m | [22m  [36m6.22 kB[39m[2m | [22m
+[32mchunk-ESOBR555.js[39m  [2m | [22m[2m-[22m                  [2m | [22m  [36m3.69 kB[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m      [2m | [22m  [1m1.55 MB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m              [2m | [22m [1mRaw size[22m
+[32mchunk-JX6KVBWA.js[39m  [2m | [22m[2m-[22m                  [2m | [22m[36m209.53 kB[39m[2m | [22m
+[32mchunk-HLRNRKZQ.js[39m  [2m | [22m[2mlanding-component[22m  [2m | [22m [36m38.38 kB[39m[2m | [22m
+[32mchunk-6VH5PILR.js[39m  [2m | [22m[2mregister-component[22m [2m | [22m [36m25.54 kB[39m[2m | [22m
+[32mchunk-V2HQPBTE.js[39m  [2m | [22m[2mlogin-component[22m    [2m | [22m [36m15.54 kB[39m[2m | [22m
+[32mchunk-3ZIHTXGS.js[39m  [2m | [22m[2mdashboard-component[22m[2m | [22m  [36m1.83 kB[39m[2m | [22m
+
+Application bundle generation complete. [2.670 seconds]
+
+Output location: c:\Users\firas\Desktop\PFE Project\SmartLearningPlatformFrontend\dist\smart-learning-platform-frontend
+

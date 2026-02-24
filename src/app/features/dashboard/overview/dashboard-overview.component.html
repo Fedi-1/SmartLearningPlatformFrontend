@@ -1,0 +1,139 @@
+<!-- ── SKELETON ──────────────────────────────────────────────────────────── -->
+@if (loading) {
+  <div class="skeleton-wrap">
+    <div class="sk-cards">
+      <div class="sk-card"></div><div class="sk-card"></div>
+      <div class="sk-card"></div><div class="sk-card"></div>
+    </div>
+    <div class="sk-cols">
+      <div class="sk-panel"></div>
+      <div class="sk-panel"></div>
+    </div>
+    <div class="sk-activity"></div>
+  </div>
+}
+
+<!-- ── ERROR ─────────────────────────────────────────────────────────────── -->
+@else if (error) {
+  <div class="state-error">
+    <span>⚠️</span>
+    <p>Failed to load dashboard. Please refresh.</p>
+  </div>
+}
+
+<!-- ── CONTENT ───────────────────────────────────────────────────────────── -->
+@else if (data) {
+
+  <!-- Stat cards -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-card__icon-wrap stat-card__icon-wrap--indigo">📚</div>
+      <div class="stat-card__body">
+        <span class="stat-card__value">{{ data.stats.totalCourses }}</span>
+        <span class="stat-card__label">Total Courses</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__icon-wrap stat-card__icon-wrap--green">✅</div>
+      <div class="stat-card__body">
+        <span class="stat-card__value">{{ data.stats.completedLessons }}<small>/{{ data.stats.totalLessons }}</small></span>
+        <span class="stat-card__label">Lessons Completed</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__icon-wrap stat-card__icon-wrap--gold">🎯</div>
+      <div class="stat-card__body">
+        <span class="stat-card__value">{{ data.stats.averageQuizScore }}<small>%</small></span>
+        <span class="stat-card__label">Avg Quiz Score</span>
+      </div>
+    </div>
+    <div class="stat-card" [class.stat-card--urgent]="data.stats.flashcardsDueToday > 0">
+      <div class="stat-card__icon-wrap stat-card__icon-wrap--orange">🃏</div>
+      <div class="stat-card__body">
+        <span class="stat-card__value">{{ data.stats.flashcardsDueToday }}</span>
+        <span class="stat-card__label">Flashcards Due</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two columns -->
+  <div class="cols">
+
+    <!-- Left: Courses -->
+    <section class="panel">
+      <h2 class="panel__title">My Courses</h2>
+      @if (data.courses.length === 0) {
+        <p class="panel__empty">No courses yet. Upload a document to get started.</p>
+      }
+      @for (course of data.courses; track course.courseId) {
+        <div class="course-row" [routerLink]="['/dashboard/courses', course.courseId]">
+          <div class="course-row__top">
+            <span class="course-row__title">
+              @if (course.progressPercentage === 100 && course.examPassed) {
+                <span class="trophy" title="Completed!">🏆</span>
+              }
+              {{ course.title }}
+            </span>
+            @if (course.category) {
+              <span class="badge">{{ course.category }}</span>
+            }
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar">
+              <div class="progress-bar__fill" [style.width.%]="course.progressPercentage"></div>
+            </div>
+            <span class="progress-bar__pct">{{ course.progressPercentage }}%</span>
+          </div>
+          <p class="course-row__meta">
+            {{ course.completedLessons }}/{{ course.totalLessons }} lessons
+            &nbsp;·&nbsp; {{ course.quizzesPassed }}/{{ course.totalQuizzes }} quizzes
+            @if (course.lastAccessedAt) {
+              &nbsp;·&nbsp; {{ formatDate(course.lastAccessedAt) }}
+            }
+          </p>
+        </div>
+      }
+    </section>
+
+    <!-- Right: Flashcards due -->
+    <section class="panel">
+      <h2 class="panel__title">Flashcards Due</h2>
+      @if (data.flashcardsDue.length === 0) {
+        <div class="fc-empty">
+          <span>🎉</span>
+          <p>All caught up! No cards due today.</p>
+        </div>
+      }
+      @for (fc of data.flashcardsDue; track fc.courseId) {
+        <div class="fc-row">
+          <div class="fc-row__info">
+            <span class="fc-row__title">{{ fc.courseTitle }}</span>
+            <span class="fc-due-badge">{{ fc.dueCount }} due</span>
+          </div>
+          <button class="btn btn--indigo btn--sm" (click)="goToReview(fc.courseId)">
+            Start Review →
+          </button>
+        </div>
+      }
+    </section>
+
+  </div>
+
+  <!-- Recent activity -->
+  <section class="panel panel--full">
+    <h2 class="panel__title">Recent Activity</h2>
+    @if (data.recentActivity.length === 0) {
+      <p class="panel__empty">No activity recorded yet.</p>
+    }
+    <ul class="activity-list">
+      @for (item of data.recentActivity; track item.timestamp) {
+        <li class="activity-item">
+          <span class="activity-item__icon">{{ activityIcon(item.action) }}</span>
+          <span class="activity-item__desc">{{ item.description }}</span>
+          <span class="activity-item__time">{{ relativeTime(item.timestamp) }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+}

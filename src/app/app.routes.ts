@@ -1,3 +1,73 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('./features/landing/landing.component').then(m => m.LandingComponent)
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
+  },
+  {
+    path: 'student/dashboard',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/student/dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent)
+  },
+  {
+    path: 'documents',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/documents/documents.component').then(m => m.DocumentsComponent)
+  },
+  {
+    path: 'courses/:courseId',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/courses/viewer/course-viewer.component').then(m => m.CourseViewerComponent)
+  },
+  {
+    path: 'dashboard',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/dashboard/shell/dashboard-shell.component').then(m => m.DashboardShellComponent),
+    children: [
+      { path: '', redirectTo: 'overview', pathMatch: 'full' },
+      {
+        path: 'overview',
+        loadComponent: () => import('./features/dashboard/overview/dashboard-overview.component').then(m => m.DashboardOverviewComponent)
+      },
+      {
+        path: 'documents',
+        loadComponent: () => import('./features/documents/documents.component').then(m => m.DocumentsComponent)
+      },
+      {
+        path: 'courses',
+        loadComponent: () => import('./features/dashboard/courses/my-courses.component').then(m => m.MyCoursesComponent)
+      },
+      {
+        path: 'courses/:courseId',
+        loadComponent: () => import('./features/courses/viewer/course-viewer.component').then(m => m.CourseViewerComponent)
+      },
+      {
+        path: 'flashcards',
+        loadComponent: () => import('./features/dashboard/flashcards/flashcards-overview.component').then(m => m.FlashcardsOverviewComponent)
+      },
+      {
+        path: 'flashcards/:courseId/review',
+        loadComponent: () => import('./features/dashboard/flashcards/flashcard-review.component').then(m => m.FlashcardReviewComponent)
+      },
+      {
+        path: 'progress',
+        loadComponent: () => import('./features/dashboard/progress/progress.component').then(m => m.ProgressComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/dashboard/profile/profile.component').then(m => m.ProfileComponent)
+      }
+    ]
+  },
+  { path: '**', redirectTo: '' }
+];

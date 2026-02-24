@@ -1,0 +1,164 @@
+<div class="docs-page">
+
+  <!-- ── Upload Section ──────────────────────────────────────────────────── -->
+  <section class="upload-section">
+    <h2 class="section-title">Upload a Document</h2>
+
+    <div class="upload-card"
+         [class.upload-card--dragover]="dragOver"
+         [class.upload-card--has-file]="!!selectedFile"
+         (dragover)="onZoneDragOver($event)"
+         (dragleave)="onZoneDragLeave($event)"
+         (drop)="onZoneDrop($event)">
+
+      <!-- Uploading Overlay -->
+      @if (uploading) {
+        <div class="upload-overlay">
+          <div class="spinner-ring"></div>
+          <p class="upload-overlay__text">AI is generating your course…<br><span>This may take a moment</span></p>
+        </div>
+      }
+
+      @if (!selectedFile) {
+        <!-- Empty state -->
+        <div class="upload-idle">
+          <div class="upload-icon">☁</div>
+          <h3>Drop your document here</h3>
+          <p>PDF, DOCX, PPTX, JPG, JPEG, PNG, WEBP &nbsp;·&nbsp; Max 10 MB</p>
+          <label class="btn btn-primary btn-md" for="fileInput">Browse Files</label>
+          <input id="fileInput" type="file" class="sr-only"
+                 accept=".pdf,.docx,.pptx,.jpg,.jpeg,.png,.webp"
+                 (change)="onFilePicked($event)" />
+        </div>
+      } @else {
+        <!-- File selected -->
+        <div class="upload-selected">
+          <div class="file-preview">
+            <span class="file-icon">📄</span>
+            <div class="file-info">
+              <p class="file-name">{{ selectedFile.name }}</p>
+              <p class="file-size">{{ formatSize(selectedFile.size) }}</p>
+            </div>
+            <button class="remove-btn" (click)="clearFile()">✕</button>
+          </div>
+          <button class="btn btn-primary btn-md confirm-btn" (click)="confirmUpload()">
+            Confirm Upload &amp; Generate Course
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ── Documents Table ─────────────────────────────────────────────────── -->
+  <section class="table-section">
+    <h2 class="section-title">My Documents</h2>
+
+    <!-- Category filter bar -->
+    @if (availableCategories.length > 0) {
+      <div class="category-filter">
+        <button class="cat-btn" [class.cat-btn--active]="selectedCategory === null" (click)="setCategory(null)">
+          All
+        </button>
+        @for (cat of availableCategories; track cat) {
+          <button class="cat-btn" [class.cat-btn--active]="selectedCategory === cat" (click)="setCategory(cat)"
+                  [style.--cat-color]="categoryBadgeColor(cat)">
+            {{ cat }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (loadingDocs) {
+      <div class="skeleton-table">
+        @for (i of [1,2,3]; track i) {
+          <div class="skeleton-row">
+            <div class="skeleton-cell skeleton-cell--wide"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+            <div class="skeleton-cell"></div>
+          </div>
+        }
+      </div>
+    } @else if (documents.length === 0) {
+      <div class="empty-table">
+        <p>No documents yet. Upload your first document above.</p>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="docs-table">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Size</th>
+              <th>Uploaded</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (doc of filteredDocuments; track doc.id) {
+              <tr>
+                <td class="td--name">{{ doc.fileName }}</td>
+                <td>
+                  <span class="badge" [class]="fileTypeBadgeClass(doc.fileType)">
+                    {{ doc.fileType }}
+                  </span>
+                </td>
+                <td>
+                  @if (doc.category) {
+                    <span class="badge badge--category"
+                          [style.background]="categoryBadgeColor(doc.category) + '26'"
+                          [style.color]="categoryBadgeColor(doc.category)"
+                          [style.border-color]="categoryBadgeColor(doc.category) + '55'">
+                      {{ doc.category }}
+                    </span>
+                  } @else {
+                    <span class="badge badge--grey">—</span>
+                  }
+                </td>
+                <td>{{ formatSize(doc.fileSize) }}</td>
+                <td>{{ formatDate(doc.uploadedAt) }}</td>
+                <td>
+                  <span class="badge" [class]="statusBadgeClass(doc.status)">
+                    {{ doc.status }}
+                  </span>
+                </td>
+                <td class="td--actions">
+                  @if (doc.status === 'COMPLETED' && doc.courseId) {
+                    <button class="btn-action btn-action--view"
+                            (click)="viewCourse(doc.courseId!)">
+                      View Course
+                    </button>
+                  }
+                  <button class="btn-action btn-action--delete"
+                          (click)="openDeleteModal(doc.id)">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+</div>
+
+<!-- ── Delete Confirmation Modal ───────────────────────────────────────── -->
+@if (showDeleteModal) {
+  <div class="modal-backdrop" (click)="closeDeleteModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Delete Document?</h3>
+      <p>This action cannot be undone. The document and its generated course will be removed.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" (click)="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+}

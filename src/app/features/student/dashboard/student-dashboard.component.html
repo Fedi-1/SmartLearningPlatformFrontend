@@ -1,0 +1,125 @@
+<div class="dashboard">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <span class="sidebar__brand-icon">✦</span>
+      <span class="sidebar__brand-name">LearnAI</span>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a class="sidebar__link sidebar__link--active">
+        <span>🏠</span> Dashboard
+      </a>
+      <a class="sidebar__link" routerLink="/documents">
+        <span>📄</span> Documents
+      </a>
+      <a class="sidebar__link">
+        <span>📚</span> My Courses
+      </a>
+      <a class="sidebar__link">
+        <span>🃏</span> Flashcards
+      </a>
+      <a class="sidebar__link">
+        <span>🎯</span> Quizzes
+      </a>
+      <a class="sidebar__link">
+        <span>🏆</span> Certificates
+      </a>
+      <a class="sidebar__link">
+        <span>📊</span> Progress
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__avatar">
+          {{ currentUser?.firstName?.charAt(0) }}{{ currentUser?.lastName?.charAt(0) }}
+        </div>
+        <div class="sidebar__user-info">
+          <p class="sidebar__user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</p>
+          <p class="sidebar__user-role">Student</p>
+        </div>
+      </div>
+      <button class="sidebar__logout" (click)="logout()">
+        <span>⏻</span> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- Header -->
+    <header class="main__header">
+      <div>
+        <h1>Welcome back, <span class="text-gradient">{{ currentUser?.firstName }}</span> 👋</h1>
+        <p>Here's what's happening with your learning today.</p>
+      </div>
+    </header>
+
+    <!-- Stats cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card__icon">📚</div>
+        <div>
+          <p class="stat-card__value">{{ totalDocuments }}</p>
+          <p class="stat-card__label">Documents</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon">✅</div>
+        <div>
+          <p class="stat-card__value">{{ completedCount }}</p>
+          <p class="stat-card__label">Completed</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon">🔥</div>
+        <div>
+          <p class="stat-card__value">0</p>
+          <p class="stat-card__label">Day Streak</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon">🏆</div>
+        <div>
+          <p class="stat-card__value">0</p>
+          <p class="stat-card__label">Certificates</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category breakdown -->
+    @if (categoryBreakdown.length > 0) {
+      <div class="chart-card">
+        <h2 class="chart-card__title">Documents by Category</h2>
+        <div class="chart-bars">
+          @for (item of categoryBreakdown; track item.name) {
+            <div class="chart-bar-row">
+              <span class="chart-bar-label">{{ item.name }}</span>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill"
+                     [style.width.%]="(item.count / totalDocuments) * 100"
+                     [style.background]="item.color">
+                </div>
+              </div>
+              <span class="chart-bar-count" [style.color]="item.color">{{ item.count }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Empty state -->
+    @if (totalDocuments === 0) {
+      <div class="empty-state">
+        <div class="empty-state__icon">🚀</div>
+        <h2>Start your learning journey</h2>
+        <p>Upload your first document to generate a course automatically.</p>
+        <a routerLink="/documents" class="btn btn-primary btn-lg">Upload a Document</a>
+      </div>
+    }
+
+  </main>
+</div>

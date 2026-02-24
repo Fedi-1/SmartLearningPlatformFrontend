@@ -1,0 +1,362 @@
+@if (loading) {
+  <div class="viewer-loading">
+    <div class="spinner-ring spinner-ring--lg"></div>
+    <p>Loading course…</p>
+  </div>
+} @else if (course) {
+  <div class="viewer">
+
+    <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+    <aside class="cv-sidebar">
+
+      <!-- Back -->
+      <button class="back-btn" (click)="goBack()">← Back to Documents</button>
+
+      <!-- Course info -->
+      <div class="cv-sidebar__course">
+        <h2 class="cv-sidebar__title">{{ course.title }}</h2>
+        <p class="cv-sidebar__desc">{{ course.description }}</p>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-box">
+        <div class="progress-box__header">
+          <span>Progress</span>
+          <span class="progress-box__pct">{{ progressPercent }}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="progressPercent"></div>
+        </div>
+        <p class="progress-box__label">
+          {{ completedCount }} / {{ course.lessons.length }} lessons completed
+        </p>
+      </div>
+
+      <!-- Lesson list -->
+      <nav class="lesson-list">
+        @for (lesson of course.lessons; track lesson.id) {
+          <button class="lesson-item"
+                  [class.lesson-item--active]="selectedLesson?.id === lesson.id"
+                  [class.lesson-item--done]="isLessonCompleted(lesson.id)"
+                  [class.lesson-item--locked]="lesson.isLocked"
+                  [disabled]="lesson.isLocked"
+                  (click)="selectLesson(lesson)">
+            <span class="lesson-item__num">{{ lesson.lessonNumber }}</span>
+            <span class="lesson-item__title">{{ lesson.title }}</span>
+            @if (lesson.isLocked) {
+              <span class="lesson-item__lock">🔒</span>
+            } @else if (isLessonCompleted(lesson.id)) {
+              <span class="lesson-item__check">✓</span>
+            }
+          </button>
+        }
+      </nav>
+    </aside>
+
+    <!-- ── Main ─────────────────────────────────────────────────────────────── -->
+    <main class="cv-main">
+
+      @if (selectedLesson) {
+
+        <!-- Lesson header -->
+        <header class="lesson-header">
+          <p class="lesson-header__num">Lesson {{ selectedLesson.lessonNumber }}</p>
+          <h1 class="lesson-header__title">{{ selectedLesson.title }}</h1>
+        </header>
+
+        <!-- Lesson summary / overview -->
+        <div class="lesson-summary">
+          <span class="lesson-summary__label">📋 Overview</span>
+          <p class="lesson-summary__text">{{ selectedLesson.summary }}</p>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="tab-bar">
+          <button class="tab-btn" [class.tab-btn--active]="activeTab === 'content'"  (click)="setTab('content')">📖 Content</button>
+          <button class="tab-btn" [class.tab-btn--active]="activeTab === 'quiz'"     (click)="setTab('quiz')">🎯 Quiz
+            @if (selectedLesson.quiz && selectedLesson.quiz.length) {
+              <span class="tab-badge">{{ selectedLesson.quiz.length }}</span>
+            }
+          </button>
+          <button class="tab-btn" [class.tab-btn--active]="activeTab === 'flashcards'" (click)="setTab('flashcards')">🃏 Flashcards
+            @if (selectedLesson.flashcards && selectedLesson.flashcards.length) {
+              <span class="tab-badge">{{ selectedLesson.flashcards.length }}</span>
+            }
+          </button>
+        </div>
+
+        <!-- ── CONTENT TAB ─────────────────────────────────────────────────── -->
+        @if (activeTab === 'content') {
+          <div class="content-tab">
+            <div class="content-card">
+              <p class="content-text">{{ selectedLesson.content }}</p>
+            </div>
+            <button class="btn btn-primary continue-btn" (click)="setTab('quiz')">
+              Continue to Quiz →
+            </button>
+          </div>
+        }
+
+        <!-- ── QUIZ TAB ────────────────────────────────────────────────────── -->
+        @if (activeTab === 'quiz') {
+          <div class="quiz-tab">
+
+            <!-- Attempt counter -->
+            <div class="attempt-bar">
+              @if (attemptsLoading) {
+                <span>Loading attempts…</span>
+              } @else {
+                <span>Attempts: {{ attemptsUsed }} / {{ maxAttempts }}</span>
+                @if (alreadyPassed) {
+                  <span class="attempt-bar__badge attempt-bar__badge--pass">✓ Passed</span>
+                }
+              }
+            </div>
+
+            <!-- Loading past attempts -->
+            @if (attemptsLoading) {
+              <div class="quiz-start-box">
+                <div class="spinner-ring"></div>
+              </div>
+            }
+
+            <!-- No attempt started yet (past attempts loaded, none active) -->
+            @if (!attemptsLoading && !currentAttemptId && !quizSubmitted) {
+              <div class="quiz-start-box">
+                @if (noAttemptsLeft) {
+                  <p class="quiz-info">You have used all {{ maxAttempts }} attempts for this quiz.</p>
+                } @else if (alreadyPassed) {
+                  <p class="quiz-info">You already passed this quiz. You can retake it for practice.</p>
+                  <button class="btn btn-ghost" (click)="startQuiz()">Retake Quiz</button>
+                } @else {
+                  <button class="btn btn-primary" (click)="startQuiz()">Start Quiz</button>
+                }
+              </div>
+            }
+
+            <!-- Starting attempt (waiting for server response) -->
+            @if (!attemptsLoading && !currentAttemptId && quizSubmitted === false) {
+            }
+
+            <!-- Active attempt: answer questions -->
+            @if (currentAttemptId && !quizSubmitted) {
+              @for (q of currentAttemptQuestions; track q.id) {
+                <div class="question-card">
+                  <p class="question-text">
+                    <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                  </p>
+
+                  <!-- MCQ or TRUE_FALSE: radio button list -->
+                  @if (q.questionType === 'MCQ' || q.questionType === 'TRUE_FALSE') {
+                    <ul class="options-list">
+                      @for (opt of q.options; track opt) {
+                        <li class="option"
+                            [class.option--selected]="isSelected(q.id, opt)"
+                            (click)="selectAnswer(q.id, opt)">
+                          <span class="option__radio" [class.option__radio--filled]="isSelected(q.id, opt)"></span>
+                          <span>{{ opt }}</span>
+                        </li>
+                      }
+                    </ul>
+                  }
+
+                  <!-- FILL_BLANK: text input -->
+                  @if (q.questionType === 'FILL_BLANK') {
+                    <div class="fill-blank-wrapper">
+                      <input class="fill-blank-input"
+                             type="text"
+                             placeholder="Type your answer here…"
+                             [value]="selectedAnswers.get(q.id) ?? ''"
+                             (input)="selectAnswer(q.id, $any($event.target).value)" />
+                    </div>
+                  }
+                </div>
+              }
+
+              <button class="btn btn-primary submit-btn"
+                      [disabled]="!allQuestionsAnswered() || quizSubmitting"
+                      (click)="submitQuiz()">
+                @if (quizSubmitting) { Submitting… } @else { Submit Quiz }
+              </button>
+            }
+
+            <!-- Results after submission -->
+            @if (quizSubmitted) {
+              <div class="results-card"
+                   [class.results-card--pass]="quizPassed"
+                   [class.results-card--fail]="!quizPassed">
+                <div class="results-score">{{ quizScore }}<span>%</span></div>
+                <p class="results-label">{{ quizPassed ? '🎉 Great job! You passed!' : '😕 Keep practising!' }}</p>
+                <p class="results-threshold">Passing score: 70%</p>
+                @if (!quizPassed && attemptsRemaining > 0) {
+                  <p class="results-remaining">{{ attemptsRemaining }} attempt(s) remaining</p>
+                }
+              </div>
+
+              <!-- Answer review -->
+              @for (q of currentAttemptQuestions; track q.id) {
+                <div class="question-card question-card--review">
+                  <p class="question-text">
+                    <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                  </p>
+
+                  <!-- MCQ / TRUE_FALSE review -->
+                  @if (q.questionType === 'MCQ' || q.questionType === 'TRUE_FALSE') {
+                    <ul class="options-list">
+                      @for (opt of q.options; track opt) {
+                        <li class="option option--readonly"
+                            [class.option--correct]="isCorrect(q.id, opt)"
+                            [class.option--wrong]="isSelected(q.id, opt) && !isCorrect(q.id, opt)">
+                          <span class="option__radio"></span>
+                          <span>{{ opt }}</span>
+                          @if (isCorrect(q.id, opt)) { <span class="option__mark">✓</span> }
+                          @if (isSelected(q.id, opt) && !isCorrect(q.id, opt)) { <span class="option__mark option__mark--wrong">✗</span> }
+                        </li>
+                      }
+                    </ul>
+                  }
+
+                  <!-- FILL_BLANK review -->
+                  @if (q.questionType === 'FILL_BLANK') {
+                    <div class="fill-blank-review">
+                      <div class="fill-blank-review__row"
+                           [class.fill-blank-review__row--correct]="fillBlankCorrect(q.id)"
+                           [class.fill-blank-review__row--wrong]="!fillBlankCorrect(q.id)">
+                        <span class="fill-blank-review__label">Your answer:</span>
+                        <span class="fill-blank-review__value">{{ selectedAnswers.get(q.id) || '(no answer)' }}</span>
+                        <span class="option__mark" [class.option__mark--wrong]="!fillBlankCorrect(q.id)">
+                          {{ fillBlankCorrect(q.id) ? '✓' : '✗' }}
+                        </span>
+                      </div>
+                      @if (!fillBlankCorrect(q.id)) {
+                        <div class="fill-blank-review__correct">
+                          Correct answer: <strong>{{ q.correctAnswer }}</strong>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  @if (q.explanation) {
+                    <div class="explanation">
+                      <span class="explanation__icon">💡</span>
+                      {{ q.explanation }}
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (!quizPassed && attemptsRemaining > 0) {
+                <button class="btn btn-ghost retry-btn" (click)="retryQuiz()">Retry Quiz</button>
+              }
+            }
+
+          </div>
+        }
+
+        <!-- ── FLASHCARDS TAB ──────────────────────────────────────────────── -->
+        @if (activeTab === 'flashcards') {
+          <div class="flashcards-tab">
+
+            <!-- Loading -->
+            @if (sessionLoading) {
+              <div class="fc-loading">
+                <div class="spinner-ring"></div>
+                <p>Loading your review session…</p>
+              </div>
+            }
+
+            <!-- Up to date: no cards due -->
+            @else if (sessionLoaded && totalCards === 0 && !sessionComplete) {
+              <div class="fc-up-to-date">
+                <span class="fc-uptodate-icon">🎉</span>
+                <p class="fc-uptodate-title">All flashcards are up to date!</p>
+                @if (nextUpcomingDate) {
+                  <p class="fc-uptodate-sub">Next review scheduled for <strong>{{ nextUpcomingDate }}</strong>.</p>
+                } @else {
+                  <p class="fc-uptodate-sub">No upcoming reviews scheduled.</p>
+                }
+                <button class="btn btn-ghost" (click)="loadSession()">Refresh</button>
+              </div>
+            }
+
+            <!-- Session complete -->
+            @else if (sessionComplete) {
+              <div class="fc-complete">
+                <span class="fc-complete-icon">✅</span>
+                <p class="fc-complete-title">All reviews done for today!</p>
+                <div class="fc-summary">
+                  <div class="fc-summary-item fc-summary-item--again">
+                    <span class="fc-summary-count">{{ sessionSummary.again }}</span>
+                    <span class="fc-summary-label">🔁 Again</span>
+                  </div>
+                  <div class="fc-summary-item fc-summary-item--good">
+                    <span class="fc-summary-count">{{ sessionSummary.good }}</span>
+                    <span class="fc-summary-label">👍 Good</span>
+                  </div>
+                  <div class="fc-summary-item fc-summary-item--easy">
+                    <span class="fc-summary-count">{{ sessionSummary.easy }}</span>
+                    <span class="fc-summary-label">✅ Easy</span>
+                  </div>
+                </div>
+                <button class="btn btn-ghost" (click)="loadSession()">Start New Session</button>
+              </div>
+            }
+
+            <!-- Active session -->
+            @else if (sessionLoaded && currentCard) {
+              <!-- Counter -->
+              <p class="fc-counter">
+                {{ totalCards }} card{{ totalCards !== 1 ? 's' : '' }} remaining
+              </p>
+
+              <!-- Card -->
+              <div class="fc-wrapper" (click)="flipCard()">
+                <div class="fc-inner" [class.fc-inner--flipped]="cardFlipped">
+                  <!-- Front -->
+                  <div class="fc-face fc-face--front">
+                    <span class="fc-label">TERM</span>
+                    <p class="fc-text">{{ currentCard.term }}</p>
+                    <span class="fc-hint">Click to reveal definition</span>
+                  </div>
+                  <!-- Back -->
+                  <div class="fc-face fc-face--back">
+                    <span class="fc-label">DEFINITION</span>
+                    <p class="fc-text">{{ currentCard.definition }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SM-2 Rating buttons (shown only after flip) -->
+              @if (cardFlipped) {
+                <div class="fc-rating">
+                  <button class="btn fc-rate-btn fc-rate-btn--again"
+                          [disabled]="ratingSubmitting"
+                          (click)="rateCard('AGAIN')">🔁 Again</button>
+                  <button class="btn fc-rate-btn fc-rate-btn--good"
+                          [disabled]="ratingSubmitting"
+                          (click)="rateCard('GOOD')">👍 Good</button>
+                  <button class="btn fc-rate-btn fc-rate-btn--easy"
+                          [disabled]="ratingSubmitting"
+                          (click)="rateCard('EASY')">✅ Easy</button>
+                </div>
+              }
+
+              <!-- Queue dots -->
+              <div class="fc-dots">
+                @for (c of sessionQueue; track c.id) {
+                  <span class="fc-dot" [class.fc-dot--active]="c.id === currentCard.id"></span>
+                }
+              </div>
+            }
+
+          </div>
+        }
+
+      } @else {
+        <div class="no-lesson">
+          <p>Select a lesson from the sidebar to get started.</p>
+        </div>
+      }
+    </main>
+  </div>
+}

@@ -1,0 +1,108 @@
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.sk-wrap { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.sk-row {
+  height: 64px;
+  border-radius: var(--radius-md, 8px);
+  background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.state-error {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.5rem; padding: 3rem; text-align: center;
+  color: var(--gray-500, #64748B);
+  span { font-size: 2rem; }
+}
+
+.all-good {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  gap: 0.75rem;
+
+  &__emoji { font-size: 3.5rem; }
+
+  h2 {
+    font-family: var(--font-heading, 'Inter', sans-serif);
+    font-size: 1.4rem;
+    color: var(--gray-900, #0F172A);
+    margin: 0;
+  }
+
+  p { font-size: 0.875rem; color: var(--gray-500, #64748B); max-width: 380px; margin: 0; }
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid var(--gray-200, #E2E8F0);
+  border-radius: var(--radius-md, 8px);
+  padding: 1.4rem;
+  max-width: 700px;
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(0,0,0,0.08));
+
+  &__title {
+    font-family: var(--font-heading, 'Inter', sans-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-900, #0F172A);
+    margin: 0 0 1rem;
+  }
+}
+
+.fc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--gray-100, #F1F5F9);
+
+  &:last-child { border-bottom: none; }
+
+  &__left { display: flex; flex-direction: column; gap: 4px; }
+
+  &__course {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray-900, #0F172A);
+  }
+}
+
+.fc-due-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #B45309;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-pill, 9999px);
+  padding: 1px 7px;
+  width: fit-content;
+}
+
+.btn {
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.8rem;
+  padding: 0.5rem 1.1rem;
+  font-family: inherit;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+
+  &--indigo,
+  &--primary {
+    background: var(--color-primary, #1E3A5F);
+    color: #fff;
+    &:hover { background: var(--color-primary-light, #2D5F8A); }
+  }
+}

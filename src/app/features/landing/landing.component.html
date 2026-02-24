@@ -1,0 +1,209 @@
+<!-- NAVBAR -->
+<nav class="navbar" [class.navbar--scrolled]="isScrolled">
+  <div class="navbar__inner">
+    <a routerLink="/" class="navbar__brand">
+      <span class="navbar__brand-icon">✦</span>
+      <span class="navbar__brand-name">LearnAI</span>
+    </a>
+
+    <ul class="navbar__links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#stats">Community</a></li>
+    </ul>
+
+    <div class="navbar__actions">
+      <a routerLink="/login" class="btn btn-ghost btn-sm">Sign in</a>
+      <a routerLink="/register" class="btn btn-primary btn-sm">Get started</a>
+    </div>
+
+    <button class="navbar__hamburger" (click)="toggleMobileMenu()" [class.active]="isMobileMenuOpen">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  @if (isMobileMenuOpen) {
+    <div class="navbar__mobile">
+      <a href="#features"    (click)="toggleMobileMenu()">Features</a>
+      <a href="#how-it-works"(click)="toggleMobileMenu()">How it works</a>
+      <a href="#stats"       (click)="toggleMobileMenu()">Community</a>
+      <hr />
+      <a routerLink="/login"    class="btn btn-ghost btn-sm" (click)="toggleMobileMenu()">Sign in</a>
+      <a routerLink="/register" class="btn btn-primary btn-sm" (click)="toggleMobileMenu()">Get started</a>
+    </div>
+  }
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero__bg-orb hero__bg-orb--1"></div>
+  <div class="hero__bg-orb hero__bg-orb--2"></div>
+  <div class="hero__bg-orb hero__bg-orb--3"></div>
+
+  <div class="container">
+    <div class="hero__content">
+      <div class="hero__badge fade-in">
+        <span>✨ AI-Powered Education Platform</span>
+      </div>
+
+      <h1 class="hero__title fade-in">
+        Learn Smarter.<br />
+        <span class="text-gradient">Grow Faster.</span>
+      </h1>
+
+      <p class="hero__subtitle fade-in">
+        An intelligent learning platform that adapts to your pace, tracks your progress,
+        and helps you master any subject — from beginner to expert.
+      </p>
+
+      <div class="hero__cta fade-in">
+        <a routerLink="/register" class="btn btn-primary btn-lg">
+          Start for free →
+        </a>
+        <a href="#features" class="btn btn-outline btn-lg">
+          Explore features
+        </a>
+      </div>
+
+      <p class="hero__footnote fade-in">No credit card required · Free forever plan available</p>
+    </div>
+
+    <!-- Floating mockup card -->
+    <div class="hero__mockup fade-in float">
+      <div class="mockup-card">
+        <div class="mockup-card__header">
+          <div class="mockup-card__avatar">JS</div>
+          <div>
+            <p class="mockup-card__name">JavaScript Mastery</p>
+            <p class="mockup-card__meta">Lesson 12 of 48</p>
+          </div>
+          <span class="mockup-card__badge">In Progress</span>
+        </div>
+        <div class="mockup-card__progress-bar">
+          <div class="mockup-card__progress-fill" style="width: 25%"></div>
+        </div>
+        <div class="mockup-card__stats">
+          <div class="mockup-stat">
+            <span class="mockup-stat__val">25%</span>
+            <span class="mockup-stat__key">Complete</span>
+          </div>
+          <div class="mockup-stat">
+            <span class="mockup-stat__val">6h</span>
+            <span class="mockup-stat__key">Remaining</span>
+          </div>
+          <div class="mockup-stat">
+            <span class="mockup-stat__val">94</span>
+            <span class="mockup-stat__key">Quiz score</span>
+          </div>
+        </div>
+        <div class="mockup-card__ai-tip">
+          <span class="mockup-card__ai-icon">🧠</span>
+          <p>Great progress! Review closures before moving on.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">Why LearnAI</p>
+      <h2 class="section-title">Everything you need to <span class="text-gradient">master any skill</span></h2>
+      <p class="section-subtitle">Powerful tools designed to make learning more effective, engaging, and rewarding.</p>
+    </div>
+
+    <div class="features-grid">
+      @for (feature of features; track feature.title) {
+        <div class="feature-card">
+          <div class="feature-card__icon">{{ feature.icon }}</div>
+          <h3 class="feature-card__title">{{ feature.title }}</h3>
+          <p class="feature-card__desc">{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-label">Getting Started</p>
+      <h2 class="section-title">Up and running in <span class="text-gold">4 simple steps</span></h2>
+      <p class="section-subtitle">From sign-up to your first certification — it's that easy.</p>
+    </div>
+
+    <div class="steps-grid">
+      @for (step of steps; track step.number) {
+        <div class="step-card">
+          <div class="step-card__number">{{ step.number }}</div>
+          <h3 class="step-card__title">{{ step.title }}</h3>
+          <p class="step-card__desc">{{ step.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section" id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      @for (stat of stats; track stat.label) {
+        <div class="stat-item">
+          <span class="stat-item__value">{{ stat.value | number }}{{ stat.suffix }}</span>
+          <span class="stat-item__label">{{ stat.label }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-card">
+      <div class="cta-orb cta-orb--1"></div>
+      <div class="cta-orb cta-orb--2"></div>
+      <h2>Ready to transform your learning?</h2>
+      <p>Join 50,000+ learners already accelerating their careers with LearnAI.</p>
+      <div class="cta-actions">
+        <a routerLink="/register" class="btn btn-gold btn-lg">Start for free today</a>
+        <a routerLink="/login"    class="btn btn-outline btn-lg">Sign in</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a routerLink="/" class="footer__logo">
+          <span>✦</span> LearnAI
+        </a>
+        <p>Intelligent learning for the modern world.</p>
+      </div>
+      <div class="footer__links">
+        <div class="footer__col">
+          <h4>Platform</h4>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How it works</a>
+          <a routerLink="/register">Sign up</a>
+        </div>
+        <div class="footer__col">
+          <h4>Account</h4>
+          <a routerLink="/login">Sign in</a>
+          <a routerLink="/register">Register</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p>© 2025 LearnAI. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

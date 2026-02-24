@@ -1,0 +1,208 @@
+<div class="auth-page">
+
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+
+  <div class="auth-container">
+
+    <!-- Brand -->
+    <div class="brand fade-in">
+      <a routerLink="/" class="brand__logo">
+        <span class="brand__icon">✦</span>
+        <span class="brand__name">LearnAI</span>
+      </a>
+      <p class="brand__tagline">Start your learning journey today</p>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card fade-in" [class.shake]="shakeForm">
+      <div class="auth-card__header">
+        <h1>Create account</h1>
+        <p>Join thousands of learners already on the platform</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+
+        <!-- Name row -->
+        <div class="name-row">
+          <div class="form-group">
+            <label for="firstName">First name</label>
+            <div class="input-wrapper" [class.input-wrapper--error]="firstName.invalid && firstName.touched">
+              <input
+                id="firstName"
+                type="text"
+                formControlName="firstName"
+                class="form-control"
+                placeholder="John"
+                autocomplete="given-name"
+              />
+            </div>
+            @if (firstName.invalid && firstName.touched) {
+              <span class="form-error">
+                @if (firstName.errors?.['required']) { Required }
+                @else { Min. 2 characters }
+              </span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last name</label>
+            <div class="input-wrapper" [class.input-wrapper--error]="lastName.invalid && lastName.touched">
+              <input
+                id="lastName"
+                type="text"
+                formControlName="lastName"
+                class="form-control"
+                placeholder="Doe"
+                autocomplete="family-name"
+              />
+            </div>
+            @if (lastName.invalid && lastName.touched) {
+              <span class="form-error">
+                @if (lastName.errors?.['required']) { Required }
+                @else { Min. 2 characters }
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <div class="input-wrapper" [class.input-wrapper--error]="email.invalid && email.touched">
+            <span class="input-icon">✉</span>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="form-control"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+          </div>
+          @if (email.invalid && email.touched) {
+            <span class="form-error">
+              @if (email.errors?.['required']) { Email is required }
+              @else { Enter a valid email address }
+            </span>
+          }
+        </div>
+
+        <!-- Date of Birth + Phone row -->
+        <div class="name-row">
+          <div class="form-group">
+            <label for="dateOfBirth">Date of birth <span class="optional">(optional)</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon">📅</span>
+              <input
+                id="dateOfBirth"
+                type="date"
+                formControlName="dateOfBirth"
+                class="form-control"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phoneNumber">Phone number <span class="optional">(optional)</span></label>
+            <div class="input-wrapper" [class.input-wrapper--error]="phoneNumber.invalid && phoneNumber.touched">
+              <span class="input-icon">📞</span>
+              <input
+                id="phoneNumber"
+                type="tel"
+                formControlName="phoneNumber"
+                class="form-control"
+                placeholder="+1 234 567 8900"
+                autocomplete="tel"
+              />
+            </div>
+            @if (phoneNumber.invalid && phoneNumber.touched) {
+              <span class="form-error">Enter a valid phone number</span>
+            }
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper" [class.input-wrapper--error]="password.invalid && password.touched">
+            <span class="input-icon">🔒</span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              class="form-control"
+              placeholder="Min. 8 characters"
+              autocomplete="new-password"
+            />
+            <button type="button" class="eye-toggle" (click)="togglePassword()">
+              {{ showPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+          @if (password.invalid && password.touched) {
+            <span class="form-error">
+              @if (password.errors?.['required']) { Password is required }
+              @else { At least 8 characters }
+            </span>
+          }
+
+          <!-- Strength meter -->
+          @if (password.value) {
+            <div class="strength-meter">
+              <div class="strength-bar">
+                @for (i of [1,2,3,4]; track i) {
+                  <div class="strength-bar__segment" [class.active]="i <= passwordStrength" [class]="i <= passwordStrength ? 'strength-bar__segment active ' + strengthClass : 'strength-bar__segment'"></div>
+                }
+              </div>
+              @if (strengthLabel) {
+                <span class="strength-label" [class]="strengthClass">{{ strengthLabel }}</span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirm password</label>
+          <div class="input-wrapper" [class.input-wrapper--error]="confirmPassword.invalid && confirmPassword.touched">
+            <span class="input-icon">🔒</span>
+            <input
+              id="confirmPassword"
+              [type]="showConfirm ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              class="form-control"
+              placeholder="Repeat your password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="eye-toggle" (click)="toggleConfirm()">
+              {{ showConfirm ? '🙈' : '👁' }}
+            </button>
+          </div>
+          @if (confirmPassword.invalid && confirmPassword.touched) {
+            <span class="form-error">Passwords do not match</span>
+          }
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg submit-btn"
+          [disabled]="loading"
+        >
+          @if (loading) {
+            <span class="spinner"></span> Creating account...
+          } @else {
+            Create account
+          }
+        </button>
+
+      </form>
+
+      <p class="auth-switch">
+        Already have an account?
+        <a routerLink="/login">Sign in</a>
+      </p>
+    </div>
+
+  </div>
+</div>

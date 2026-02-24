@@ -1,0 +1,83 @@
+// =============================================
+// RESPONSIVE BREAKPOINTS
+// =============================================
+@mixin desktop  { @media (min-width: 1280px) { @content; } }
+@mixin tablet   { @media (max-width: 1279px) { @content; } }
+@mixin mobile   { @media (max-width: 767px)  { @content; } }
+
+// =============================================
+// SHADOW MIXINS
+// =============================================
+@mixin shadow-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+@mixin shadow-elevated {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+// =============================================
+// FOCUS RING
+// =============================================
+@mixin focus-ring($color: #1E3A5F) {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba($color, 0.15);
+  border-color: $color;
+}
+
+// =============================================
+// FLEX UTILITIES
+// =============================================
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// =============================================
+// TRUNCATE
+// =============================================
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// =============================================
+// CARD BASE
+// =============================================
+@mixin card-base {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  @include shadow-card;
+}
+
+// =============================================
+// LEGACY MIXINS (kept for auth/landing pages)
+// =============================================
+@mixin glass($blur: 16px, $bg: rgba(22, 27, 34, 0.7), $border: rgba(255, 255, 255, 0.08)) {
+  background: $bg;
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid $border;
+  border-radius: 20px;
+}
+
+@mixin glow($color: #6366F1, $intensity: 0.3, $size: 20px) {
+  box-shadow: 0 0 $size rgba($color, $intensity);
+}
+
+@mixin hover-lift($y: -4px) {
+  transition: transform 250ms ease, box-shadow 250ms ease;
+  &:hover {
+    transform: translateY($y);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+}
