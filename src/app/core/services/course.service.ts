@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CourseDetail } from '../models/document.model';
+import {
+  CourseDetail,
+  ExamInfo,
+  ExamAttemptInfo,
+  SubmitExamResponse,
+} from '../models/document.model';
 
 export interface LessonProgressResponse {
   id: number;
@@ -88,6 +93,8 @@ const COURSES_API    = 'http://localhost:8069/api/courses';
 const QUIZZES_API    = 'http://localhost:8069/api/quizzes';
 const ATTEMPTS_API   = 'http://localhost:8069/api/quiz-attempts';
 const FLASHCARDS_API = 'http://localhost:8069/api/flashcards';
+const EXAMS_API      = 'http://localhost:8069/api/exams';
+const EXAM_ATTEMPTS_API = 'http://localhost:8069/api/exam-attempts';
 
 @Injectable({ providedIn: 'root' })
 export class CourseService {
@@ -131,5 +138,33 @@ export class CourseService {
 
   getDueFlashcards(courseId: number): Observable<FlashcardDueResponse[]> {
     return this.http.get<FlashcardDueResponse[]>(`${COURSES_API}/${courseId}/flashcards/due`);
+  }
+
+  // ─── Exam methods ──────────────────────────────────────────────────────────
+
+  generateExam(courseId: number): Observable<ExamInfo> {
+    return this.http.post<ExamInfo>(`${COURSES_API}/${courseId}/generate-exam`, {});
+  }
+
+  getExam(courseId: number): Observable<ExamInfo> {
+    return this.http.get<ExamInfo>(`${COURSES_API}/${courseId}/exam`);
+  }
+
+  startExamAttempt(examId: number): Observable<ExamAttemptInfo> {
+    return this.http.post<ExamAttemptInfo>(`${EXAMS_API}/${examId}/start`, {});
+  }
+
+  submitExamAttempt(
+    attemptId: number,
+    answers: { questionId: number; studentAnswer: string }[]
+  ): Observable<SubmitExamResponse> {
+    return this.http.post<SubmitExamResponse>(
+      `${EXAM_ATTEMPTS_API}/${attemptId}/submit`,
+      { answers }
+    );
+  }
+
+  getMyExamAttempts(examId: number): Observable<ExamAttemptInfo[]> {
+    return this.http.get<ExamAttemptInfo[]>(`${EXAMS_API}/${examId}/my-attempts`);
   }
 }

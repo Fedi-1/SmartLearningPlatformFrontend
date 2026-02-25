@@ -70,6 +70,31 @@
           <p class="lesson-summary__text">{{ selectedLesson.summary }}</p>
         </div>
 
+        <!-- Watch Recap Video -->
+        @if (recapVideoUrl) {
+          <div class="recap-video-section">
+            @if (!videoExpanded) {
+              <button class="btn-watch-recap" (click)="videoExpanded = true">
+                <span class="btn-watch-recap__icon">▶</span>
+                Watch Lesson Recap
+              </button>
+            } @else {
+              <div class="recap-video-player">
+                <div class="recap-video-player__header">
+                  <span class="recap-video-player__title">📹 Lesson {{ selectedLesson.lessonNumber }} Recap</span>
+                  <button class="recap-video-player__close" (click)="videoExpanded = false">✕</button>
+                </div>
+                <video
+                  [src]="recapVideoUrl"
+                  controls
+                  class="recap-video-el"
+                  preload="metadata"
+                ></video>
+              </div>
+            }
+          </div>
+        }
+
         <!-- Tab bar -->
         <div class="tab-bar">
           <button class="tab-btn" [class.tab-btn--active]="activeTab === 'content'"  (click)="setTab('content')">📖 Content</button>
@@ -82,6 +107,9 @@
             @if (selectedLesson.flashcards && selectedLesson.flashcards.length) {
               <span class="tab-badge">{{ selectedLesson.flashcards.length }}</span>
             }
+          </button>
+          <button class="tab-btn tab-btn--exam" [class.tab-btn--active]="activeTab === 'exam'" (click)="setTab('exam')">
+            🏆 Final Exam
           </button>
         </div>
 
@@ -346,6 +374,270 @@
                 @for (c of sessionQueue; track c.id) {
                   <span class="fc-dot" [class.fc-dot--active]="c.id === currentCard.id"></span>
                 }
+              </div>
+            }
+
+          </div>
+        }
+
+        <!-- ── EXAM TAB ─────────────────────────────────────────────────────── -->
+        @if (activeTab === 'exam') {
+          <div class="exam-tab">
+
+            <!-- Loading exam info -->
+            @if (examLoading) {
+              <div class="exam-loading">
+                <div class="spinner-ring spinner-ring--lg"></div>
+                <p>Loading exam info…</p>
+              </div>
+            }
+
+            <!-- Generating exam (Groq call in progress) -->
+            @else if (examGenerating) {
+              <div class="exam-loading">
+                <div class="spinner-ring spinner-ring--lg"></div>
+                <p class="exam-generating-text">
+                  Generating your final exam with AI…<br>
+                  <span class="exam-generating-sub">This may take up to a minute.</span>
+                </p>
+              </div>
+            }
+
+            <!-- No exam yet — show generate button (only if all lessons done) -->
+            @else if (!examInfo && !examAttemptId && !examResult) {
+              <div class="exam-gate">
+                <div class="exam-gate__icon">🏆</div>
+                <h2 class="exam-gate__title">Final Exam</h2>
+                @if (allLessonsCompleted) {
+                  <p class="exam-gate__desc">
+                    You've completed all lessons! Generate your AI-powered final exam to earn your certificate.
+                  </p>
+                  <div class="exam-gate__info">
+                    <span>📝 25 questions (True/False · MCQ · Fill-in-the-Blank)</span>
+                    <span>⏱ 3 attempts allowed</span>
+                    <span>✅ 70% to pass</span>
+                  </div>
+                  <button class="btn btn-primary exam-gate__btn" (click)="generateExam()">
+                    Generate Exam
+                  </button>
+                } @else {
+                  <p class="exam-gate__desc">
+                    Complete all lessons before taking the final exam.
+                  </p>
+                  <div class="exam-gate__progress">
+                    <span class="exam-gate__progress-text">
+                      {{ completedCount }} / {{ course.lessons.length }} lessons completed
+                    </span>
+                    <div class="progress-track">
+                      <div class="progress-fill" [style.width.%]="progressPercent"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Exam info card (not yet started / past attempts) -->
+            @else if (examInfo && !examAttemptId && !examResult) {
+              <div class="exam-info-card">
+                <div class="exam-info-card__header">
+                  <h2>{{ examInfo.title }}</h2>
+                  <span class="exam-info-badge">AI Generated</span>
+                </div>
+                <div class="exam-info-card__stats">
+                  <div class="exam-stat">
+                    <span class="exam-stat__value">{{ examInfo.sectionEasyCount + examInfo.sectionMediumCount + examInfo.sectionHardCount }}</span>
+                    <span class="exam-stat__label">Questions</span>
+                  </div>
+                  <div class="exam-stat">
+                    <span class="exam-stat__value">{{ examInfo.totalPoints }}</span>
+                    <span class="exam-stat__label">Points</span>
+                  </div>
+                  <div class="exam-stat">
+                    <span class="exam-stat__value">{{ examInfo.passingScore }}%</span>
+                    <span class="exam-stat__label">Passing Score</span>
+                  </div>
+                  <div class="exam-stat">
+                    <span class="exam-stat__value">{{ examAttemptsRemaining }}</span>
+                    <span class="exam-stat__label">Attempts Left</span>
+                  </div>
+                </div>
+
+                <div class="exam-sections-info">
+                  <div class="exam-section-info-item">
+                    <span class="exam-section-dot exam-section-dot--easy"></span>
+                    <span>Section 1 — True / False ({{ examInfo.sectionEasyCount }} questions · 1 pt each)</span>
+                  </div>
+                  <div class="exam-section-info-item">
+                    <span class="exam-section-dot exam-section-dot--medium"></span>
+                    <span>Section 2 — Multiple Choice ({{ examInfo.sectionMediumCount }} questions · 2 pts each)</span>
+                  </div>
+                  <div class="exam-section-info-item">
+                    <span class="exam-section-dot exam-section-dot--hard"></span>
+                    <span>Section 3 — Fill in the Blank ({{ examInfo.sectionHardCount }} questions · 3 pts each)</span>
+                  </div>
+                </div>
+
+                @if (examAlreadyPassed) {
+                  <div class="exam-passed-banner">
+                    🎉 You've already passed this exam! You can retake it for practice.
+                    @if (examPastAttempts[0]?.hasCertificate) {
+                      <div class="exam-cert-note">🏅 Your certificate has been issued.</div>
+                    }
+                  </div>
+                }
+
+                @if (examNoAttemptsLeft && !examAlreadyPassed) {
+                  <p class="exam-no-attempts">You have used all {{ examInfo.maxAttempts }} attempts.</p>
+                } @else {
+                  <button class="btn btn-primary exam-start-btn"
+                          [disabled]="examAttemptsLoading"
+                          (click)="startExam()">
+                    {{ examAlreadyPassed ? 'Retake Exam' : 'Start Exam' }}
+                  </button>
+                }
+
+                <!-- Past attempts history -->
+                @if (examPastAttempts.length > 0) {
+                  <div class="exam-history">
+                    <h3 class="exam-history__title">Past Attempts</h3>
+                    @for (attempt of examPastAttempts; track attempt.id) {
+                      <div class="exam-history-row"
+                           [class.exam-history-row--pass]="attempt.isPassed"
+                           [class.exam-history-row--fail]="!attempt.isPassed">
+                        <span class="exam-history-row__num">Attempt {{ attempt.attemptNumber }}</span>
+                        <span class="exam-history-row__score">{{ attempt.score ?? '—' }}%</span>
+                        <span class="exam-history-row__status">
+                          {{ attempt.isPassed ? '✅ Passed' : '❌ Failed' }}
+                        </span>
+                        @if (attempt.hasCertificate) {
+                          <span class="exam-history-row__cert">🏅 Certificate</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Active attempt: answer questions -->
+            @else if (examAttemptId && !examResult) {
+
+              <!-- Section 1: True / False -->
+              @if (examSection1Questions.length > 0) {
+                <div class="exam-section-header">
+                  <span class="exam-section-badge exam-section-badge--easy">Section 1</span>
+                  <h3>True / False <small>({{ examSection1Questions.length }} questions · 1 pt each)</small></h3>
+                </div>
+                @for (q of examSection1Questions; track q.id) {
+                  <div class="question-card exam-question-card">
+                    <p class="question-text">
+                      <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                    </p>
+                    <ul class="options-list">
+                      <li class="option"
+                          [class.option--selected]="isExamAnswerSelected(q.id, 'True')"
+                          (click)="selectExamAnswer(q.id, 'True')">
+                        <span class="option__radio" [class.option__radio--filled]="isExamAnswerSelected(q.id, 'True')"></span>
+                        <span>True</span>
+                      </li>
+                      <li class="option"
+                          [class.option--selected]="isExamAnswerSelected(q.id, 'False')"
+                          (click)="selectExamAnswer(q.id, 'False')">
+                        <span class="option__radio" [class.option__radio--filled]="isExamAnswerSelected(q.id, 'False')"></span>
+                        <span>False</span>
+                      </li>
+                    </ul>
+                  </div>
+                }
+              }
+
+              <!-- Section 2: MCQ -->
+              @if (examSection2Questions.length > 0) {
+                <div class="exam-section-header">
+                  <span class="exam-section-badge exam-section-badge--medium">Section 2</span>
+                  <h3>Multiple Choice <small>({{ examSection2Questions.length }} questions · 2 pts each)</small></h3>
+                </div>
+                @for (q of examSection2Questions; track q.id) {
+                  <div class="question-card exam-question-card">
+                    <p class="question-text">
+                      <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                    </p>
+                    <ul class="options-list">
+                      @for (opt of [q.option1, q.option2, q.option3, q.option4]; track opt) {
+                        @if (opt) {
+                          <li class="option"
+                              [class.option--selected]="isExamAnswerSelected(q.id, opt)"
+                              (click)="selectExamAnswer(q.id, opt)">
+                            <span class="option__radio" [class.option__radio--filled]="isExamAnswerSelected(q.id, opt)"></span>
+                            <span>{{ opt }}</span>
+                          </li>
+                        }
+                      }
+                    </ul>
+                  </div>
+                }
+              }
+
+              <!-- Section 3: Fill in the Blank -->
+              @if (examSection3Questions.length > 0) {
+                <div class="exam-section-header">
+                  <span class="exam-section-badge exam-section-badge--hard">Section 3</span>
+                  <h3>Fill in the Blank <small>({{ examSection3Questions.length }} questions · 3 pts each)</small></h3>
+                </div>
+                @for (q of examSection3Questions; track q.id) {
+                  <div class="question-card exam-question-card">
+                    <p class="question-text">
+                      <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                    </p>
+                    <div class="fill-blank-wrapper">
+                      <input class="fill-blank-input"
+                             type="text"
+                             placeholder="Type your answer here…"
+                             [value]="examAnswers.get(q.id) ?? ''"
+                             (input)="selectExamAnswer(q.id, $any($event.target).value)" />
+                    </div>
+                  </div>
+                }
+              }
+
+              <button class="btn btn-primary submit-btn exam-submit-btn"
+                      [disabled]="!allExamQuestionsAnswered() || examSubmitting"
+                      (click)="submitExam()">
+                @if (examSubmitting) { Submitting… } @else { Submit Exam }
+              </button>
+            }
+
+            <!-- Results after submission -->
+            @else if (examResult) {
+              <div class="exam-result"
+                   [class.exam-result--pass]="examResult.isPassed"
+                   [class.exam-result--fail]="!examResult.isPassed">
+
+                <div class="exam-result__icon">{{ examResult.isPassed ? '🏆' : '😕' }}</div>
+                <div class="exam-result__score">{{ examResult.score }}<span>%</span></div>
+                <p class="exam-result__label">
+                  {{ examResult.isPassed ? 'Congratulations! You passed!' : 'Keep studying and try again!' }}
+                </p>
+                <p class="exam-result__points">
+                  {{ examResult.totalPointsEarned }} / {{ examResult.totalPointsPossible }} points
+                </p>
+
+                @if (examResult.certificateUuid) {
+                  <div class="exam-cert-issued">
+                    <span class="exam-cert-issued__icon">🏅</span>
+                    <p>Your certificate has been issued!</p>
+                    <p class="exam-cert-issued__uuid">Certificate ID: {{ examResult.certificateUuid }}</p>
+                  </div>
+                }
+
+                <div class="exam-result__actions">
+                  @if (!examResult.isPassed && examAttemptsRemaining > 0) {
+                    <button class="btn btn-primary" (click)="retryExam()">Retry Exam</button>
+                  }
+                  <button class="btn btn-ghost" (click)="examResult = null">
+                    Back to Exam Info
+                  </button>
+                </div>
               </div>
             }
 

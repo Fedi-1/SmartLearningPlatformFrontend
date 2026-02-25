@@ -12,9 +12,17 @@ import {
   FlashcardDueResponse
 } from '../../../core/services/course.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
-import { CourseDetail, LessonItem, QuizQuestionItem } from '../../../core/models/document.model';
+import {
+  CourseDetail,
+  LessonItem,
+  QuizQuestionItem,
+  ExamInfo,
+  ExamAttemptInfo,
+  ExamQuestionItem,
+  SubmitExamResponse,
+} from '../../../core/models/document.model';
 
-type TabId = 'content' | 'quiz' | 'flashcards';
+type TabId = 'content' | 'quiz' | 'flashcards' | 'exam';
 
 @Component({
   selector: 'app-course-viewer',
@@ -60,6 +68,27 @@ export class CourseViewerComponent implements OnInit {
 
   // Legacy: keep reviewedCards for dot indicators
   reviewedCards: Set<number> = new Set();
+
+  // ─── Recap card state ────────────────────────────────────────────────────────
+  videoExpanded  = false;
+
+  // ─── Exam state ──────────────────────────────────────────────────────────────
+  examInfo: ExamInfo | null = null;
+  examLoading = false;
+  examGenerating = false;
+
+  // Active attempt (taking the exam)
+  examAttemptId: number | null = null;
+  examQuestions: ExamQuestionItem[] = [];
+  examAnswers: Map<number, string> = new Map();
+  examSubmitting = false;
+
+  // Results (after submit)
+  examResult: SubmitExamResponse | null = null;
+
+  // Past attempts
+  examPastAttempts: ExamAttemptInfo[] = [];
+  examAttemptsLoading = false;
 
   // ─── Progress (from DB) ──────────────────────────────────────────────────────
   progressMap: Map<number, LessonProgressItem> = new Map();
@@ -108,6 +137,7 @@ export class CourseViewerComponent implements OnInit {
     }
     this.selectedLesson = lesson;
     this.activeTab      = 'content';
+    this.videoExpanded  = false;
     this.resetQuiz();
     this.resetFlashcards();
     if (lesson.quizId) {
@@ -121,6 +151,9 @@ export class CourseViewerComponent implements OnInit {
     this.activeTab = tab;
     if (tab === 'flashcards' && !this.sessionLoaded && !this.sessionLoading) {
       this.loadSession();
+    }
+    if (tab === 'exam' && !this.examInfo && !this.examLoading) {
+      this.loadExam();
     }
   }
 
@@ -380,5 +413,144 @@ export class CourseViewerComponent implements OnInit {
 
   isLessonCompleted(lessonId: number): boolean {
     return this.progressMap.get(lessonId)?.isCompleted ?? false;
+  }
+
+  // ─── Recap video ─────────────────────────────────────────────────────────────
+
+  get recapVideoUrl(): string | null {
+    const p = this.selectedLesson?.recapVideoPath;
+    if (!p) return null;
+    return `http://localhost:8069/api/lessons/recap-video?path=${encodeURIComponent(p)}`;
+  }
+
+  // ─── Exam logic ──────────────────────────────────────────────────────────────
+
+  get allLessonsCompleted(): boolean {
+    if (!this.course?.lessons?.length) return false;
+    return this.course.lessons.every(l => this.progressMap.get(l.id)?.isCompleted === true);
+  }
+
+  loadExam(): void {
+    if (!this.course) return;
+    this.examLoading = true;
+    this.courseService.getExam(this.course.id).subscribe({
+      next: (exam) => {
+        this.examInfo = exam;
+        this.examLoading = false;
+        this.loadExamPastAttempts();
+      },
+      error: (err) => {
+        this.examLoading = false;
+        // 404 means no exam yet — that's fine
+        if (err?.status !== 404) {
+          this.toastService.error('Failed to load exam info.');
+        }
+      }
+    });
+  }
+
+  generateExam(): void {
+    if (!this.course) return;
+    this.examGenerating = true;
+    this.courseService.generateExam(this.course.id).subscribe({
+      next: (exam) => {
+        this.examInfo = exam;
+        this.examGenerating = false;
+        this.toastService.success('✅ Exam generated successfully!');
+        this.loadExamPastAttempts();
+      },
+      error: (err) => {
+        this.examGenerating = false;
+        this.toastService.error(err?.error?.message ?? 'Failed to generate exam.');
+      }
+    });
+  }
+
+  startExam(): void {
+    if (!this.examInfo) return;
+    this.courseService.startExamAttempt(this.examInfo.id).subscribe({
+      next: (attempt) => {
+        this.examAttemptId = attempt.id;
+        this.examQuestions = attempt.questions ?? [];
+        this.examAnswers   = new Map();
+        this.examResult    = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message ?? 'Could not start exam.');
+      }
+    });
+  }
+
+  selectExamAnswer(questionId: number, answer: string): void {
+    if (!this.examResult) this.examAnswers.set(questionId, answer);
+  }
+
+  isExamAnswerSelected(questionId: number, option: string): boolean {
+    return this.examAnswers.get(questionId) === option;
+  }
+
+  allExamQuestionsAnswered(): boolean {
+    return this.examQuestions.length > 0 &&
+      this.examQuestions.every(q => this.examAnswers.has(q.id));
+  }
+
+  get examSection1Questions(): ExamQuestionItem[] {
+    return this.examQuestions.filter(q => q.sectionNumber === 1);
+  }
+  get examSection2Questions(): ExamQuestionItem[] {
+    return this.examQuestions.filter(q => q.sectionNumber === 2);
+  }
+  get examSection3Questions(): ExamQuestionItem[] {
+    return this.examQuestions.filter(q => q.sectionNumber === 3);
+  }
+
+  submitExam(): void {
+    if (!this.examAttemptId || !this.examQuestions.length) return;
+    this.examSubmitting = true;
+    const answers = this.examQuestions.map(q => ({
+      questionId:    q.id,
+      studentAnswer: this.examAnswers.get(q.id) ?? ''
+    }));
+    this.courseService.submitExamAttempt(this.examAttemptId, answers).subscribe({
+      next: (result) => {
+        this.examResult    = result;
+        this.examSubmitting = false;
+        this.examAttemptId = null;
+        this.loadExamPastAttempts();
+      },
+      error: (err) => {
+        this.examSubmitting = false;
+        this.toastService.error(err?.error?.message ?? 'Failed to submit exam.');
+      }
+    });
+  }
+
+  retryExam(): void {
+    this.examResult    = null;
+    this.examAttemptId = null;
+    this.examQuestions = [];
+    this.examAnswers   = new Map();
+    this.startExam();
+  }
+
+  private loadExamPastAttempts(): void {
+    if (!this.examInfo) return;
+    this.examAttemptsLoading = true;
+    this.courseService.getMyExamAttempts(this.examInfo.id).subscribe({
+      next: (attempts) => {
+        this.examPastAttempts    = attempts;
+        this.examAttemptsLoading = false;
+      },
+      error: () => { this.examAttemptsLoading = false; }
+    });
+  }
+
+  get examAttemptsUsed(): number { return this.examPastAttempts.length; }
+  get examAttemptsRemaining(): number {
+    return Math.max(0, (this.examInfo?.maxAttempts ?? 3) - this.examAttemptsUsed);
+  }
+  get examAlreadyPassed(): boolean { return this.examPastAttempts.some(a => a.isPassed); }
+  get examNoAttemptsLeft(): boolean {
+    return !this.examResult && this.examAttemptsRemaining === 0 && !this.examAttemptId;
   }
 }
