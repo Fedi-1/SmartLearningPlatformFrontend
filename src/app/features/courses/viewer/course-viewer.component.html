@@ -71,8 +71,18 @@
         </div>
 
         <!-- Watch Recap Video -->
-        @if (recapVideoUrl) {
-          <div class="recap-video-section">
+        <div class="recap-video-section">
+          @if (!recapVideoUrl && !recapGenerating) {
+            <button class="btn-watch-recap btn-watch-recap--generate" (click)="generateRecap()">
+              <span class="btn-watch-recap__icon">🎬</span>
+              Generate Lesson Recap
+            </button>
+          } @else if (recapGenerating) {
+            <button class="btn-watch-recap btn-watch-recap--loading" disabled>
+              <span class="btn-watch-recap__spinner"></span>
+              Generating video&hellip;
+            </button>
+          } @else {
             @if (!videoExpanded) {
               <button class="btn-watch-recap" (click)="videoExpanded = true">
                 <span class="btn-watch-recap__icon">▶</span>
@@ -92,8 +102,8 @@
                 ></video>
               </div>
             }
-          </div>
-        }
+          }
+        </div>
 
         <!-- Tab bar -->
         <div class="tab-bar">
@@ -168,6 +178,14 @@
 
             <!-- Active attempt: answer questions -->
             @if (currentAttemptId && !quizSubmitted) {
+              <!-- Countdown timer -->
+              @if (quizTimeLimit) {
+                <div class="quiz-timer" [class.quiz-timer--warning]="quizTimerWarning">
+                  <span class="quiz-timer__icon">⏱</span>
+                  <span class="quiz-timer__value">{{ quizTimerDisplay }}</span>
+                </div>
+              }
+
               @for (q of currentAttemptQuestions; track q.id) {
                 <div class="question-card">
                   <p class="question-text">
@@ -203,7 +221,7 @@
 
               <button class="btn btn-primary submit-btn"
                       [disabled]="!allQuestionsAnswered() || quizSubmitting"
-                      (click)="submitQuiz()">
+                      (click)="submitQuiz('SUBMITTED')">
                 @if (quizSubmitting) { Submitting… } @else { Submit Quiz }
               </button>
             }
@@ -460,6 +478,12 @@
                     <span class="exam-stat__value">{{ examAttemptsRemaining }}</span>
                     <span class="exam-stat__label">Attempts Left</span>
                   </div>
+                  @if (examInfo.timeLimitMinutes) {
+                    <div class="exam-stat">
+                      <span class="exam-stat__value">{{ examInfo.timeLimitMinutes }}'</span>
+                      <span class="exam-stat__label">Time Limit</span>
+                    </div>
+                  }
                 </div>
 
                 <div class="exam-sections-info">
@@ -480,7 +504,7 @@
                 @if (examAlreadyPassed) {
                   <div class="exam-passed-banner">
                     🎉 You've already passed this exam! You can retake it for practice.
-                    @if (examPastAttempts[0]?.hasCertificate) {
+                    @if (examPastAttempts[0].hasCertificate) {
                       <div class="exam-cert-note">🏅 Your certificate has been issued.</div>
                     }
                   </div>
@@ -521,6 +545,30 @@
 
             <!-- Active attempt: answer questions -->
             @else if (examAttemptId && !examResult) {
+
+              <!-- Exam countdown timer -->
+              @if (examTimeLimit) {
+                <div class="exam-timer"
+                     [class.exam-timer--orange]="examTimerOrange"
+                     [class.exam-timer--red]="examTimerRed">
+                  <span class="exam-timer__icon">⏱</span>
+                  <span class="exam-timer__value">{{ examTimerDisplay }}</span>
+                </div>
+              }
+
+              <!-- Time expired modal -->
+              @if (examTimeExpiredModalVisible) {
+                <div class="exam-expired-overlay">
+                  <div class="exam-expired-modal">
+                    <div class="exam-expired-modal__icon">⏰</div>
+                    <h3 class="exam-expired-modal__title">Time Expired</h3>
+                    <p class="exam-expired-modal__body">
+                      Your answers have been submitted automatically.
+                    </p>
+                    <button class="btn btn-primary" (click)="dismissTimeExpiredModal()">OK</button>
+                  </div>
+                </div>
+              }
 
               <!-- Section 1: True / False -->
               @if (examSection1Questions.length > 0) {
@@ -602,7 +650,7 @@
 
               <button class="btn btn-primary submit-btn exam-submit-btn"
                       [disabled]="!allExamQuestionsAnswered() || examSubmitting"
-                      (click)="submitExam()">
+                      (click)="submitExam('SUBMITTED')">
                 @if (examSubmitting) { Submitting… } @else { Submit Exam }
               </button>
             }

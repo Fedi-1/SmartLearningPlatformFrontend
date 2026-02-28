@@ -69,6 +69,7 @@ export interface ExamInfo {
   sectionEasyCount: number;
   sectionMediumCount: number;
   sectionHardCount: number;
+  timeLimitMinutes: number | null;
   createdAt: string;
 }
 
@@ -97,6 +98,7 @@ export interface ExamAttemptInfo {
   finishReason: string | null;
   attemptsUsed: number;
   maxAttempts: number;
+  timeLimitMinutes: number | null;
   hasCertificate: boolean;
   questions: ExamQuestionItem[] | null;
 }

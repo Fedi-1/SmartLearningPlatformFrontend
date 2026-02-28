@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -31,7 +31,7 @@ type TabId = 'content' | 'quiz' | 'flashcards' | 'exam';
   templateUrl: './course-viewer.component.html',
   styleUrl:    './course-viewer.component.scss'
 })
-export class CourseViewerComponent implements OnInit {
+export class CourseViewerComponent implements OnInit, OnDestroy {
 
   course: CourseDetail | null = null;
   loading = true;
@@ -52,6 +52,12 @@ export class CourseViewerComponent implements OnInit {
   attemptsLoading = false;
   maxAttempts = 3;
 
+  // ─── Quiz timer state ─────────────────────────────────────────────────────
+  quizTimeLimit: number | null = null;   // total seconds
+  quizSecondsLeft: number = 0;
+  private quizTimerInterval: ReturnType<typeof setInterval> | null = null;
+  quizTimedOut = false;
+
   // ─── Flashcard state ─────────────────────────────────────────────────────────
   // Session queue (due cards ordered by nextReviewDate ASC)
   sessionQueue: FlashcardDueResponse[] = [];
@@ -70,7 +76,8 @@ export class CourseViewerComponent implements OnInit {
   reviewedCards: Set<number> = new Set();
 
   // ─── Recap card state ────────────────────────────────────────────────────────
-  videoExpanded  = false;
+  videoExpanded   = false;
+  recapGenerating = false;
 
   // ─── Exam state ──────────────────────────────────────────────────────────────
   examInfo: ExamInfo | null = null;
@@ -90,6 +97,13 @@ export class CourseViewerComponent implements OnInit {
   examPastAttempts: ExamAttemptInfo[] = [];
   examAttemptsLoading = false;
 
+  // ─── Exam timer state ────────────────────────────────────────────────────────
+  examTimeLimit: number | null = null;     // total seconds
+  examSecondsLeft: number = 0;
+  private examTimerInterval: ReturnType<typeof setInterval> | null = null;
+  examTimedOut = false;
+  examTimeExpiredModalVisible = false;
+
   // ─── Progress (from DB) ──────────────────────────────────────────────────────
   progressMap: Map<number, LessonProgressItem> = new Map();
 
@@ -100,6 +114,33 @@ export class CourseViewerComponent implements OnInit {
     private courseService: CourseService,
     private toastService: ToastService
   ) {}
+
+  ngOnDestroy(): void {
+    this.stopTimer();
+    this.stopExamTimer();
+    // Abandon active quiz attempt when navigating away
+    if (this.currentAttemptId && !this.quizSubmitted) {
+      this.courseService.abandonQuizAttempt(this.currentAttemptId).subscribe({ error: () => {} });
+    }
+    // Abandon active exam attempt when navigating away
+    if (this.examAttemptId && !this.examResult) {
+      this.courseService.abandonExamAttempt(this.examAttemptId).subscribe({ error: () => {} });
+    }
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.currentAttemptId && !this.quizSubmitted) {
+      this.courseService.abandonQuizAttempt(this.currentAttemptId).subscribe({ error: () => {} });
+      event.preventDefault();
+      event.returnValue = 'Your quiz attempt will be abandoned if you leave. Are you sure?';
+    }
+    if (this.examAttemptId && !this.examResult) {
+      this.courseService.abandonExamAttempt(this.examAttemptId).subscribe({ error: () => {} });
+      event.preventDefault();
+      event.returnValue = 'If you leave now your exam attempt will be marked as abandoned and your answers will not be scored.';
+    }
+  }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('courseId'));
@@ -138,6 +179,7 @@ export class CourseViewerComponent implements OnInit {
     this.selectedLesson = lesson;
     this.activeTab      = 'content';
     this.videoExpanded  = false;
+    this.recapGenerating = false;
     this.resetQuiz();
     this.resetFlashcards();
     if (lesson.quizId) {
@@ -145,6 +187,7 @@ export class CourseViewerComponent implements OnInit {
     } else {
       this.attemptsLoading = false;
     }
+    this.courseService.trackLessonAccess(lesson.id).subscribe({ error: () => {} });
   }
 
   setTab(tab: TabId): void {
@@ -179,9 +222,20 @@ export class CourseViewerComponent implements OnInit {
     this.courseService.startQuizAttempt(this.selectedLesson.quizId).subscribe({
       next: (attempt) => {
         console.log('[Quiz] Attempt started:', attempt);
-        this.currentAttemptId       = attempt.id;
-        this.maxAttempts            = attempt.maxAttempts;
+        this.currentAttemptId        = attempt.id;
+        this.maxAttempts             = attempt.maxAttempts;
         this.currentAttemptQuestions = attempt.questions ?? [];
+        this.quizTimedOut            = false;
+
+        // Start countdown timer if a time limit is provided
+        if (attempt.timeLimitMinutes && attempt.timeLimitMinutes > 0) {
+          this.quizTimeLimit    = attempt.timeLimitMinutes * 60;
+          this.quizSecondsLeft  = this.quizTimeLimit;
+          this.startTimer();
+        } else {
+          this.quizTimeLimit   = null;
+          this.quizSecondsLeft = 0;
+        }
       },
       error: (err) => {
         console.error('[Quiz] Start failed:', err);
@@ -224,7 +278,7 @@ export class CourseViewerComponent implements OnInit {
 
   // ─── Quiz: submit ─────────────────────────────────────────────────────────────
 
-  submitQuiz(): void {
+  submitQuiz(finishReason: string = 'SUBMITTED'): void {
     if (!this.currentAttemptId || !this.currentAttemptQuestions.length) return;
 
     const answers = this.currentAttemptQuestions.map(q => ({
@@ -232,10 +286,11 @@ export class CourseViewerComponent implements OnInit {
       studentAnswer: this.selectedAnswers.get(q.id) ?? ''
     }));
 
-    console.log('[Quiz] Submitting attemptId:', this.currentAttemptId, 'answers:', answers);
+    console.log('[Quiz] Submitting attemptId:', this.currentAttemptId, 'reason:', finishReason);
     this.quizSubmitting = true;
+    this.stopTimer();
 
-    this.courseService.submitQuizAttempt(this.currentAttemptId, answers).subscribe({
+    this.courseService.submitQuizAttempt(this.currentAttemptId, answers, finishReason).subscribe({
       next: (result: SubmitQuizResponse) => {
         this.quizScore      = result.score;
         this.quizPassed     = result.isPassed;
@@ -290,6 +345,7 @@ export class CourseViewerComponent implements OnInit {
   get noAttemptsLeft(): boolean   { return this.attemptsRemaining === 0 && !this.quizSubmitted; }
 
   resetQuiz(): void {
+    this.stopTimer();
     this.selectedAnswers         = new Map();
     this.quizSubmitted           = false;
     this.quizSubmitting          = false;
@@ -299,9 +355,13 @@ export class CourseViewerComponent implements OnInit {
     this.currentAttemptQuestions = [];
     this.pastAttempts            = [];
     this.attemptsLoading         = true;   // will be set to false by loadPastAttempts
+    this.quizTimedOut            = false;
+    this.quizTimeLimit           = null;
+    this.quizSecondsLeft         = 0;
   }
 
   retryQuiz(): void {
+    this.stopTimer();
     this.selectedAnswers         = new Map();
     this.quizSubmitted           = false;
     this.quizSubmitting          = false;
@@ -309,7 +369,44 @@ export class CourseViewerComponent implements OnInit {
     this.quizPassed              = false;
     this.currentAttemptId        = null;
     this.currentAttemptQuestions = [];
+    this.quizTimedOut            = false;
+    this.quizTimeLimit           = null;
+    this.quizSecondsLeft         = 0;
     this.startQuiz();
+  }
+
+  // ─── Quiz: timer helpers ──────────────────────────────────────────────────
+
+  get quizTimerDisplay(): string {
+    const s = this.quizSecondsLeft;
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  get quizTimerWarning(): boolean {
+    return this.quizTimeLimit !== null && this.quizSecondsLeft < 120;
+  }
+
+  private startTimer(): void {
+    this.stopTimer();
+    this.quizTimerInterval = setInterval(() => {
+      if (this.quizSecondsLeft > 0) {
+        this.quizSecondsLeft--;
+      } else {
+        // Time's up — auto-submit with TIME_EXPIRED
+        this.stopTimer();
+        this.quizTimedOut = true;
+        this.submitQuiz('TIME_EXPIRED');
+      }
+    }, 1000);
+  }
+
+  private stopTimer(): void {
+    if (this.quizTimerInterval !== null) {
+      clearInterval(this.quizTimerInterval);
+      this.quizTimerInterval = null;
+    }
   }
 
   // ─── Flashcard logic ─────────────────────────────────────────────────────────
@@ -423,6 +520,34 @@ export class CourseViewerComponent implements OnInit {
     return `http://localhost:8069/api/lessons/recap-video?path=${encodeURIComponent(p)}`;
   }
 
+  generateRecap(): void {
+    if (!this.selectedLesson || this.recapGenerating) return;
+
+    // If already generated, just expand the player
+    if (this.selectedLesson.recapVideoPath) {
+      this.videoExpanded = true;
+      return;
+    }
+
+    this.recapGenerating = true;
+    this.courseService.generateLessonRecap(this.selectedLesson.id).subscribe({
+      next: (res) => {
+        this.recapGenerating = false;
+        if (res.recapVideoPath && this.selectedLesson) {
+          this.selectedLesson.recapVideoPath = res.recapVideoPath;
+          this.videoExpanded = true;
+        } else {
+          this.toastService.error('Recap video could not be generated.');
+        }
+      },
+      error: (err) => {
+        this.recapGenerating = false;
+        const msg = err?.error?.detail ?? err?.error?.message ?? 'Failed to generate recap video.';
+        this.toastService.error(msg);
+      }
+    });
+  }
+
   // ─── Exam logic ──────────────────────────────────────────────────────────────
 
   get allLessonsCompleted(): boolean {
@@ -474,6 +599,18 @@ export class CourseViewerComponent implements OnInit {
         this.examQuestions = attempt.questions ?? [];
         this.examAnswers   = new Map();
         this.examResult    = null;
+        this.examTimedOut  = false;
+        this.examTimeExpiredModalVisible = false;
+
+        // Start exam countdown timer if time limit present
+        if (attempt.timeLimitMinutes && attempt.timeLimitMinutes > 0) {
+          this.examTimeLimit   = attempt.timeLimitMinutes * 60;
+          this.examSecondsLeft = this.examTimeLimit;
+          this.startExamTimer();
+        } else {
+          this.examTimeLimit   = null;
+          this.examSecondsLeft = 0;
+        }
       },
       error: (err) => {
         this.toastService.error(err?.error?.message ?? 'Could not start exam.');
@@ -504,14 +641,15 @@ export class CourseViewerComponent implements OnInit {
     return this.examQuestions.filter(q => q.sectionNumber === 3);
   }
 
-  submitExam(): void {
+  submitExam(finishReason: string = 'SUBMITTED'): void {
     if (!this.examAttemptId || !this.examQuestions.length) return;
     this.examSubmitting = true;
+    this.stopExamTimer();
     const answers = this.examQuestions.map(q => ({
       questionId:    q.id,
       studentAnswer: this.examAnswers.get(q.id) ?? ''
     }));
-    this.courseService.submitExamAttempt(this.examAttemptId, answers).subscribe({
+    this.courseService.submitExamAttempt(this.examAttemptId, answers, finishReason).subscribe({
       next: (result) => {
         this.examResult    = result;
         this.examSubmitting = false;
@@ -526,11 +664,60 @@ export class CourseViewerComponent implements OnInit {
   }
 
   retryExam(): void {
+    this.stopExamTimer();
     this.examResult    = null;
     this.examAttemptId = null;
     this.examQuestions = [];
     this.examAnswers   = new Map();
+    this.examTimedOut  = false;
+    this.examTimeExpiredModalVisible = false;
+    this.examTimeLimit   = null;
+    this.examSecondsLeft = 0;
     this.startExam();
+  }
+
+  // ─── Exam: timer helpers ──────────────────────────────────────────────────
+
+  get examTimerDisplay(): string {
+    const total = this.examSecondsLeft;
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+
+  get examTimerOrange(): boolean {
+    return this.examTimeLimit !== null && this.examSecondsLeft < 600 && this.examSecondsLeft >= 300;
+  }
+
+  get examTimerRed(): boolean {
+    return this.examTimeLimit !== null && this.examSecondsLeft < 300;
+  }
+
+  private startExamTimer(): void {
+    this.stopExamTimer();
+    this.examTimerInterval = setInterval(() => {
+      if (this.examSecondsLeft > 0) {
+        this.examSecondsLeft--;
+      } else {
+        // Time's up — auto-submit with TIME_EXPIRED
+        this.stopExamTimer();
+        this.examTimedOut = true;
+        this.examTimeExpiredModalVisible = true;
+        this.submitExam('TIME_EXPIRED');
+      }
+    }, 1000);
+  }
+
+  private stopExamTimer(): void {
+    if (this.examTimerInterval !== null) {
+      clearInterval(this.examTimerInterval);
+      this.examTimerInterval = null;
+    }
+  }
+
+  dismissTimeExpiredModal(): void {
+    this.examTimeExpiredModalVisible = false;
   }
 
   private loadExamPastAttempts(): void {

@@ -34,6 +34,7 @@ export interface QuizAttemptResponse {
   finishReason: string | null;
   attemptsUsed: number;
   maxAttempts: number;
+  timeLimitMinutes: number | null;
   questions: import('../models/document.model').QuizQuestionItem[] | null;
 }
 
@@ -113,12 +114,20 @@ export class CourseService {
     return this.http.get<LessonProgressItem[]>(`${COURSES_API}/${courseId}/my-progress`);
   }
 
+  trackLessonAccess(lessonId: number): Observable<void> {
+    return this.http.post<void>(`http://localhost:8069/api/lessons/${lessonId}/access`, {});
+  }
+
   startQuizAttempt(quizId: number): Observable<QuizAttemptResponse> {
     return this.http.post<QuizAttemptResponse>(`${QUIZZES_API}/${quizId}/start`, {});
   }
 
-  submitQuizAttempt(attemptId: number, answers: AnswerRequest[]): Observable<SubmitQuizResponse> {
-    return this.http.post<SubmitQuizResponse>(`${ATTEMPTS_API}/${attemptId}/submit`, { answers });
+  submitQuizAttempt(attemptId: number, answers: AnswerRequest[], finishReason: string = 'SUBMITTED'): Observable<SubmitQuizResponse> {
+    return this.http.post<SubmitQuizResponse>(`${ATTEMPTS_API}/${attemptId}/submit`, { answers, finishReason });
+  }
+
+  abandonQuizAttempt(attemptId: number): Observable<QuizAttemptResponse> {
+    return this.http.post<QuizAttemptResponse>(`${ATTEMPTS_API}/${attemptId}/abandon`, {});
   }
 
   getMyAttempts(quizId: number): Observable<QuizAttemptResponse[]> {
@@ -156,15 +165,29 @@ export class CourseService {
 
   submitExamAttempt(
     attemptId: number,
-    answers: { questionId: number; studentAnswer: string }[]
+    answers: { questionId: number; studentAnswer: string }[],
+    finishReason: string = 'SUBMITTED'
   ): Observable<SubmitExamResponse> {
     return this.http.post<SubmitExamResponse>(
       `${EXAM_ATTEMPTS_API}/${attemptId}/submit`,
-      { answers }
+      { answers, finishReason }
     );
+  }
+
+  abandonExamAttempt(attemptId: number): Observable<ExamAttemptInfo> {
+    return this.http.post<ExamAttemptInfo>(`${EXAM_ATTEMPTS_API}/${attemptId}/abandon`, {});
   }
 
   getMyExamAttempts(examId: number): Observable<ExamAttemptInfo[]> {
     return this.http.get<ExamAttemptInfo[]>(`${EXAMS_API}/${examId}/my-attempts`);
+  }
+
+  // ─── Lesson recap ──────────────────────────────────────────────────────────
+
+  generateLessonRecap(lessonId: number): Observable<{ recapVideoPath: string }> {
+    return this.http.post<{ recapVideoPath: string }>(
+      `http://localhost:8069/api/lessons/${lessonId}/generate-recap`,
+      {}
+    );
   }
 }
