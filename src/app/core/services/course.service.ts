@@ -6,6 +6,7 @@ import {
   ExamInfo,
   ExamAttemptInfo,
   SubmitExamResponse,
+  CertificateInfo,
 } from '../models/document.model';
 
 export interface LessonProgressResponse {
@@ -95,7 +96,18 @@ const QUIZZES_API    = 'http://localhost:8069/api/quizzes';
 const ATTEMPTS_API   = 'http://localhost:8069/api/quiz-attempts';
 const FLASHCARDS_API = 'http://localhost:8069/api/flashcards';
 const EXAMS_API      = 'http://localhost:8069/api/exams';
-const EXAM_ATTEMPTS_API = 'http://localhost:8069/api/exam-attempts';
+const EXAM_ATTEMPTS_API  = 'http://localhost:8069/api/exam-attempts';
+const CERTIFICATES_API   = 'http://localhost:8069/api/certificates';
+const ADMIN_API          = 'http://localhost:8069/api/admin';
+
+export interface SuspiciousActivityDTO {
+  id: number;
+  examAttemptId: number;
+  activityType: string;
+  count: number;
+  detectedAt: string;
+  totalCount: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class CourseService {
@@ -189,5 +201,35 @@ export class CourseService {
       `http://localhost:8069/api/lessons/${lessonId}/generate-recap`,
       {}
     );
+  }
+
+  // ─── Certificates ──────────────────────────────────────────────────────────
+
+  getMyCertificates(): Observable<CertificateInfo[]> {
+    return this.http.get<CertificateInfo[]>(`${CERTIFICATES_API}/my-certificates`);
+  }
+
+  getCourseCertificate(courseId: number): Observable<CertificateInfo> {
+    return this.http.get<CertificateInfo>(`${CERTIFICATES_API}/course/${courseId}`);
+  }
+
+  generateCertificatePdf(certificateId: number): Observable<CertificateInfo> {
+    return this.http.post<CertificateInfo>(`${CERTIFICATES_API}/${certificateId}/generate`, {});
+  }
+
+  downloadCertificateUrl(certificateId: number): string {
+    return `${CERTIFICATES_API}/${certificateId}/download`;
+  }
+
+  // ─── Admin: Suspicious Activity ───────────────────────────────────────────
+
+  getAdminSuspiciousActivity(attemptId: number): Observable<SuspiciousActivityDTO[]> {
+    return this.http.get<SuspiciousActivityDTO[]>(
+      `${ADMIN_API}/exam-attempts/${attemptId}/suspicious-activity`
+    );
+  }
+
+  getAdminFlaggedAttemptIds(): Observable<number[]> {
+    return this.http.get<number[]>(`${ADMIN_API}/flagged-attempts`);
   }
 }

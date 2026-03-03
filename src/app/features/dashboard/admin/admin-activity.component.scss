@@ -1,0 +1,260 @@
+:host {
+  display: block;
+  padding: 0 0 3rem;
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  &__icon { font-size: 2.4rem; }
+
+  &__title {
+    margin: 0 0 .25rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #e6edf3;
+  }
+
+  &__sub {
+    margin: 0;
+    font-size: .85rem;
+    color: #8b949e;
+  }
+}
+
+// ── Search box ──────────────────────────────────────────────────────────────
+.search-box {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+
+  &__label {
+    display: block;
+    font-size: .8rem;
+    font-weight: 600;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: .75rem;
+  }
+
+  &__row {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 160px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: #e6edf3;
+    padding: .55rem .9rem;
+    font-size: .95rem;
+    outline: none;
+    transition: border-color .2s;
+
+    &:focus { border-color: #388bfd; }
+    &::placeholder { color: #484f58; }
+  }
+
+  &__btn {
+    background: #388bfd;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: .55rem 1.25rem;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) { background: #1f6feb; }
+    &:disabled { opacity: .5; cursor: not-allowed; }
+  }
+
+  &__error {
+    margin: .75rem 0 0;
+    color: #f85149;
+    font-size: .88rem;
+  }
+
+  &__result-title {
+    margin: 1.25rem 0 .75rem;
+    font-size: .9rem;
+    font-weight: 600;
+    color: #e6edf3;
+  }
+}
+
+// ── Section title ────────────────────────────────────────────────────────────
+.section-title {
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #8b949e;
+  margin-bottom: 1rem;
+}
+
+// ── State messages ───────────────────────────────────────────────────────────
+.state-msg {
+  color: #8b949e;
+  font-size: .9rem;
+  padding: 1rem 0;
+
+  &--error { color: #f85149; }
+  &--empty { color: #3fb950; }
+}
+
+.spin { display: inline-block; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Attempt list ─────────────────────────────────────────────────────────────
+.attempt-list {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.attempt-card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color .2s;
+
+  &--open { border-color: #388bfd; }
+
+  &__header {
+    width: 100%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .9rem 1.25rem;
+    color: #e6edf3;
+    gap: 1rem;
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+
+  &__icon { font-size: 1.1rem; }
+
+  &__title {
+    font-weight: 600;
+    font-size: .95rem;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+
+  &__chevron {
+    color: #8b949e;
+    font-size: .75rem;
+  }
+
+  &__body {
+    border-top: 1px solid #21262d;
+    padding: 1rem 1.25rem;
+  }
+}
+
+// ── Activity table ───────────────────────────────────────────────────────────
+.activity-table-wrap {
+  margin-top: .5rem;
+}
+
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .88rem;
+  color: #c9d1d9;
+
+  th {
+    text-align: left;
+    padding: .5rem .75rem;
+    background: #0d1117;
+    color: #8b949e;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    border-bottom: 1px solid #21262d;
+
+    &:first-child { border-radius: 6px 0 0 0; }
+    &:last-child  { border-radius: 0 6px 0 0; }
+  }
+
+  td {
+    padding: .6rem .75rem;
+    border-bottom: 1px solid #21262d;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  tfoot {
+    .total-label {
+      font-weight: 700;
+      color: #8b949e;
+      font-size: .75rem;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.type-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+
+  &__icon { font-size: 1rem; }
+}
+
+.date-cell {
+  color: #8b949e;
+  font-size: .82rem;
+}
+
+// ── Badges & chips ───────────────────────────────────────────────────────────
+.badge {
+  display: inline-block;
+  padding: .15rem .55rem;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 700;
+
+  &--yellow { background: rgba(210,153,34,.15); color: #d29922; border: 1px solid rgba(210,153,34,.35); }
+  &--orange { background: rgba(210,100,10,.15);  color: #d4670a; border: 1px solid rgba(210,100,10,.35); }
+  &--red    { background: rgba(248,81,73,.15);   color: #f85149; border: 1px solid rgba(248,81,73,.35); }
+}
+
+.chip {
+  display: inline-block;
+  padding: .2rem .7rem;
+  border-radius: 20px;
+  font-size: .8rem;
+  font-weight: 700;
+
+  &--yellow { background: rgba(210,153,34,.15); color: #d29922; border: 1px solid rgba(210,153,34,.35); }
+  &--orange { background: rgba(210,100,10,.15);  color: #d4670a; border: 1px solid rgba(210,100,10,.35); }
+  &--red    { background: rgba(248,81,73,.15);   color: #f85149; border: 1px solid rgba(248,81,73,.35); }
+}

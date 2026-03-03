@@ -2,11 +2,13 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { UserRole } from '../../../core/enums/user-role.enum';
 
 interface NavItem {
   label: string;
   icon: string;
   route: string;
+  adminOnly?: boolean;
 }
 
 @Component({
@@ -25,6 +27,7 @@ export class DashboardShellComponent {
     { label: 'Flashcards', icon: 'cards',   route: '/dashboard/flashcards' },
     { label: 'Progress',   icon: 'chart',   route: '/dashboard/progress'   },
     { label: 'Profile',    icon: 'user',    route: '/dashboard/profile'    },
+    { label: 'Anti-Triche', icon: 'shield', route: '/dashboard/admin/activity', adminOnly: true },
   ];
 
   readonly pageTitles: Record<string, string> = {
@@ -34,6 +37,7 @@ export class DashboardShellComponent {
     flashcards: 'Flashcards',
     progress:   'Progress',
     profile:    'Profile',
+    activity:   'Surveillance Anti-Triche',
   };
 
   get pageTitle(): string {
@@ -42,6 +46,14 @@ export class DashboardShellComponent {
   }
 
   get user() { return this.authService.currentUser(); }
+
+  get isAdmin(): boolean {
+    return this.user?.role === UserRole.ADMIN;
+  }
+
+  get visibleNavItems(): NavItem[] {
+    return this.navItems.filter(item => !item.adminOnly || this.isAdmin);
+  }
 
   get initials(): string {
     const u = this.user;

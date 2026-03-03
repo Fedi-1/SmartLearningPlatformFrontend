@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import {
   CourseService,
   QuizAttemptResponse,
@@ -20,14 +20,17 @@ import {
   ExamAttemptInfo,
   ExamQuestionItem,
   SubmitExamResponse,
+  CertificateInfo,
 } from '../../../core/models/document.model';
+import { AntiCheatService, SuspiciousActivityType } from '../../../core/services/anti-cheat.service';
+import { AntiCheatModalComponent } from '../../../shared/components/anti-cheat-modal/anti-cheat-modal.component';
 
 type TabId = 'content' | 'quiz' | 'flashcards' | 'exam';
 
 @Component({
   selector: 'app-course-viewer',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, AntiCheatModalComponent],
   templateUrl: './course-viewer.component.html',
   styleUrl:    './course-viewer.component.scss'
 })
@@ -104,6 +107,14 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
   examTimedOut = false;
   examTimeExpiredModalVisible = false;
 
+  // ─── Anti-cheat state ─────────────────────────────────────────────────────────
+  antiCheatModalVisible = false;
+  antiCheatLastType: SuspiciousActivityType | null = null;
+  antiCheatTotalCount = 0;
+  private antiCheatSub: Subscription | null = null;
+  /** Show warning modal after this many total events. */
+  private readonly WARN_THRESHOLD = 3;
+
   // ─── Progress (from DB) ──────────────────────────────────────────────────────
   progressMap: Map<number, LessonProgressItem> = new Map();
 
@@ -112,12 +123,15 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     private router: Router,
     private location: Location,
     private courseService: CourseService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private antiCheat: AntiCheatService
   ) {}
 
   ngOnDestroy(): void {
     this.stopTimer();
     this.stopExamTimer();
+    this.antiCheat.detach();
+    this.antiCheatSub?.unsubscribe();
     // Abandon active quiz attempt when navigating away
     if (this.currentAttemptId && !this.quizSubmitted) {
       this.courseService.abandonQuizAttempt(this.currentAttemptId).subscribe({ error: () => {} });
@@ -602,6 +616,16 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
         this.examTimedOut  = false;
         this.examTimeExpiredModalVisible = false;
 
+        // Start anti-cheat monitoring
+        this.antiCheat.attach(attempt.id);
+        this.antiCheatSub = this.antiCheat.event$.subscribe(evt => {
+          this.antiCheatTotalCount = evt.totalCount;
+          this.antiCheatLastType   = evt.type;
+          if (evt.totalCount >= this.WARN_THRESHOLD) {
+            this.antiCheatModalVisible = true;
+          }
+        });
+
         // Start exam countdown timer if time limit present
         if (attempt.timeLimitMinutes && attempt.timeLimitMinutes > 0) {
           this.examTimeLimit   = attempt.timeLimitMinutes * 60;
@@ -654,7 +678,19 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
         this.examResult    = result;
         this.examSubmitting = false;
         this.examAttemptId = null;
+        // Stop anti-cheat monitoring
+        this.antiCheat.detach();
+        this.antiCheatSub?.unsubscribe();
+        this.antiCheatSub = null;
+        this.antiCheatModalVisible = false;
         this.loadExamPastAttempts();
+        // Load certificate info if passed
+        if (result.isPassed && result.certificateId) {
+          this.courseService.getCourseCertificate(this.course!.id).subscribe({
+            next: (cert) => { this.certInfo = cert; },
+            error: () => {}
+          });
+        }
       },
       error: (err) => {
         this.examSubmitting = false;
@@ -665,6 +701,13 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
 
   retryExam(): void {
     this.stopExamTimer();
+    // Reset anti-cheat state
+    this.antiCheat.detach();
+    this.antiCheatSub?.unsubscribe();
+    this.antiCheatSub = null;
+    this.antiCheatModalVisible = false;
+    this.antiCheatTotalCount = 0;
+    this.antiCheatLastType = null;
     this.examResult    = null;
     this.examAttemptId = null;
     this.examQuestions = [];
@@ -739,5 +782,43 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
   get examAlreadyPassed(): boolean { return this.examPastAttempts.some(a => a.isPassed); }
   get examNoAttemptsLeft(): boolean {
     return !this.examResult && this.examAttemptsRemaining === 0 && !this.examAttemptId;
+  }
+
+  // ─── Certificate state ───────────────────────────────────────────────────────
+  certInfo: CertificateInfo | null = null;
+  certLoading = false;
+  certGenerating = false;
+
+  loadCourseCertificate(): void {
+    if (!this.course || this.certLoading) return;
+    this.certLoading = true;
+    this.courseService.getCourseCertificate(this.course.id).subscribe({
+      next: (cert) => {
+        this.certInfo    = cert;
+        this.certLoading = false;
+      },
+      error: () => { this.certLoading = false; }
+    });
+  }
+
+  generateCertPdf(): void {
+    if (!this.certInfo || this.certGenerating) return;
+    this.certGenerating = true;
+    this.courseService.generateCertificatePdf(this.certInfo.id).subscribe({
+      next: (cert) => {
+        this.certInfo       = cert;
+        this.certGenerating = false;
+        this.toastService.success('✅ Certificate PDF generated!');
+      },
+      error: (err) => {
+        this.certGenerating = false;
+        this.toastService.error(err?.error?.message ?? 'Failed to generate PDF.');
+      }
+    });
+  }
+
+  downloadCert(): void {
+    if (!this.certInfo) return;
+    window.open(this.courseService.downloadCertificateUrl(this.certInfo.id), '_blank');
   }
 }

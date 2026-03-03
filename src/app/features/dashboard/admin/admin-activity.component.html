@@ -1,0 +1,151 @@
+<!-- ── HEADER ──────────────────────────────────────────────────────────────── -->
+<div class="admin-header">
+  <div class="admin-header__icon">🛡️</div>
+  <div>
+    <h2 class="admin-header__title">Surveillance Anti-Triche</h2>
+    <p class="admin-header__sub">Tentatives d'examen avec activités suspectes détectées</p>
+  </div>
+</div>
+
+<!-- ── MANUAL SEARCH ─────────────────────────────────────────────────────── -->
+<div class="search-box">
+  <label class="search-box__label">Rechercher une tentative par ID</label>
+  <div class="search-box__row">
+    <input
+      class="search-box__input"
+      type="number"
+      placeholder="ID de tentative..."
+      [(ngModel)]="manualAttemptId"
+      (keyup.enter)="searchManual()"
+      min="1" />
+    <button class="search-box__btn" (click)="searchManual()" [disabled]="manualLoading || !manualAttemptId">
+      @if (manualLoading) { <span class="spin">⏳</span> }
+      @else { 🔍 Rechercher }
+    </button>
+  </div>
+
+  @if (manualSearched && manualError) {
+    <p class="search-box__error">{{ manualError }}</p>
+  }
+
+  @if (manualSearched && manualActivities.length > 0) {
+    <div class="activity-table-wrap">
+      <p class="search-box__result-title">Résultats pour la tentative #{{ manualAttemptId }}</p>
+      <table class="activity-table">
+        <thead>
+          <tr>
+            <th>Type d'activité</th>
+            <th>Occurrences</th>
+            <th>Détecté à</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (act of manualActivities; track act.id) {
+            <tr>
+              <td>
+                <span class="type-cell">
+                  <span class="type-cell__icon">{{ activityIcon(act.activityType) }}</span>
+                  {{ activityLabel(act.activityType) }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="severityClass(act.count)">{{ act.count }}×</span>
+              </td>
+              <td class="date-cell">{{ act.detectedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <td class="total-label">Total</td>
+            <td colspan="2">
+              <span class="chip" [ngClass]="totalSeverityClass(manualActivities[0]?.totalCount ?? 0)">
+                {{ manualActivities[0]?.totalCount ?? 0 }} événements
+              </span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- ── FLAGGED ATTEMPTS LIST ──────────────────────────────────────────────── -->
+<div class="section-title">Tentatives signalées ({{ flaggedAttempts.length }})</div>
+
+@if (loadingList) {
+  <div class="state-msg">
+    <span class="spin">⏳</span> Chargement des tentatives signalées...
+  </div>
+}
+
+@else if (errorList) {
+  <div class="state-msg state-msg--error">
+    ⚠️ Impossible de charger les tentatives. Vérifiez vos droits admin.
+  </div>
+}
+
+@else if (flaggedAttempts.length === 0) {
+  <div class="state-msg state-msg--empty">
+    ✅ Aucune activité suspecte détectée pour le moment.
+  </div>
+}
+
+@else {
+  <div class="attempt-list">
+    @for (item of flaggedAttempts; track item.attemptId) {
+      <div class="attempt-card" [class.attempt-card--open]="item.expanded">
+        <button class="attempt-card__header" (click)="toggleAttempt(item)">
+          <div class="attempt-card__left">
+            <span class="attempt-card__icon">📝</span>
+            <span class="attempt-card__title">Tentative #{{ item.attemptId }}</span>
+          </div>
+          <div class="attempt-card__right">
+            @if (item.totalCount > 0) {
+              <span class="chip" [ngClass]="totalSeverityClass(item.totalCount)">
+                {{ item.totalCount }} événements
+              </span>
+            }
+            <span class="attempt-card__chevron">{{ item.expanded ? '▲' : '▼' }}</span>
+          </div>
+        </button>
+
+        @if (item.expanded) {
+          <div class="attempt-card__body">
+            @if (item.loading) {
+              <div class="state-msg"><span class="spin">⏳</span> Chargement...</div>
+            } @else if (item.activities.length === 0) {
+              <div class="state-msg">Aucune donnée.</div>
+            } @else {
+              <table class="activity-table">
+                <thead>
+                  <tr>
+                    <th>Type d'activité</th>
+                    <th>Occurrences</th>
+                    <th>Détecté à</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (act of item.activities; track act.id) {
+                    <tr>
+                      <td>
+                        <span class="type-cell">
+                          <span class="type-cell__icon">{{ activityIcon(act.activityType) }}</span>
+                          {{ activityLabel(act.activityType) }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge" [ngClass]="severityClass(act.count)">{{ act.count }}×</span>
+                      </td>
+                      <td class="date-cell">{{ act.detectedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

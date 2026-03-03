@@ -111,4 +111,15 @@ export interface SubmitExamResponse {
   totalPointsPossible: number;
   attemptNumber: number;
   certificateUuid: string | null;
+  certificateId: number | null;
+}
+
+export interface CertificateInfo {
+  id: number;
+  certificateUuid: string;
+  courseId: number;
+  courseTitle: string;
+  score: number;
+  issuedAt: string;
+  hasPdf: boolean;
 }

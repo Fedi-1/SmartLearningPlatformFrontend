@@ -1507,6 +1507,73 @@
   word-break: break-all;
 }
 
+/* ── Certificate card (inside exam result) ───────────────── */
+.exam-cert-issued__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #92400E;
+  margin: 0;
+}
+
+.cert-card {
+  background: #fffbf2;
+  border: 1px solid #d4a847;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+
+  &--loading { opacity: 0.7; }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+
+  &__badge {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #1a3a6b;
+    background: rgba(26, 58, 107, 0.08);
+    padding: 2px 10px;
+    border-radius: 20px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__score {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #15803D;
+  }
+
+  &__date {
+    font-size: 0.78rem;
+    color: var(--gray-500, #64748B);
+    margin-bottom: 0.75rem;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+}
+
+.cert-btn {
+  font-size: 0.85rem;
+  padding: 0.45rem 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .exam-result__actions {
   display: flex;
   gap: 0.75rem;

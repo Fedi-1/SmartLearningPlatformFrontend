@@ -66,6 +66,10 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./features/dashboard/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      {
+        path: 'admin/activity',
+        loadComponent: () => import('./features/dashboard/admin/admin-activity.component').then(m => m.AdminActivityComponent)
       }
     ]
   },

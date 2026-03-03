@@ -546,6 +546,14 @@
             <!-- Active attempt: answer questions -->
             @else if (examAttemptId && !examResult) {
 
+              <!-- Anti-cheat warning modal -->
+              <app-anti-cheat-modal
+                [visible]="antiCheatModalVisible"
+                [activityType]="antiCheatLastType"
+                [totalCount]="antiCheatTotalCount"
+                (dismissed)="antiCheatModalVisible = false">
+              </app-anti-cheat-modal>
+
               <!-- Exam countdown timer -->
               @if (examTimeLimit) {
                 <div class="exam-timer"
@@ -673,8 +681,45 @@
                 @if (examResult.certificateUuid) {
                   <div class="exam-cert-issued">
                     <span class="exam-cert-issued__icon">🏅</span>
-                    <p>Your certificate has been issued!</p>
-                    <p class="exam-cert-issued__uuid">Certificate ID: {{ examResult.certificateUuid }}</p>
+                    <p class="exam-cert-issued__title">Your certificate has been issued!</p>
+
+                    @if (certInfo) {
+                      <!-- Certificate card -->
+                      <div class="cert-card">
+                        <div class="cert-card__header">
+                          <span class="cert-card__badge">{{ certInfo.courseTitle }}</span>
+                          <span class="cert-card__score">Score: {{ certInfo.score }}%</span>
+                        </div>
+                        <p class="cert-card__date">
+                          Issued on {{ certInfo.issuedAt | date:'mediumDate' }}
+                        </p>
+                        <div class="cert-card__actions">
+                          @if (!certInfo.hasPdf) {
+                            <button class="btn btn-primary cert-btn"
+                                    [disabled]="certGenerating"
+                                    (click)="generateCertPdf()">
+                              @if (certGenerating) {
+                                <span class="spinner-ring spinner-ring--sm"></span> Generating…
+                              } @else {
+                                📄 Generate PDF
+                              }
+                            </button>
+                          } @else {
+                            <button class="btn btn-primary cert-btn" (click)="downloadCert()">
+                              ⬇️ Download Certificate
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    } @else {
+                      <!-- Not loaded yet / loading -->
+                      <div class="cert-card cert-card--loading">
+                        <p class="exam-cert-issued__uuid">Certificate ID: {{ examResult.certificateUuid }}</p>
+                        <button class="btn btn-outline cert-btn" (click)="loadCourseCertificate()">
+                          Load Certificate
+                        </button>
+                      </div>
+                    }
                   </div>
                 }
 

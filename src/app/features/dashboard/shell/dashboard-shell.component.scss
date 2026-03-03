@@ -106,6 +106,16 @@
       }
     }
 
+    &--admin {
+      color: #d4670a;
+      &:hover { background: rgba(210,100,10,.1); color: #d4670a; }
+      &.sidebar__link--active {
+        background: rgba(210,100,10,.12);
+        color: #d4670a;
+        &::before { background: #d4670a; }
+      }
+    }
+
     // Icon-only mode on tablet
     @media (max-width: 1279px) {
       justify-content: center;
