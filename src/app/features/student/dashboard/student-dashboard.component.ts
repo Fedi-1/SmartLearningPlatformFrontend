@@ -18,6 +18,14 @@ export class StudentDashboardComponent implements OnInit {
   currentUser: User | null = null;
   documents: DocumentItem[] = [];
 
+  // Dark theme is default; persisted in localStorage
+  isDark = localStorage.getItem('dash-theme') !== 'light';
+
+  toggleTheme(): void {
+    this.isDark = !this.isDark;
+    localStorage.setItem('dash-theme', this.isDark ? 'dark' : 'light');
+  }
+
   get categoryBreakdown(): { name: string; count: number; color: string }[] {
     const map = new Map<string, number>();
     for (const doc of this.documents) {

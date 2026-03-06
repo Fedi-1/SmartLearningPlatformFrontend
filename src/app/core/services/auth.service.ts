@@ -21,9 +21,7 @@ export class AuthService {
   }
 
   register(payload: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API}/register`, payload).pipe(
-      tap(res => this.handleAuth(res))
-    );
+    return this.http.post<AuthResponse>(`${API}/register`, payload);
   }
 
   login(payload: LoginRequest): Observable<AuthResponse> {
@@ -39,6 +37,26 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return this.tokenService.isTokenPresent();
+  }
+
+  // ─── Email verification ────────────────────────────────────────────────────
+
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.http.get<{ message: string }>(`${API}/verify-email`, { params: { token } });
+  }
+
+  resendVerification(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${API}/resend-verification`, { email });
+  }
+
+  // ─── Password reset ────────────────────────────────────────────────────────
+
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${API}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${API}/reset-password`, { token, newPassword });
   }
 
   private handleAuth(res: AuthResponse): void {

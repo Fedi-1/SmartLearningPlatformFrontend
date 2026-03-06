@@ -352,3 +352,995 @@ a {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+// =============================================================================
+// DARK MODE GLOBAL OVERRIDES
+// Applied when .theme-dark is on the .shell wrapper.
+// Uses high-specificity selectors to override component-scoped styles.
+// =============================================================================
+
+// ── Design token overrides ────────────────────────────────────────────────────
+.theme-dark {
+  --gray-50:       #0D1117;
+  --gray-100:      #161B22;
+  --gray-200:      rgba(255,255,255,0.08);
+  --gray-300:      rgba(255,255,255,0.15);
+  --gray-500:      #94A3B8;
+  --gray-700:      #CBD5E1;
+  --gray-900:      #F1F5F9;
+  --color-white:   #161B22;
+  --color-primary: #6366F1;
+  --color-primary-light: #818CF8;
+  --color-primary-subtle: rgba(99,102,241,0.12);
+  --shadow-card:     0 2px 8px rgba(0,0,0,0.4);
+  --shadow-elevated: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OVERVIEW – stat cards, panels, course rows, flashcard rows, activity items
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  // Skeleton shimmer
+  .sk-card, .sk-panel, .sk-activity, .sk-row,
+  .skeleton-row, .skeleton-cell {
+    background: linear-gradient(90deg, #1E2533 25%, #252D3D 50%, #1E2533 75%) !important;
+    background-size: 600px 100% !important;
+    border-color: rgba(255,255,255,0.05) !important;
+  }
+
+  // Stat cards
+  .stat-card {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    &:hover { border-color: rgba(99,102,241,0.4) !important; }
+
+    &--urgent {
+      border-color: rgba(245,158,11,0.3) !important;
+      background: rgba(30,20,0,0.7) !important;
+    }
+
+    &__icon-wrap {
+      &--indigo { background: rgba(99,102,241,0.15) !important; color: #818CF8 !important; }
+      &--green  { background: rgba(22,163,74,0.12)  !important; color: #4ADE80 !important; }
+      &--gold   { background: rgba(245,158,11,0.12) !important; color: #FCD34D !important; }
+      &--orange { background: rgba(249,115,22,0.12) !important; color: #FB923C !important; }
+    }
+
+    &__value { color: #F1F5F9 !important; }
+    &__label { color: #94A3B8 !important; }
+  }
+
+  // Panels (Overview, Flashcards, Progress, Profile)
+  .panel {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+
+    &__title { color: #F1F5F9 !important; }
+    &__empty { color: #64748B !important; }
+  }
+
+  // Course rows
+  .course-row {
+    border-bottom-color: rgba(255,255,255,0.06) !important;
+    &:hover { background: rgba(255,255,255,0.04) !important; }
+    &__title { color: #F1F5F9 !important; }
+    &__meta  { color: #94A3B8 !important; }
+  }
+
+  // Badge (category/course type)
+  .badge {
+    background: rgba(99,102,241,0.15) !important;
+    color: #A5B4FC !important;
+    border-color: rgba(99,102,241,0.25) !important;
+  }
+
+  // Progress bars
+  .progress-bar {
+    background: rgba(255,255,255,0.08) !important;
+    &__fill { background: #6366F1 !important; }
+  }
+  .progress-bar__pct { color: #94A3B8 !important; }
+  .progress-track { background: rgba(255,255,255,0.08) !important; }
+  .progress-fill  { background: #6366F1 !important; }
+
+  // Flashcard due rows + grid cards
+  .fc-row {
+    border-bottom-color: rgba(255,255,255,0.06) !important;
+    &__title, &__course { color: #F1F5F9 !important; }
+  }
+  .fc-card {
+    background: rgba(22,27,34,0.7) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    &:hover { border-color: rgba(99,102,241,0.3) !important; box-shadow: 0 4px 12px rgba(99,102,241,0.12) !important; }
+    &__course { color: #F1F5F9 !important; }
+  }
+  .fc-due-badge {
+    background: rgba(245,158,11,0.15) !important;
+    color: #FCD34D !important;
+    border-color: rgba(245,158,11,0.3) !important;
+  }
+  .fc-empty { color: #64748B !important; }
+
+  // Activity list
+  .activity-item {
+    border-bottom-color: rgba(255,255,255,0.06) !important;
+    &__desc { color: #CBD5E1 !important; }
+    &__time { color: #64748B !important; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DOCUMENTS – upload card, table, category filter, badges, modal
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  .section-title { color: #F1F5F9 !important; }
+
+  .upload-card {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+    &--dragover { background: rgba(99,102,241,0.1) !important; border-color: #6366F1 !important; }
+  }
+
+  .upload-idle {
+    h3 { color: #F1F5F9 !important; }
+    p  { color: #94A3B8 !important; }
+  }
+
+  .upload-overlay {
+    background: rgba(13,17,23,0.92) !important;
+    &__text { color: #F1F5F9 !important; span { color: #94A3B8 !important; } }
+  }
+
+  .file-preview {
+    background: rgba(22,27,34,0.8) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    .file-name { color: #F1F5F9 !important; }
+    .file-size { color: #94A3B8 !important; }
+  }
+
+  .spinner-ring { border-color: rgba(255,255,255,0.1) !important; border-top-color: #6366F1 !important; }
+
+  // Category filter
+  .cat-btn {
+    background: rgba(22,27,34,0.8) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    color: #94A3B8 !important;
+    &:hover  { background: rgba(255,255,255,0.06) !important; color: #F1F5F9 !important; }
+    &--active { background: rgba(99,102,241,0.15) !important; border-color: rgba(99,102,241,0.35) !important; color: #A5B4FC !important; }
+  }
+
+  // Table
+  .table-wrapper {
+    border-color: rgba(255,255,255,0.08) !important;
+    background: rgba(22,27,34,0.90) !important;
+  }
+
+  .docs-table {
+    thead tr { background: rgba(13,17,23,0.8) !important; }
+    th {
+      color: #64748B !important;
+      border-bottom-color: rgba(255,255,255,0.08) !important;
+    }
+    tbody tr {
+      background: rgba(22,27,34,0.90) !important;
+      border-bottom-color: rgba(255,255,255,0.05) !important;
+      &:hover { background: rgba(255,255,255,0.04) !important; }
+    }
+    td { color: #CBD5E1 !important; }
+    .td--name { color: #F1F5F9 !important; }
+  }
+
+  // Doc type badges
+  .badge--red    { background: rgba(220,38,38,0.15)  !important; color: #FCA5A5 !important; border-color: rgba(220,38,38,0.3) !important; }
+  .badge--blue   { background: rgba(37,99,235,0.15)  !important; color: #93C5FD !important; border-color: rgba(37,99,235,0.3) !important; }
+  .badge--orange { background: rgba(245,158,11,0.15) !important; color: #FCD34D !important; border-color: rgba(245,158,11,0.3) !important; }
+  .badge--purple { background: rgba(109,40,217,0.15) !important; color: #C4B5FD !important; border-color: rgba(109,40,217,0.3) !important; }
+  .badge--green  { background: rgba(22,163,74,0.15)  !important; color: #86EFAC !important; border-color: rgba(22,163,74,0.3) !important; }
+  .badge--yellow { background: rgba(245,158,11,0.15) !important; color: #FCD34D !important; border-color: rgba(245,158,11,0.3) !important; }
+  .badge--grey   { background: rgba(255,255,255,0.06) !important; color: #94A3B8 !important; border-color: rgba(255,255,255,0.1) !important; }
+
+  // Action buttons
+  .btn-action--view {
+    background: rgba(99,102,241,0.15) !important;
+    color: #A5B4FC !important;
+    border-color: rgba(99,102,241,0.3) !important;
+    &:hover { background: rgba(99,102,241,0.25) !important; }
+  }
+  .btn-action--delete {
+    background: rgba(220,38,38,0.12) !important;
+    color: #FCA5A5 !important;
+    border-color: rgba(220,38,38,0.25) !important;
+    &:hover { background: rgba(220,38,38,0.2) !important; }
+  }
+  .btn-action--cert {
+    background: rgba(180,83,9,0.12) !important;
+    color: #FCD34D !important;
+    border-color: rgba(180,83,9,0.3) !important;
+    &:hover { background: rgba(180,83,9,0.22) !important; }
+    &:disabled { opacity: 0.5 !important; }
+  }
+
+  // Ghost / outline buttons
+  .btn-ghost, .btn.btn-ghost, .btn--outline {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: #CBD5E1 !important;
+    &:hover { border-color: #6366F1 !important; color: #A5B4FC !important; }
+  }
+
+  // Empty & skeleton
+  .empty-table {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    color: #94A3B8 !important;
+  }
+
+  // Modal
+  .modal-card {
+    background: #1C2230 !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    h3 { color: #F1F5F9 !important; }
+    p  { color: #94A3B8 !important; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MY COURSES – course cards, badges, buttons
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  .course-card {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    &:hover { border-color: rgba(99,102,241,0.4) !important; }
+
+    &__title { color: #F1F5F9 !important; }
+    &__meta  { color: #94A3B8 !important; }
+  }
+
+  // Courses grid badges
+  .badge--gold {
+    background: rgba(245,158,11,0.15) !important;
+    color: #FCD34D !important;
+    border-color: rgba(245,158,11,0.3) !important;
+  }
+
+  // outline button in course cards
+  .btn--outline {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: #CBD5E1 !important;
+    &:hover { background: rgba(255,255,255,0.09) !important; }
+  }
+
+  .state-empty, .state-error {
+    h2 { color: #F1F5F9 !important; }
+    p, span { color: #94A3B8 !important; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FLASHCARDS OVERVIEW
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  .all-good {
+    h2 { color: #F1F5F9 !important; }
+    p  { color: #94A3B8 !important; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FLASHCARD REVIEW – card flip, rating buttons, complete screen
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  .review-page, .complete-page {
+    background: transparent !important;
+  }
+
+  // Progress bar
+  .progress-track  { background: rgba(255,255,255,0.08) !important; }
+  .progress-fill   { background: linear-gradient(90deg, #6366F1, #818CF8) !important; }
+  .review-progress-meta .progress-text { color: #64748B !important; }
+  .cards-badge {
+    background: rgba(99,102,241,0.15) !important;
+    border-color: rgba(99,102,241,0.25) !important;
+    color: #A5B4FC !important;
+  }
+
+  // Back button
+  .btn-back {
+    border-color: rgba(255,255,255,0.1) !important;
+    color: #64748B !important;
+    &:hover {
+      background: rgba(255,255,255,0.06) !important;
+      color: #F1F5F9 !important;
+      border-color: rgba(255,255,255,0.18) !important;
+    }
+  }
+  .btn-back-complete { color: #64748B !important; &:hover { color: #94A3B8 !important; } }
+
+  // Flashcard faces
+  .flashcard {
+    &__front {
+      background: rgba(22,27,34,0.95) !important;
+      border-color: rgba(99,102,241,0.15) !important;
+      box-shadow: 0 10px 40px -8px rgba(0,0,0,0.4) !important;
+    }
+    &__back {
+      background: linear-gradient(145deg, #312E81 0%, #1E1B4B 50%, #0F172A 100%) !important;
+      border-color: rgba(99,102,241,0.3) !important;
+    }
+    &__hint       { color: #818CF8 !important; background: rgba(99,102,241,0.12) !important; }
+    &__text       { color: #F1F5F9 !important; }
+    &__term-small { color: rgba(165,180,252,0.5) !important; }
+    &__definition { color: #E0E7FF !important; }
+  }
+
+  // Rating buttons
+  .rating-label { color: #64748B !important; }
+  .rating-btn {
+    &--again {
+      background: rgba(220,38,38,0.12) !important;
+      border-color: rgba(220,38,38,0.25) !important;
+      color: #FCA5A5 !important;
+    }
+    &--good {
+      background: rgba(245,158,11,0.12) !important;
+      border-color: rgba(245,158,11,0.25) !important;
+      color: #FCD34D !important;
+    }
+    &--easy {
+      background: rgba(22,163,74,0.12) !important;
+      border-color: rgba(22,163,74,0.25) !important;
+      color: #86EFAC !important;
+    }
+  }
+
+  .flip-hint { color: #64748B !important; }
+
+  // Complete card
+  .complete-card {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(99,102,241,0.15) !important;
+    h2 { color: #F1F5F9 !important; }
+    p  { color: #94A3B8 !important; }
+  }
+
+  // Summary items
+  .summary {
+    &__count { color: #F1F5F9 !important; }
+    &__label { color: #94A3B8 !important; }
+    &__item--red   { background: rgba(220,38,38,0.1)  !important; border-color: rgba(220,38,38,0.2)  !important; }
+    &__item--gold  { background: rgba(245,158,11,0.1) !important; border-color: rgba(245,158,11,0.2) !important; }
+    &__item--green { background: rgba(22,163,74,0.1)  !important; border-color: rgba(22,163,74,0.2)  !important; }
+  }
+
+  .next-review {
+    background: rgba(13,17,23,0.5) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    color: #64748B !important;
+    strong { color: #A5B4FC !important; }
+  }
+
+  .spinner { border-color: rgba(255,255,255,0.1) !important; border-top-color: #6366F1 !important; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROGRESS – panels, table, chart containers, status badges
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  .data-table {
+    th {
+      background: rgba(13,17,23,0.8) !important;
+      color: #64748B !important;
+      border-bottom-color: rgba(255,255,255,0.08) !important;
+    }
+    td { border-bottom-color: rgba(255,255,255,0.05) !important; color: #CBD5E1 !important; }
+    tbody tr:hover { background: rgba(255,255,255,0.03) !important; }
+  }
+
+  .td-title { color: #F1F5F9 !important; }
+
+  .status-badge {
+    &--green { background: rgba(22,163,74,0.15)  !important; color: #86EFAC !important; border-color: rgba(22,163,74,0.3) !important; }
+    &--gold  { background: rgba(245,158,11,0.15) !important; color: #FCD34D !important; border-color: rgba(245,158,11,0.3) !important; }
+    &--grey  { background: rgba(255,255,255,0.06) !important; color: #94A3B8 !important; border-color: rgba(255,255,255,0.1) !important; }
+  }
+
+  .chart-container canvas { filter: brightness(0.92); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROFILE – avatar, panel, form inputs, labels
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  .profile-header {
+    &__name  { color: #F1F5F9 !important; }
+    &__email { color: #94A3B8 !important; }
+  }
+
+  .form-label { color: #94A3B8 !important; }
+
+  .form-input {
+    background: rgba(13,17,23,0.8) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    color: #F1F5F9 !important;
+
+    &:focus {
+      border-color: #6366F1 !important;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2) !important;
+    }
+
+    &--disabled {
+      background: rgba(255,255,255,0.04) !important;
+      color: #475569 !important;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COURSE VIEWER – sidebar, lesson list, content area, tabs, summary, recap
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  .viewer {
+    background: #0D1117 !important;
+  }
+
+  .cv-sidebar {
+    background: #161B22 !important;
+    border-right-color: rgba(255,255,255,0.08) !important;
+  }
+
+  .back-btn {
+    color: #94A3B8 !important;
+    &:hover { color: #A5B4FC !important; }
+  }
+
+  .cv-sidebar__course { border-bottom-color: rgba(255,255,255,0.08) !important; }
+  .cv-sidebar__title  { color: #F1F5F9 !important; }
+  .cv-sidebar__desc   { color: #94A3B8 !important; }
+
+  .progress-box {
+    border-bottom-color: rgba(255,255,255,0.08) !important;
+    &__pct   { color: #818CF8 !important; }
+    &__label { color: #94A3B8 !important; }
+  }
+
+  .lesson-item {
+    &:hover {
+      background: rgba(99,102,241,0.1) !important;
+      border-color: rgba(99,102,241,0.2) !important;
+    }
+    &--active {
+      background: rgba(99,102,241,0.12) !important;
+      border-color: rgba(99,102,241,0.3) !important;
+    }
+    &__num {
+      background: rgba(255,255,255,0.08) !important;
+      border-color: rgba(255,255,255,0.12) !important;
+      color: #94A3B8 !important;
+    }
+    &--done &__num {
+      background: rgba(22,163,74,0.12) !important;
+      color: #4ADE80 !important;
+      border-color: rgba(22,163,74,0.3) !important;
+    }
+    &__title { color: #94A3B8 !important; }
+    &--active &__title { color: #A5B4FC !important; }
+  }
+
+  .cv-main {
+    background: #0D1117 !important;
+  }
+
+  .lesson-header {
+    &__num   { color: #818CF8 !important; }
+    &__title { color: #F1F5F9 !important; }
+  }
+
+  .lesson-summary {
+    background: rgba(49,46,129,0.15) !important;
+    border-left-color: #6366F1 !important;
+    &__label { color: #818CF8 !important; }
+    &__text  { color: #CBD5E1 !important; }
+  }
+
+  .btn-watch-recap {
+    background: transparent !important;
+    border-color: rgba(99,102,241,0.4) !important;
+    color: #A5B4FC !important;
+    &:hover {
+      background: rgba(99,102,241,0.12) !important;
+      border-color: #6366F1 !important;
+      color: #C7D2FE !important;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COURSE VIEWER – tabs, quiz, content prose, recap video player
+// Uses :is() to handle the dynamically scoped selectors
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  // Tabs
+  .tabs, .tab-bar, .lesson-tabs {
+    border-bottom-color: rgba(255,255,255,0.08) !important;
+    background: transparent !important;
+  }
+
+  .tab-btn, .tab, .lesson-tab {
+    color: #94A3B8 !important;
+    border-bottom-color: transparent !important;
+    &:hover { color: #F1F5F9 !important; }
+    &--active, &.active, &[aria-selected="true"] {
+      color: #A5B4FC !important;
+      border-bottom-color: #6366F1 !important;
+    }
+  }
+
+  // Prose content
+  .content-body, .lesson-content, .prose {
+    color: #CBD5E1 !important;
+
+    h1, h2, h3, h4 { color: #F1F5F9 !important; }
+    p { color: #CBD5E1 !important; }
+    strong { color: #F1F5F9 !important; }
+    code {
+      background: rgba(255,255,255,0.07) !important;
+      color: #C4B5FD !important;
+      border-color: rgba(255,255,255,0.1) !important;
+    }
+    pre {
+      background: rgba(13,17,23,0.8) !important;
+      border-color: rgba(255,255,255,0.08) !important;
+    }
+    blockquote {
+      border-left-color: #6366F1 !important;
+      background: rgba(99,102,241,0.08) !important;
+      color: #CBD5E1 !important;
+    }
+    a { color: #818CF8 !important; }
+  }
+
+  // Quiz
+  .quiz-wrap, .quiz-card, .quiz-container {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+
+  .quiz-question, .question-text {
+    color: #F1F5F9 !important;
+  }
+
+  .quiz-option, .option-btn, .answer-option {
+    background: rgba(22,27,34,0.9) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    color: #CBD5E1 !important;
+
+    &:hover { background: rgba(99,102,241,0.1) !important; border-color: rgba(99,102,241,0.3) !important; }
+    &--selected, &.selected { background: rgba(99,102,241,0.15) !important; border-color: rgba(99,102,241,0.4) !important; color: #A5B4FC !important; }
+    &--correct  { background: rgba(22,163,74,0.12)  !important; border-color: rgba(22,163,74,0.35) !important; color: #86EFAC !important; }
+    &--wrong    { background: rgba(220,38,38,0.12)  !important; border-color: rgba(220,38,38,0.35) !important; color: #FCA5A5 !important; }
+  }
+
+  .quiz-explanation, .explanation-box {
+    background: rgba(22,27,34,0.7) !important;
+    border-color: rgba(255,255,255,0.07) !important;
+    color: #CBD5E1 !important;
+  }
+
+  // Recap video player
+  .recap-video-player {
+    background: rgba(13,17,23,0.8) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    &__header { border-bottom-color: rgba(255,255,255,0.08) !important; }
+  }
+
+  // Generate recap / loading states
+  .recap-generate, .generate-section {
+    background: rgba(22,27,34,0.9) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    p, span { color: #94A3B8 !important; }
+    h3, h4  { color: #F1F5F9 !important; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COURSE VIEWER – specific component classes (viewer-scoped selectors)
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark {
+
+  // ── Tab bar (viewer-specific) ──────────────────────────────────────────────
+  .tab-badge {
+    background: rgba(99,102,241,0.15) !important;
+    color: #A5B4FC !important;
+  }
+  .tab-btn--exam {
+    color: #94A3B8 !important;
+    &.tab-btn--active { color: #FCD34D !important; border-bottom-color: #B45309 !important; }
+    &:hover:not(.tab-btn--active) { color: #F1F5F9 !important; }
+  }
+  .tab-btn--session-locked {
+    opacity: 0.35 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+  }
+  .lesson-item--session-locked {
+    opacity: 0.38 !important;
+    cursor: not-allowed !important;
+    .lesson-item__title { color: #64748B !important; }
+  }
+
+  // ── Content card ──────────────────────────────────────────────────────────
+  .content-card {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  .content-text { color: #CBD5E1 !important; }
+
+  // ── Recap video player header ──────────────────────────────────────────────
+  .recap-video-player__header {
+    background: rgba(49,46,129,0.2) !important;
+    border-bottom-color: rgba(99,102,241,0.2) !important;
+    color: #A5B4FC !important;
+  }
+
+  // ── Quiz timer & attempt bar ───────────────────────────────────────────────
+  .quiz-timer {
+    background: rgba(255,255,255,0.06) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    color: #CBD5E1 !important;
+    &--warning {
+      background: rgba(234,88,12,0.12) !important;
+      border-color: rgba(234,88,12,0.35) !important;
+      color: #FB923C !important;
+    }
+  }
+  .attempt-bar {
+    background: rgba(22,27,34,0.8) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    color: #94A3B8 !important;
+  }
+
+  // ── Question card & options ────────────────────────────────────────────────
+  .question-card {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  .question-text { color: #F1F5F9 !important; }
+  .question-num  { color: #818CF8 !important; }
+
+  .option {
+    background: rgba(22,27,34,0.8) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    color: #CBD5E1 !important;
+
+    &:hover:not(.option--readonly) {
+      background: rgba(99,102,241,0.1) !important;
+      border-color: rgba(99,102,241,0.3) !important;
+    }
+    &--selected {
+      background: rgba(99,102,241,0.15) !important;
+      border-color: rgba(99,102,241,0.4) !important;
+      color: #A5B4FC !important;
+    }
+    &--correct {
+      background: rgba(22,163,74,0.12) !important;
+      border-color: rgba(22,163,74,0.35) !important;
+      color: #86EFAC !important;
+    }
+    &--wrong {
+      background: rgba(220,38,38,0.12) !important;
+      border-color: rgba(220,38,38,0.35) !important;
+      color: #FCA5A5 !important;
+    }
+  }
+
+  .option__radio {
+    border-color: rgba(255,255,255,0.2) !important;
+    background: transparent !important;
+
+    &--filled {
+      border-color: #6366F1 !important;
+      background: #6366F1 !important;
+      box-shadow: inset 0 0 0 3px rgba(22,27,34,0.95) !important;
+    }
+  }
+
+  .option--selected .option__radio {
+    border-color: #6366F1 !important;
+    background: #6366F1 !important;
+    box-shadow: inset 0 0 0 3px rgba(22,27,34,0.95) !important;
+  }
+
+  .explanation {
+    background: rgba(22,27,34,0.7) !important;
+    border-color: rgba(99,102,241,0.2) !important;
+    color: #CBD5E1 !important;
+    strong { color: #A5B4FC !important; }
+  }
+
+  // ── Fill-blank ─────────────────────────────────────────────────────────────
+  .fill-blank-input {
+    background: rgba(13,17,23,0.8) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    color: #F1F5F9 !important;
+    &::placeholder { color: #475569 !important; }
+    &:focus { border-color: rgba(99,102,241,0.5) !important; }
+  }
+  .fill-blank-review {
+    &__row--correct {
+      background: rgba(22,163,74,0.08) !important;
+      border-color: rgba(22,163,74,0.25) !important;
+    }
+    &__row--wrong {
+      background: rgba(220,38,38,0.08) !important;
+      border-color: rgba(220,38,38,0.2) !important;
+    }
+  }
+
+  // ── Results card ───────────────────────────────────────────────────────────
+  .results-card {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+
+    &--pass { border-color: rgba(22,163,74,0.3) !important; background: rgba(22,163,74,0.05) !important; }
+    &--fail { border-color: rgba(220,38,38,0.25) !important; background: rgba(220,38,38,0.04) !important; }
+  }
+  .results-score {
+    color: #F1F5F9 !important;
+    span { color: #94A3B8 !important; }
+  }
+  .results-label     { color: #F1F5F9 !important; }
+  .results-threshold { color: #94A3B8 !important; }
+
+  // ── Viewer flashcard faces ─────────────────────────────────────────────────
+  .fc-face--front {
+    background: rgba(22,27,34,0.95) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  .fc-face--back {
+    background: linear-gradient(135deg, rgba(49,46,129,0.5), rgba(30,27,75,0.7)) !important;
+    border-color: rgba(99,102,241,0.25) !important;
+  }
+  .fc-text  { color: #F1F5F9 !important; }
+  .fc-label { color: #818CF8 !important; }
+  .fc-hint  { color: #64748B !important; }
+
+  .fc-rate-btn {
+    &--again {
+      background: rgba(220,38,38,0.12) !important;
+      color: #FCA5A5 !important;
+      border-color: rgba(220,38,38,0.3) !important;
+    }
+    &--good {
+      background: rgba(245,158,11,0.12) !important;
+      color: #FCD34D !important;
+      border-color: rgba(245,158,11,0.3) !important;
+    }
+    &--easy {
+      background: rgba(22,163,74,0.12) !important;
+      color: #86EFAC !important;
+      border-color: rgba(22,163,74,0.3) !important;
+    }
+  }
+
+  .fc-dot  { background: rgba(255,255,255,0.2) !important; }
+  .fc-dot--active { background: #6366F1 !important; }
+
+  .fc-up-to-date, .fc-complete {
+    color: #94A3B8 !important;
+    strong, b { color: #F1F5F9 !important; }
+  }
+
+  .fc-summary-item {
+    &--again { background: rgba(220,38,38,0.1) !important; border-color: rgba(220,38,38,0.25) !important; }
+    &--good  { background: rgba(180,83,9,0.1)  !important; border-color: rgba(180,83,9,0.25)  !important; }
+    &--easy  { background: rgba(22,163,74,0.1) !important; border-color: rgba(22,163,74,0.25) !important; }
+  }
+  .fc-summary-label { color: #94A3B8 !important; }
+
+  // ── Exam timer ─────────────────────────────────────────────────────────────
+  .exam-timer {
+    background: rgba(22,27,34,0.8) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+    color: #CBD5E1 !important;
+
+    &--orange {
+      background: rgba(234,88,12,0.12) !important;
+      border-color: rgba(234,88,12,0.4) !important;
+      color: #FB923C !important;
+    }
+    &--red {
+      background: rgba(220,38,38,0.12) !important;
+      border-color: rgba(220,38,38,0.45) !important;
+      color: #FCA5A5 !important;
+    }
+  }
+
+  // ── Exam expired modal ──────────────────────────────────────────────────────
+  .exam-expired-modal {
+    background: #161B22 !important;
+    border: 1px solid rgba(255,255,255,0.1);
+    &__title { color: #FCA5A5 !important; }
+    &__body  { color: #94A3B8 !important; }
+  }
+
+  // ── Exam gate (not yet generated) ──────────────────────────────────────────
+  .exam-gate {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  .exam-gate__title { color: #F1F5F9 !important; }
+  .exam-gate__desc  { color: #94A3B8 !important; }
+  .exam-gate__info  {
+    background: rgba(13,17,23,0.6) !important;
+    color: #94A3B8 !important;
+  }
+  .exam-generating-text { color: #A5B4FC !important; }
+  .exam-generating-sub  { color: #64748B !important; }
+
+  // ── Exam info card ─────────────────────────────────────────────────────────
+  .exam-info-card {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  .exam-info-card__header h2 { color: #F1F5F9 !important; }
+  .exam-info-badge {
+    background: rgba(99,102,241,0.15) !important;
+    color: #A5B4FC !important;
+  }
+
+  .exam-stat {
+    background: rgba(13,17,23,0.6) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+  }
+  .exam-stat__value { color: #A5B4FC !important; }
+  .exam-stat__label { color: #64748B !important; }
+
+  .exam-sections-info {
+    background: rgba(13,17,23,0.6) !important;
+  }
+  .exam-section-info-item { color: #94A3B8 !important; }
+
+  .exam-passed-banner {
+    background: rgba(22,163,74,0.08) !important;
+    border-color: rgba(22,163,74,0.25) !important;
+    color: #86EFAC !important;
+  }
+  .exam-cert-note { color: #86EFAC !important; }
+  .exam-no-attempts { color: #FCA5A5 !important; }
+
+  // ── Exam attempt history ───────────────────────────────────────────────────
+  .exam-history { border-top-color: rgba(255,255,255,0.08) !important; }
+  .exam-history__title { color: #94A3B8 !important; }
+  .exam-history-row {
+    background: rgba(22,27,34,0.8) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    &--pass { background: rgba(22,163,74,0.05) !important; border-color: rgba(22,163,74,0.25) !important; }
+    &--fail { background: rgba(220,38,38,0.04) !important; border-color: rgba(220,38,38,0.2)  !important; }
+  }
+  .exam-history-row__num   { color: #94A3B8 !important; }
+  .exam-history-row__score { color: #A5B4FC !important; }
+  .exam-history-row__cert  { color: #FCD34D !important; }
+
+  // ── Exam section header (active attempt) ──────────────────────────────────
+  .exam-section-header {
+    border-bottom-color: rgba(255,255,255,0.08) !important;
+    h3 { color: #F1F5F9 !important; small { color: #64748B !important; } }
+  }
+  .exam-question-card { border-left-color: #6366F1 !important; }
+
+  // ── Exam result ─────────────────────────────────────────────────────────────
+  .exam-result {
+    background: rgba(22,27,34,0.90) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    &--pass { background: rgba(22,163,74,0.05) !important; border-color: rgba(22,163,74,0.3) !important; }
+    &--fail { background: rgba(220,38,38,0.04) !important; border-color: rgba(220,38,38,0.25) !important; }
+  }
+  .exam-result__score {
+    color: #A5B4FC !important;
+    span { color: #64748B !important; }
+  }
+  .exam-result__label  { color: #F1F5F9 !important; }
+  .exam-result__points { color: #94A3B8 !important; }
+
+  // ── Certificate card ───────────────────────────────────────────────────────
+  .exam-cert-issued {
+    background: rgba(180,83,9,0.08) !important;
+    border-color: rgba(180,83,9,0.25) !important;
+    p { color: #FCD34D !important; }
+  }
+  .cert-card {
+    background: rgba(22,27,34,0.9) !important;
+    border-color: rgba(212,168,71,0.3) !important;
+    &__badge { background: rgba(99,102,241,0.12) !important; color: #A5B4FC !important; }
+    &__score { color: #86EFAC !important; }
+    &__date  { color: #64748B !important; }
+  }
+
+  // ── Loading / spinner ──────────────────────────────────────────────────────
+  .exam-loading { color: #64748B !important; }
+  .spinner-ring {
+    border-color: rgba(255,255,255,0.1) !important;
+    border-top-color: #6366F1 !important;
+  }
+
+  // ── Course Viewer: Flashcard tab ───────────────────────────────────────────
+  // Front face of 3-D flip card
+  .fc-flashcard__front {
+    background: rgba(22, 27, 34, 0.95) !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+    box-shadow:
+      0 4px 6px -1px rgba(0,0,0,0.3),
+      0 10px 40px -8px rgba(0,0,0,0.4) !important;
+  }
+  .fc-flashcard__hint {
+    background: rgba(99, 102, 241, 0.15) !important;
+    color: #A5B4FC !important;
+  }
+  .fc-flashcard__text {
+    color: #F1F5F9 !important;
+  }
+  .fc-flip-hint { color: #64748B !important; }
+
+  // Progress bar track
+  .fc-progress-track {
+    background: rgba(255,255,255,0.08) !important;
+  }
+  .fc-cards-badge {
+    background: rgba(99,102,241,0.15) !important;
+    color: #A5B4FC !important;
+    border-color: rgba(99,102,241,0.3) !important;
+  }
+  .fc-progress-text { color: #94A3B8 !important; }
+
+  // Rating buttons
+  .fc-rating-btn--again {
+    background: rgba(220,38,38,0.12) !important;
+    border-color: rgba(220,38,38,0.3) !important;
+  }
+  .fc-rating-btn--good {
+    background: rgba(245,158,11,0.12) !important;
+    border-color: rgba(245,158,11,0.3) !important;
+  }
+  .fc-rating-btn--easy {
+    background: rgba(22,163,74,0.12) !important;
+    border-color: rgba(22,163,74,0.3) !important;
+  }
+  .fc-rating-label { color: #64748B !important; }
+
+  // Session complete card
+  .fc-complete-card {
+    background: rgba(22, 27, 34, 0.95) !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 20px 60px -15px rgba(0,0,0,0.4) !important;
+    &__title { color: #F1F5F9 !important; }
+    &__sub   { color: #94A3B8 !important; }
+  }
+  .fc-complete-summary__count { color: #F1F5F9 !important; }
+  .fc-complete-summary__label { color: #64748B !important; }
+
+  // Up-to-date / loading / empty states
+  .fc-uptodate-title { color: #F1F5F9 !important; }
+  .fc-uptodate-sub   { color: #94A3B8 !important; }
+  .fc-loading        { color: #94A3B8 !important; }
+  .fc-empty          { color: #64748B !important; }
+  .fc-counter        { color: #64748B !important; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCROLLBAR in dark mode
+// ─────────────────────────────────────────────────────────────────────────────
+.theme-dark ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+.theme-dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); }
+.theme-dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+

@@ -20,19 +20,21 @@
   <div class="panel">
     <h2 class="panel__title">Flashcards Due by Course</h2>
 
-    @for (fc of dueList; track fc.courseId) {
-      @if (fc.dueCount > 0) {
-        <div class="fc-row">
-          <div class="fc-row__left">
-            <span class="fc-row__course">{{ fc.courseTitle }}</span>
-            <span class="fc-due-badge">{{ fc.dueCount }} due</span>
+    <div class="fc-grid">
+      @for (fc of dueList; track fc.courseId) {
+        @if (fc.dueCount > 0) {
+          <div class="fc-card">
+            <div class="fc-card__body">
+              <span class="fc-card__course">{{ fc.courseTitle }}</span>
+              <span class="fc-due-badge">{{ fc.dueCount }} due</span>
+            </div>
+            <button class="btn btn--indigo" (click)="startReview(fc.courseId)">
+              Start Review →
+            </button>
           </div>
-          <button class="btn btn--indigo" (click)="startReview(fc.courseId)">
-            Start Review →
-          </button>
-        </div>
+        }
       }
-    }
+    </div>
 
   </div>
 }

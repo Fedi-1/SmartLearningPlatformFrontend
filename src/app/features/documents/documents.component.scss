@@ -299,7 +299,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
 }
 
@@ -330,6 +331,21 @@
     border-color: rgba(220, 38, 38, 0.2);
 
     &:hover { background: rgba(220, 38, 38, 0.15); }
+  }
+
+  &--cert {
+    background: rgba(180, 83, 9, 0.08);
+    color: #B45309;
+    border-color: rgba(180, 83, 9, 0.2);
+
+    &:hover:not(:disabled) { background: rgba(180, 83, 9, 0.15); }
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      background: var(--gray-100, #F1F5F9);
+      color: var(--gray-400, #94A3B8);
+      border-color: var(--gray-200, #E2E8F0);
+    }
   }
 }
 

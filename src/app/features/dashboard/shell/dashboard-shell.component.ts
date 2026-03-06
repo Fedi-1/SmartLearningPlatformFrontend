@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService, AppNotification } from '../../../core/services/notification.service';
 import { UserRole } from '../../../core/enums/user-role.enum';
+
+// Persisted theme preference
+const THEME_KEY = 'dash-theme';
 
 interface NavItem {
   label: string;
@@ -18,7 +22,18 @@ interface NavItem {
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss'
 })
-export class DashboardShellComponent {
+export class DashboardShellComponent implements OnInit, OnDestroy {
+
+  // Dark theme is default; persisted in localStorage
+  isDark = localStorage.getItem(THEME_KEY) !== 'light';
+
+  // Notification panel state
+  panelOpen = false;
+
+  toggleTheme(): void {
+    this.isDark = !this.isDark;
+    localStorage.setItem(THEME_KEY, this.isDark ? 'dark' : 'light');
+  }
 
   readonly navItems: NavItem[] = [
     { label: 'Overview',   icon: 'home',    route: '/dashboard/overview'   },
@@ -61,12 +76,68 @@ export class DashboardShellComponent {
     return `${u.firstName.charAt(0)}${u.lastName.charAt(0)}`.toUpperCase();
   }
 
+  get notifications(): AppNotification[] {
+    return this.notificationService.notifications().filter(n => n.type === 'IN_APP');
+  }
+
+  get unreadCount(): number {
+    return this.notificationService.unreadCount();
+  }
+
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService,
+    private elRef: ElementRef
   ) {}
 
+  ngOnInit(): void {
+    this.notificationService.init();
+  }
+
+  ngOnDestroy(): void {
+    this.notificationService.disconnect();
+  }
+
+  togglePanel(): void {
+    this.panelOpen = !this.panelOpen;
+  }
+
+  onNotificationClick(n: AppNotification): void {
+    if (!n.isRead) {
+      this.notificationService.markAsRead(n.id).subscribe();
+      this.notificationService.markAsReadLocally(n.id);
+    }
+    if (n.actionUrl) {
+      this.panelOpen = false;
+      this.router.navigateByUrl(n.actionUrl);
+    }
+  }
+
+  trackById(_: number, n: AppNotification): number { return n.id; }
+
+  // Close panel on outside click
+  @HostListener('document:click', ['$event'])
+  onDocClick(event: MouseEvent): void {
+    if (!this.elRef.nativeElement.contains(event.target)) {
+      this.panelOpen = false;
+    }
+  }
+
+  categoryIcon(category: AppNotification['category']): string {
+    switch (category) {
+      case 'EXAM_RESULT':         return '📝';
+      case 'CERTIFICATE':         return '🏆';
+      case 'COURSE_COMPLETE':     return '🎓';
+      case 'ALERT':               return '⚠️';
+      case 'SUSPICIOUS_ACTIVITY': return '🔍';
+      case 'REMINDER':            return '🔔';
+      default:                    return '📣';
+    }
+  }
+
   logout(): void {
+    this.notificationService.disconnect();
     this.authService.logout();
     this.router.navigate(['/login']);
   }

@@ -46,7 +46,6 @@
   border: 1px solid var(--gray-200, #E2E8F0);
   border-radius: var(--radius-md, 8px);
   padding: 1.4rem;
-  max-width: 700px;
   box-shadow: var(--shadow-card, 0 1px 3px rgba(0,0,0,0.08));
 
   &__title {
@@ -58,6 +57,50 @@
   }
 }
 
+// Auto-fill grid: fills each row with as many cards as fit (min 200px),
+// so you get ~3-4 per row on a wide screen, wrapping naturally.
+.fc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.85rem;
+}
+
+.fc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--gray-200, #E2E8F0);
+  border-radius: 12px;
+  background: var(--gray-50, #F8FAFB);
+  transition: box-shadow 0.18s, border-color 0.18s;
+
+  &:hover {
+    border-color: rgba(99,102,241,0.3);
+    box-shadow: 0 4px 12px rgba(99,102,241,0.08);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+  }
+
+  &__course {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-900, #0F172A);
+    line-height: 1.35;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+// keep old .fc-row in case anything still references it
 .fc-row {
   display: flex;
   align-items: center;
@@ -67,14 +110,8 @@
   border-bottom: 1px solid var(--gray-100, #F1F5F9);
 
   &:last-child { border-bottom: none; }
-
   &__left { display: flex; flex-direction: column; gap: 4px; }
-
-  &__course {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--gray-900, #0F172A);
-  }
+  &__course { font-size: 0.9rem; font-weight: 600; color: var(--gray-900, #0F172A); }
 }
 
 .fc-due-badge {

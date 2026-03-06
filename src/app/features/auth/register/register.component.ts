@@ -97,8 +97,8 @@ export class RegisterComponent implements OnInit {
       phoneNumber: phoneNumber || undefined
     }).subscribe({
       next: () => {
-        this.toastService.success('Account created! Welcome aboard 🎉');
-        this.router.navigate(['/dashboard']);
+        this.toastService.success('Account created! Please check your email to verify your account.');
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         this.loading = false;

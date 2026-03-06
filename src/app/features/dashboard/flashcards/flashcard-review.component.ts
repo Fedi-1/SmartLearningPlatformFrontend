@@ -21,6 +21,7 @@ export class FlashcardReviewComponent implements OnInit {
 
   loading = true;
   sessionQueue: FlashcardDueResponse[] = [];
+  totalInitial = 0;
   currentCard: FlashcardDueResponse | null = null;
   cardFlipped = false;
   ratingSubmitting = false;
@@ -45,6 +46,7 @@ export class FlashcardReviewComponent implements OnInit {
     this.courseService.getFlashcardSession(this.courseId).subscribe({
       next: (session) => {
         this.sessionQueue    = [...session.flashcards];
+        this.totalInitial    = session.flashcards.length;
         this.nextUpcomingDate = session.nextUpcomingReviewDate;
         this.currentCard     = this.sessionQueue[0] ?? null;
         this.cardFlipped     = false;
@@ -60,6 +62,11 @@ export class FlashcardReviewComponent implements OnInit {
   }
 
   get totalCards(): number { return this.sessionQueue.length; }
+
+  get progressPct(): number {
+    if (!this.totalInitial) return 0;
+    return Math.round(((this.totalInitial - this.sessionQueue.length) / this.totalInitial) * 100);
+  }
 
   flipCard(): void {
     if (!this.cardFlipped) this.cardFlipped = true;

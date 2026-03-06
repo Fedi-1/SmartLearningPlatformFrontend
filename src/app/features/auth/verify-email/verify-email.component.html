@@ -1,0 +1,56 @@
+<div class="auth-page">
+
+  <a routerLink="/" class="back-home">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to home
+  </a>
+
+  <div class="orb orb--1"></div>
+  <div class="orb orb--2"></div>
+
+  <div class="auth-container">
+
+    <!-- Brand -->
+    <div class="brand fade-in">
+      <a routerLink="/" class="brand__logo">
+        <span class="brand__icon">✦</span>
+        <span class="brand__name">LearnAI</span>
+      </a>
+      <p class="brand__tagline">Your intelligent learning companion</p>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card fade-in">
+
+      <!-- Verifying -->
+      @if (status === 'verifying') {
+        <div class="status-block">
+          <div class="status-icon status-icon--spin">⏳</div>
+          <h2>Verifying your email…</h2>
+          <p>Please wait a moment.</p>
+        </div>
+      }
+
+      <!-- Success -->
+      @if (status === 'success') {
+        <div class="status-block">
+          <div class="status-icon status-icon--success">✅</div>
+          <h2>Email verified!</h2>
+          <p>Your account is now active. Redirecting you to the login page…</p>
+          <a routerLink="/login" class="btn btn-primary btn-lg status-btn">Go to Login</a>
+        </div>
+      }
+
+      <!-- Error -->
+      @if (status === 'error') {
+        <div class="status-block">
+          <div class="status-icon status-icon--error">❌</div>
+          <h2>Verification failed</h2>
+          <p>{{ errorMessage }}</p>
+          <a routerLink="/login" class="btn btn-primary btn-lg status-btn">Back to Login</a>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

@@ -43,21 +43,21 @@
 
   <div class="container">
     <div class="hero__content">
-      <div class="hero__badge fade-in">
+      <div class="hero__badge reveal reveal--up">
         <span>✨ AI-Powered Education Platform</span>
       </div>
 
-      <h1 class="hero__title fade-in">
+      <h1 class="hero__title reveal reveal--up" style="--reveal-delay: 80ms">
         Learn Smarter.<br />
         <span class="text-gradient">Grow Faster.</span>
       </h1>
 
-      <p class="hero__subtitle fade-in">
+      <p class="hero__subtitle reveal reveal--up" style="--reveal-delay: 160ms">
         An intelligent learning platform that adapts to your pace, tracks your progress,
         and helps you master any subject — from beginner to expert.
       </p>
 
-      <div class="hero__cta fade-in">
+      <div class="hero__cta reveal reveal--up" style="--reveal-delay: 240ms">
         <a routerLink="/register" class="btn btn-primary btn-lg">
           Start for free →
         </a>
@@ -66,39 +66,45 @@
         </a>
       </div>
 
-      <p class="hero__footnote fade-in">No credit card required · Free forever plan available</p>
+      <p class="hero__footnote reveal reveal--up" style="--reveal-delay: 320ms">No credit card required · Free forever plan available</p>
     </div>
 
-    <!-- Floating mockup card -->
-    <div class="hero__mockup fade-in float">
-      <div class="mockup-card">
+    <!-- Floating mockup card — purely decorative, non-interactive -->
+    <div class="hero__mockup reveal reveal--up float" style="--reveal-delay: 200ms">
+      <div class="mockup-card" aria-hidden="true">
+        <!-- Screen glare overlay -->
+        <div class="mockup-card__glare"></div>
+
         <div class="mockup-card__header">
           <div class="mockup-card__avatar">JS</div>
-          <div>
+          <div class="mockup-card__title-block">
             <p class="mockup-card__name">JavaScript Mastery</p>
             <p class="mockup-card__meta">Lesson 12 of 48</p>
           </div>
           <span class="mockup-card__badge">In Progress</span>
         </div>
+
         <div class="mockup-card__progress-bar">
           <div class="mockup-card__progress-fill" style="width: 25%"></div>
         </div>
+
         <div class="mockup-card__stats">
           <div class="mockup-stat">
             <span class="mockup-stat__val">25%</span>
             <span class="mockup-stat__key">Complete</span>
           </div>
-          <div class="mockup-stat">
+          <div class="mockup-stat mockup-stat--divider">
             <span class="mockup-stat__val">6h</span>
             <span class="mockup-stat__key">Remaining</span>
           </div>
-          <div class="mockup-stat">
+          <div class="mockup-stat mockup-stat--divider">
             <span class="mockup-stat__val">94</span>
             <span class="mockup-stat__key">Quiz score</span>
           </div>
         </div>
+
         <div class="mockup-card__ai-tip">
-          <span class="mockup-card__ai-icon">🧠</span>
+          <span class="mockup-card__ai-dot"></span>
           <p>Great progress! Review closures before moving on.</p>
         </div>
       </div>
@@ -109,15 +115,15 @@
 <!-- FEATURES -->
 <section class="features-section" id="features">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal reveal--up">
       <p class="section-label">Why LearnAI</p>
       <h2 class="section-title">Everything you need to <span class="text-gradient">master any skill</span></h2>
       <p class="section-subtitle">Powerful tools designed to make learning more effective, engaging, and rewarding.</p>
     </div>
 
     <div class="features-grid">
-      @for (feature of features; track feature.title) {
-        <div class="feature-card">
+      @for (feature of features; track feature.title; let i = $index) {
+        <div class="feature-card reveal reveal--up" [style.--reveal-delay]="(i * 80) + 'ms'">
           <div class="feature-card__icon">{{ feature.icon }}</div>
           <h3 class="feature-card__title">{{ feature.title }}</h3>
           <p class="feature-card__desc">{{ feature.description }}</p>
@@ -130,15 +136,15 @@
 <!-- HOW IT WORKS -->
 <section class="how-section" id="how-it-works">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal reveal--up">
       <p class="section-label">Getting Started</p>
       <h2 class="section-title">Up and running in <span class="text-gold">4 simple steps</span></h2>
       <p class="section-subtitle">From sign-up to your first certification — it's that easy.</p>
     </div>
 
     <div class="steps-grid">
-      @for (step of steps; track step.number) {
-        <div class="step-card">
+      @for (step of steps; track step.number; let i = $index) {
+        <div class="step-card reveal reveal--up" [style.--reveal-delay]="(i * 100) + 'ms'">
           <div class="step-card__number">{{ step.number }}</div>
           <h3 class="step-card__title">{{ step.title }}</h3>
           <p class="step-card__desc">{{ step.description }}</p>
@@ -152,10 +158,11 @@
 <section class="stats-section" id="stats">
   <div class="container">
     <div class="stats-grid">
-      @for (stat of stats; track stat.label) {
-        <div class="stat-item">
-          <span class="stat-item__value">{{ stat.value | number }}{{ stat.suffix }}</span>
-          <span class="stat-item__label">{{ stat.label }}</span>
+      @for (stat of stats; track stat.label; let i = $index) {
+        <div class="stat-card reveal reveal--up" [style.--reveal-delay]="(i * 90) + 'ms'">
+          <span class="stat-card__icon">{{ stat.icon }}</span>
+          <span class="stat-card__value">{{ stat.value | number }}{{ stat.suffix }}</span>
+          <span class="stat-card__label">{{ stat.label }}</span>
         </div>
       }
     </div>
@@ -165,14 +172,19 @@
 <!-- CTA BANNER -->
 <section class="cta-section">
   <div class="container">
-    <div class="cta-card">
+    <div class="cta-card reveal reveal--up">
       <div class="cta-orb cta-orb--1"></div>
       <div class="cta-orb cta-orb--2"></div>
-      <h2>Ready to transform your learning?</h2>
-      <p>Join 50,000+ learners already accelerating their careers with LearnAI.</p>
-      <div class="cta-actions">
-        <a routerLink="/register" class="btn btn-gold btn-lg">Start for free today</a>
-        <a routerLink="/login"    class="btn btn-outline btn-lg">Sign in</a>
+      <div class="cta-orb cta-orb--3"></div>
+      <div class="cta-grid-overlay"></div>
+      <div class="cta-content">
+        <span class="cta-eyebrow">Join 50,000+ learners</span>
+        <h2>Ready to transform<br>your learning?</h2>
+        <p>Accelerate your career with AI-powered paths,<br>real-time feedback, and expert-curated content.</p>
+        <div class="cta-actions">
+          <a routerLink="/register" class="btn btn-primary btn-lg">Start for free today</a>
+          <a routerLink="/login"    class="btn btn-ghost btn-lg">Sign in →</a>
+        </div>
       </div>
     </div>
   </div>
@@ -180,30 +192,65 @@
 
 <!-- FOOTER -->
 <footer class="footer">
+  <div class="footer__glow"></div>
   <div class="container">
+
     <div class="footer__top">
-      <div class="footer__brand">
+
+      <!-- Brand block -->
+      <div class="footer__brand reveal reveal--up">
         <a routerLink="/" class="footer__logo">
-          <span>✦</span> LearnAI
+          <span class="footer__logo-icon">✦</span> LearnAI
         </a>
-        <p>Intelligent learning for the modern world.</p>
+        <p>AI-powered learning for the<br>modern world. Build skills faster.</p>
+        <div class="footer__social">
+          <a href="#" aria-label="Twitter" class="footer__social-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.7 5.4 4.2 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+          </a>
+          <a href="#" aria-label="GitHub" class="footer__social-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77A5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          </a>
+          <a href="#" aria-label="LinkedIn" class="footer__social-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+        </div>
       </div>
-      <div class="footer__links">
+
+      <!-- Link columns -->
+      <div class="footer__links reveal reveal--up" style="--reveal-delay: 120ms">
         <div class="footer__col">
-          <h4>Platform</h4>
+          <h4>Product</h4>
           <a href="#features">Features</a>
           <a href="#how-it-works">How it works</a>
-          <a routerLink="/register">Sign up</a>
+          <a href="#stats">Results</a>
         </div>
         <div class="footer__col">
           <h4>Account</h4>
+          <a routerLink="/register">Sign up free</a>
           <a routerLink="/login">Sign in</a>
-          <a routerLink="/register">Register</a>
+        </div>
+        <div class="footer__col">
+          <h4>Legal</h4>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Cookie Policy</a>
         </div>
       </div>
+
     </div>
+
+    <!-- Divider -->
+    <div class="footer__divider"></div>
+
+    <!-- Bottom bar -->
     <div class="footer__bottom">
-      <p>© 2025 LearnAI. All rights reserved.</p>
+      <p>© 2026 LearnAI. All rights reserved.</p>
+      <div class="footer__bottom-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+      </div>
     </div>
+
   </div>
 </footer>

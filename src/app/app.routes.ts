@@ -1,5 +1,16 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+
+// Redirect /courses/:courseId → /dashboard/courses/:courseId
+function courseRedirectGuard() {
+  const route  = inject(ActivatedRoute);
+  const router = inject(Router);
+  const id = route.snapshot.paramMap.get('courseId');
+  router.navigate(['/dashboard/courses', id], { replaceUrl: true });
+  return false;
+}
 
 export const routes: Routes = [
   {
@@ -15,6 +26,18 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
   },
   {
+    path: 'verify-email',
+    loadComponent: () => import('./features/auth/verify-email/verify-email.component').then(m => m.VerifyEmailComponent)
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
+  {
     path: 'student/dashboard',
     canActivate: [authGuard],
     loadComponent: () => import('./features/student/dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent)
@@ -26,7 +49,7 @@ export const routes: Routes = [
   },
   {
     path: 'courses/:courseId',
-    canActivate: [authGuard],
+    canActivate: [authGuard, courseRedirectGuard],
     loadComponent: () => import('./features/courses/viewer/course-viewer.component').then(m => m.CourseViewerComponent)
   },
   {

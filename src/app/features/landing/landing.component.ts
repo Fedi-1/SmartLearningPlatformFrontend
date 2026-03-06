@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -9,16 +9,16 @@ import { RouterLink } from '@angular/router';
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })
-export class LandingComponent implements OnInit, OnDestroy {
+export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isScrolled = false;
   isMobileMenuOpen = false;
 
   stats = [
-    { value: 0, target: 50000, suffix: '+', label: 'Active Learners' },
-    { value: 0, target: 1200,  suffix: '+', label: 'Courses' },
-    { value: 0, target: 98,    suffix: '%', label: 'Satisfaction Rate' },
-    { value: 0, target: 45,    suffix: '+', label: 'Expert Instructors' }
+    { value: 0, target: 50000, suffix: '+', label: 'Active Learners',     icon: '🎓' },
+    { value: 0, target: 1200,  suffix: '+', label: 'Courses',             icon: '📚' },
+    { value: 0, target: 98,    suffix: '%', label: 'Satisfaction Rate',   icon: '⭐' },
+    { value: 0, target: 45,    suffix: '+', label: 'Expert Instructors',  icon: '🏆' }
   ];
 
   features = [
@@ -79,6 +79,9 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   private statsAnimated = false;
   private statsObserver?: IntersectionObserver;
+  private revealObserver?: IntersectionObserver;
+
+  constructor(private el: ElementRef) {}
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -89,14 +92,40 @@ export class LandingComponent implements OnInit, OnDestroy {
     this.observeStats();
   }
 
+  ngAfterViewInit(): void {
+    this.setupReveal();
+  }
+
   ngOnDestroy(): void {
     this.statsObserver?.disconnect();
+    this.revealObserver?.disconnect();
   }
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
+  // ── Scroll reveal ────────────────────────────────────────────────────────
+  private setupReveal(): void {
+    this.revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+          } else {
+            entry.target.classList.remove('revealed');
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    // Observe every element that has the reveal class
+    const targets = this.el.nativeElement.querySelectorAll('.reveal');
+    targets.forEach((t: Element) => this.revealObserver!.observe(t));
+  }
+
+  // ── Stats counter ────────────────────────────────────────────────────────
   private observeStats(): void {
     const target = document.querySelector('.stats-section');
     if (!target) {

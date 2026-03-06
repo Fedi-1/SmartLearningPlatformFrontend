@@ -1,5 +1,11 @@
 <div class="auth-page">
 
+  <!-- Back to home -->
+  <a routerLink="/" class="back-home">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to home
+  </a>
+
   <!-- Background orbs -->
   <div class="orb orb--1"></div>
   <div class="orb orb--2"></div>
@@ -21,6 +27,31 @@
         <h1>Welcome back</h1>
         <p>Sign in to continue your learning journey</p>
       </div>
+
+      <!-- Unverified account banner -->
+      @if (showUnverifiedBanner) {
+        <div class="unverified-banner">
+          <span class="unverified-banner__icon">📧</span>
+          <div>
+            <strong>Email not verified</strong>
+            <p>Please check your inbox and click the verification link.</p>
+            <button
+              type="button"
+              class="resend-btn"
+              (click)="resendVerification()"
+              [disabled]="resendLoading || resendCooldown"
+            >
+              @if (resendLoading) {
+                <span class="spinner spinner--sm"></span> Sending...
+              } @else if (resendCooldown) {
+                ✓ Email sent — check your inbox
+              } @else {
+                Resend verification email
+              }
+            </button>
+          </div>
+        </div>
+      }
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
 
@@ -50,7 +81,7 @@
         <div class="form-group">
           <div class="label-row">
             <label for="password">Password</label>
-            <a href="#" class="forgot-link">Forgot password?</a>
+            <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
           </div>
           <div class="input-wrapper" [class.input-wrapper--error]="password.invalid && password.touched">
             <span class="input-icon">🔒</span>

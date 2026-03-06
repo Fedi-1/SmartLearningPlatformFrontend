@@ -6,62 +6,111 @@
 }
 
 @else if (sessionComplete) {
-  <div class="complete-wrap">
-    <button class="btn-back" (click)="goBack()">← Back to Flashcards</button>
+  <div class="complete-page">
+    <button class="btn-back-complete" (click)="goBack()">← Back to Flashcards</button>
     <div class="complete-card">
       <div class="complete-card__emoji">🎉</div>
       <h2>Session Complete!</h2>
-      <p>You reviewed all due cards for this course.</p>
+      <p>You reviewed all due cards for this course. Great work!</p>
+
       <div class="summary">
         <div class="summary__item summary__item--red">
+          <span class="summary__emoji">😓</span>
           <span class="summary__count">{{ summary.again }}</span>
           <span class="summary__label">Again</span>
         </div>
         <div class="summary__item summary__item--gold">
+          <span class="summary__emoji">🤔</span>
           <span class="summary__count">{{ summary.good }}</span>
           <span class="summary__label">Good</span>
         </div>
         <div class="summary__item summary__item--green">
+          <span class="summary__emoji">✅</span>
           <span class="summary__count">{{ summary.easy }}</span>
           <span class="summary__label">Easy</span>
         </div>
       </div>
+
       @if (nextUpcomingDate) {
         <p class="next-review">Next review: <strong>{{ nextUpcomingDate | date:'mediumDate' }}</strong></p>
       }
-      <button class="btn btn--indigo" (click)="goBack()">Done</button>
+
+      <button class="btn-done" (click)="goBack()">🏠 Back to Flashcards</button>
     </div>
   </div>
 }
 
 @else if (currentCard) {
-  <div class="review-wrap">
-    <div class="review-header">
+  <div class="review-page">
+
+    <!-- Top-left back link -->
+    <div class="review-topbar">
       <button class="btn-back" (click)="goBack()">← Back</button>
-      <span class="review-progress">{{ totalCards }} card{{ totalCards !== 1 ? 's' : '' }} remaining</span>
     </div>
 
-    <div class="flashcard" [class.flashcard--flipped]="cardFlipped" (click)="flipCard()">
-      <div class="flashcard__inner">
-        <div class="flashcard__front">
-          <span class="flashcard__hint">Tap to reveal</span>
-          <p class="flashcard__text">{{ currentCard.term }}</p>
-        </div>
-        <div class="flashcard__back">
-          <p class="flashcard__term-small">{{ currentCard.term }}</p>
-          <p class="flashcard__definition">{{ currentCard.definition }}</p>
-        </div>
+    <!-- Centered progress -->
+    <div class="review-progress-wrap">
+      <div class="review-progress-meta">
+        <span class="progress-text">{{ totalInitial - totalCards }} / {{ totalInitial }} reviewed</span>
+        <span class="cards-badge">{{ totalCards }} left</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progressPct"></div>
       </div>
     </div>
 
-    @if (cardFlipped) {
-      <div class="rating-row">
-        <button class="rating-btn rating-btn--again" [disabled]="ratingSubmitting" (click)="rateCard('AGAIN')">Again</button>
-        <button class="rating-btn rating-btn--good"  [disabled]="ratingSubmitting" (click)="rateCard('GOOD')">Good</button>
-        <button class="rating-btn rating-btn--easy"  [disabled]="ratingSubmitting" (click)="rateCard('EASY')">Easy</button>
+    <!-- Card + actions -->
+    <div class="card-area">
+
+      <!-- 3-D flip card -->
+      <div class="flashcard" [class.flashcard--flipped]="cardFlipped" (click)="flipCard()">
+        <div class="flashcard__inner">
+
+          <div class="flashcard__front">
+            <span class="flashcard__hint">✨ Tap to reveal</span>
+            <p class="flashcard__text">{{ currentCard.term }}</p>
+          </div>
+
+          <div class="flashcard__back">
+            <p class="flashcard__term-small">{{ currentCard.term }}</p>
+            <p class="flashcard__definition">{{ currentCard.definition }}</p>
+          </div>
+
+        </div>
       </div>
-    } @else {
-      <p class="flip-hint">Click the card to reveal the answer</p>
-    }
+
+      <!-- Rating or hint -->
+      @if (cardFlipped) {
+        <div class="rating-section">
+          <span class="rating-label">How well did you know this?</span>
+          <div class="rating-row">
+            <button class="rating-btn rating-btn--again"
+                    [disabled]="ratingSubmitting"
+                    (click)="rateCard('AGAIN')">
+              <span class="rating-btn__emoji">😓</span>
+              <span class="rating-btn__label">Again</span>
+              <span class="rating-btn__sub">Forgot it</span>
+            </button>
+            <button class="rating-btn rating-btn--good"
+                    [disabled]="ratingSubmitting"
+                    (click)="rateCard('GOOD')">
+              <span class="rating-btn__emoji">🤔</span>
+              <span class="rating-btn__label">Good</span>
+              <span class="rating-btn__sub">Recalled with effort</span>
+            </button>
+            <button class="rating-btn rating-btn--easy"
+                    [disabled]="ratingSubmitting"
+                    (click)="rateCard('EASY')">
+              <span class="rating-btn__emoji">✅</span>
+              <span class="rating-btn__label">Easy</span>
+              <span class="rating-btn__sub">Knew it instantly</span>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <p class="flip-hint">👆 Click the card to reveal the answer</p>
+      }
+
+    </div>
   </div>
 }

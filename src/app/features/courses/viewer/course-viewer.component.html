@@ -9,9 +9,6 @@
     <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
     <aside class="cv-sidebar">
 
-      <!-- Back -->
-      <button class="back-btn" (click)="goBack()">← Back to Documents</button>
-
       <!-- Course info -->
       <div class="cv-sidebar__course">
         <h2 class="cv-sidebar__title">{{ course.title }}</h2>
@@ -33,18 +30,22 @@
       </div>
 
       <!-- Lesson list -->
-      <nav class="lesson-list">
+      <nav class="lesson-list" [class.lesson-list--session-active]="isSessionActive">
         @for (lesson of course.lessons; track lesson.id) {
           <button class="lesson-item"
                   [class.lesson-item--active]="selectedLesson?.id === lesson.id"
                   [class.lesson-item--done]="isLessonCompleted(lesson.id)"
                   [class.lesson-item--locked]="lesson.isLocked"
-                  [disabled]="lesson.isLocked"
+                  [class.lesson-item--session-locked]="isSessionActive && selectedLesson?.id !== lesson.id"
+                  [disabled]="lesson.isLocked || (isSessionActive && selectedLesson?.id !== lesson.id)"
+                  [title]="isSessionActive && selectedLesson?.id !== lesson.id ? 'Finish your active session first' : ''"
                   (click)="selectLesson(lesson)">
             <span class="lesson-item__num">{{ lesson.lessonNumber }}</span>
             <span class="lesson-item__title">{{ lesson.title }}</span>
             @if (lesson.isLocked) {
               <span class="lesson-item__lock">🔒</span>
+            } @else if (isSessionActive && selectedLesson?.id !== lesson.id) {
+              <span class="lesson-item__lock">⏳</span>
             } @else if (isLessonCompleted(lesson.id)) {
               <span class="lesson-item__check">✓</span>
             }
@@ -106,19 +107,39 @@
         </div>
 
         <!-- Tab bar -->
-        <div class="tab-bar">
-          <button class="tab-btn" [class.tab-btn--active]="activeTab === 'content'"  (click)="setTab('content')">📖 Content</button>
-          <button class="tab-btn" [class.tab-btn--active]="activeTab === 'quiz'"     (click)="setTab('quiz')">🎯 Quiz
+        <div class="tab-bar" [class.tab-bar--locked]="isSessionActive">
+          <button class="tab-btn"
+                  [class.tab-btn--active]="activeTab === 'content'"
+                  [class.tab-btn--session-locked]="isSessionActive && activeTab !== 'content'"
+                  [disabled]="isSessionActive && activeTab !== 'content'"
+                  [title]="isSessionActive && activeTab !== 'content' ? 'Finish your active session first' : ''"
+                  (click)="setTab('content')">📖 Content</button>
+          <button class="tab-btn"
+                  [class.tab-btn--active]="activeTab === 'quiz'"
+                  [class.tab-btn--session-locked]="isSessionActive && activeTab !== 'quiz'"
+                  [disabled]="isSessionActive && activeTab !== 'quiz'"
+                  [title]="isSessionActive && activeTab !== 'quiz' ? 'Finish your active session first' : ''"
+                  (click)="setTab('quiz')">🎯 Quiz
             @if (selectedLesson.quiz && selectedLesson.quiz.length) {
               <span class="tab-badge">{{ selectedLesson.quiz.length }}</span>
             }
           </button>
-          <button class="tab-btn" [class.tab-btn--active]="activeTab === 'flashcards'" (click)="setTab('flashcards')">🃏 Flashcards
+          <button class="tab-btn"
+                  [class.tab-btn--active]="activeTab === 'flashcards'"
+                  [class.tab-btn--session-locked]="isSessionActive && activeTab !== 'flashcards'"
+                  [disabled]="isSessionActive && activeTab !== 'flashcards'"
+                  [title]="isSessionActive && activeTab !== 'flashcards' ? 'Finish your active session first' : ''"
+                  (click)="setTab('flashcards')">🃏 Flashcards
             @if (selectedLesson.flashcards && selectedLesson.flashcards.length) {
               <span class="tab-badge">{{ selectedLesson.flashcards.length }}</span>
             }
           </button>
-          <button class="tab-btn tab-btn--exam" [class.tab-btn--active]="activeTab === 'exam'" (click)="setTab('exam')">
+          <button class="tab-btn tab-btn--exam"
+                  [class.tab-btn--active]="activeTab === 'exam'"
+                  [class.tab-btn--session-locked]="isSessionActive && activeTab !== 'exam'"
+                  [disabled]="isSessionActive && activeTab !== 'exam'"
+                  [title]="isSessionActive && activeTab !== 'exam' ? 'Finish your active session first' : ''"
+                  (click)="setTab('exam')">
             🏆 Final Exam
           </button>
         </div>
@@ -327,72 +348,95 @@
 
             <!-- Session complete -->
             @else if (sessionComplete) {
-              <div class="fc-complete">
-                <span class="fc-complete-icon">✅</span>
-                <p class="fc-complete-title">All reviews done for today!</p>
-                <div class="fc-summary">
-                  <div class="fc-summary-item fc-summary-item--again">
-                    <span class="fc-summary-count">{{ sessionSummary.again }}</span>
-                    <span class="fc-summary-label">🔁 Again</span>
+              <div class="fc-complete-card">
+                <div class="fc-complete-card__emoji">🎉</div>
+                <h2 class="fc-complete-card__title">Session Complete!</h2>
+                <p class="fc-complete-card__sub">You reviewed all due cards for this lesson. Great work!</p>
+                <div class="fc-complete-summary">
+                  <div class="fc-complete-summary__item fc-complete-summary__item--red">
+                    <span class="fc-complete-summary__emoji">😓</span>
+                    <span class="fc-complete-summary__count">{{ sessionSummary.again }}</span>
+                    <span class="fc-complete-summary__label">Again</span>
                   </div>
-                  <div class="fc-summary-item fc-summary-item--good">
-                    <span class="fc-summary-count">{{ sessionSummary.good }}</span>
-                    <span class="fc-summary-label">👍 Good</span>
+                  <div class="fc-complete-summary__item fc-complete-summary__item--gold">
+                    <span class="fc-complete-summary__emoji">🤔</span>
+                    <span class="fc-complete-summary__count">{{ sessionSummary.good }}</span>
+                    <span class="fc-complete-summary__label">Good</span>
                   </div>
-                  <div class="fc-summary-item fc-summary-item--easy">
-                    <span class="fc-summary-count">{{ sessionSummary.easy }}</span>
-                    <span class="fc-summary-label">✅ Easy</span>
+                  <div class="fc-complete-summary__item fc-complete-summary__item--green">
+                    <span class="fc-complete-summary__emoji">✅</span>
+                    <span class="fc-complete-summary__count">{{ sessionSummary.easy }}</span>
+                    <span class="fc-complete-summary__label">Easy</span>
                   </div>
                 </div>
-                <button class="btn btn-ghost" (click)="loadSession()">Start New Session</button>
+                <button class="fc-done-btn" (click)="loadSession()">🔄 Start New Session</button>
               </div>
             }
 
             <!-- Active session -->
             @else if (sessionLoaded && currentCard) {
-              <!-- Counter -->
-              <p class="fc-counter">
-                {{ totalCards }} card{{ totalCards !== 1 ? 's' : '' }} remaining
-              </p>
 
-              <!-- Card -->
-              <div class="fc-wrapper" (click)="flipCard()">
-                <div class="fc-inner" [class.fc-inner--flipped]="cardFlipped">
-                  <!-- Front -->
-                  <div class="fc-face fc-face--front">
-                    <span class="fc-label">TERM</span>
-                    <p class="fc-text">{{ currentCard.term }}</p>
-                    <span class="fc-hint">Click to reveal definition</span>
-                  </div>
-                  <!-- Back -->
-                  <div class="fc-face fc-face--back">
-                    <span class="fc-label">DEFINITION</span>
-                    <p class="fc-text">{{ currentCard.definition }}</p>
-                  </div>
+              <!-- Progress bar -->
+              <div class="fc-progress-wrap">
+                <div class="fc-progress-meta">
+                  <span class="fc-progress-text">{{ sessionQueue.length - totalCards > 0 ? sessionQueue.length - totalCards : 0 }} / {{ sessionQueue.length + (sessionSummary.again + sessionSummary.good + sessionSummary.easy) }} reviewed</span>
+                  <span class="fc-cards-badge">{{ totalCards }} left</span>
+                </div>
+                <div class="fc-progress-track">
+                  <div class="fc-progress-fill"
+                       [style.width.%]="(sessionSummary.again + sessionSummary.good + sessionSummary.easy) / ((sessionSummary.again + sessionSummary.good + sessionSummary.easy) + totalCards || 1) * 100"></div>
                 </div>
               </div>
 
-              <!-- SM-2 Rating buttons (shown only after flip) -->
-              @if (cardFlipped) {
-                <div class="fc-rating">
-                  <button class="btn fc-rate-btn fc-rate-btn--again"
-                          [disabled]="ratingSubmitting"
-                          (click)="rateCard('AGAIN')">🔁 Again</button>
-                  <button class="btn fc-rate-btn fc-rate-btn--good"
-                          [disabled]="ratingSubmitting"
-                          (click)="rateCard('GOOD')">👍 Good</button>
-                  <button class="btn fc-rate-btn fc-rate-btn--easy"
-                          [disabled]="ratingSubmitting"
-                          (click)="rateCard('EASY')">✅ Easy</button>
+              <!-- 3-D flip card -->
+              <div class="fc-flashcard" [class.fc-flashcard--flipped]="cardFlipped" (click)="flipCard()">
+                <div class="fc-flashcard__inner">
+
+                  <div class="fc-flashcard__front">
+                    <span class="fc-flashcard__hint">✨ Tap to reveal</span>
+                    <p class="fc-flashcard__text">{{ currentCard.term }}</p>
+                  </div>
+
+                  <div class="fc-flashcard__back">
+                    <p class="fc-flashcard__term-small">{{ currentCard.term }}</p>
+                    <p class="fc-flashcard__definition">{{ currentCard.definition }}</p>
+                  </div>
+
                 </div>
+              </div>
+
+              <!-- Rating or hint -->
+              @if (cardFlipped) {
+                <div class="fc-rating-section">
+                  <span class="fc-rating-label">How well did you know this?</span>
+                  <div class="fc-rating-row">
+                    <button class="fc-rating-btn fc-rating-btn--again"
+                            [disabled]="ratingSubmitting"
+                            (click)="rateCard('AGAIN')">
+                      <span class="fc-rating-btn__emoji">�</span>
+                      <span class="fc-rating-btn__label">Again</span>
+                      <span class="fc-rating-btn__sub">Forgot it</span>
+                    </button>
+                    <button class="fc-rating-btn fc-rating-btn--good"
+                            [disabled]="ratingSubmitting"
+                            (click)="rateCard('GOOD')">
+                      <span class="fc-rating-btn__emoji">🤔</span>
+                      <span class="fc-rating-btn__label">Good</span>
+                      <span class="fc-rating-btn__sub">Recalled with effort</span>
+                    </button>
+                    <button class="fc-rating-btn fc-rating-btn--easy"
+                            [disabled]="ratingSubmitting"
+                            (click)="rateCard('EASY')">
+                      <span class="fc-rating-btn__emoji">✅</span>
+                      <span class="fc-rating-btn__label">Easy</span>
+                      <span class="fc-rating-btn__sub">Knew it instantly</span>
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <p class="fc-flip-hint">👆 Click the card to reveal the answer</p>
               }
 
-              <!-- Queue dots -->
-              <div class="fc-dots">
-                @for (c of sessionQueue; track c.id) {
-                  <span class="fc-dot" [class.fc-dot--active]="c.id === currentCard.id"></span>
-                }
-              </div>
             }
 
           </div>

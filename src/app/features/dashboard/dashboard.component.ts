@@ -41,7 +41,7 @@ export class DashboardComponent implements OnInit {
   }
 
   goToFlashcardSession(courseId: number): void {
-    this.router.navigate(['/courses', courseId], { queryParams: { tab: 'flashcards' } });
+    this.router.navigate(['/dashboard/courses', courseId], { queryParams: { tab: 'flashcards' } });
   }
 
   activityIcon(action: string): string {

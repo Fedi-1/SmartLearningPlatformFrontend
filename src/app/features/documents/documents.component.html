@@ -133,6 +133,12 @@
                             (click)="viewCourse(doc.courseId!)">
                       View Course
                     </button>
+                    <button class="btn-action btn-action--cert"
+                            [disabled]="certLoading.has(doc.courseId!) || !coursesWithCertificate.has(doc.courseId!)"
+                            [title]="!coursesWithCertificate.has(doc.courseId!) ? 'No certificate yet — pass the final exam first' : ''"
+                            (click)="downloadCertificate(doc.courseId!)">
+                      {{ certLoading.has(doc.courseId!) ? '…' : '🎓 Certificate' }}
+                    </button>
                   }
                   <button class="btn-action btn-action--delete"
                           (click)="openDeleteModal(doc.id)">

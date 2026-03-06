@@ -59,8 +59,8 @@
   <!-- Two columns -->
   <div class="cols">
 
-    <!-- Left: Courses -->
-    <section class="panel">
+    <!-- Courses — full width now -->
+    <section class="panel panel--full">
       <h2 class="panel__title">My Courses</h2>
       @if (data.courses.length === 0) {
         <p class="panel__empty">No courses yet. Upload a document to get started.</p>
@@ -91,28 +91,6 @@
               &nbsp;·&nbsp; {{ formatDate(course.lastAccessedAt) }}
             }
           </p>
-        </div>
-      }
-    </section>
-
-    <!-- Right: Flashcards due -->
-    <section class="panel">
-      <h2 class="panel__title">Flashcards Due</h2>
-      @if (data.flashcardsDue.length === 0) {
-        <div class="fc-empty">
-          <span>🎉</span>
-          <p>All caught up! No cards due today.</p>
-        </div>
-      }
-      @for (fc of data.flashcardsDue; track fc.courseId) {
-        <div class="fc-row">
-          <div class="fc-row__info">
-            <span class="fc-row__title">{{ fc.courseTitle }}</span>
-            <span class="fc-due-badge">{{ fc.dueCount }} due</span>
-          </div>
-          <button class="btn btn--indigo btn--sm" (click)="goToReview(fc.courseId)">
-            Start Review →
-          </button>
         </div>
       }
     </section>

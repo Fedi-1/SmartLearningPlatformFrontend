@@ -2,6 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DocumentService } from '../../core/services/document.service';
+import { CourseService } from '../../core/services/course.service';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { DocumentItem, FileType } from '../../core/models/document.model';
 
@@ -33,6 +34,12 @@ export class DocumentsComponent implements OnInit {
 
   selectedCategory: string | null = null;
 
+  // Track which courseIds are currently fetching a certificate
+  certLoading = new Set<number>();
+
+  // Track which courseIds actually have a certificate (loaded on init)
+  coursesWithCertificate = new Set<number>();
+
   get availableCategories(): string[] {
     const cats = this.documents
       .map(d => d.category)
@@ -51,12 +58,23 @@ export class DocumentsComponent implements OnInit {
 
   constructor(
     private documentService: DocumentService,
+    private courseService: CourseService,
     private toastService: ToastService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadDocuments();
+    this.loadCertificates();
+  }
+
+  loadCertificates(): void {
+    this.courseService.getMyCertificates().subscribe({
+      next: (certs) => {
+        this.coursesWithCertificate = new Set(certs.map(c => c.courseId));
+      },
+      error: () => {} // silently ignore — button stays disabled
+    });
   }
 
   loadDocuments(): void {
@@ -112,7 +130,8 @@ export class DocumentsComponent implements OnInit {
         this.selectedFile = null;
         this.toastService.success('Course generated successfully 🎉');
         this.loadDocuments();
-        this.router.navigate(['/courses', res.courseId]);
+        this.loadCertificates();
+        this.router.navigate(['/dashboard/courses', res.courseId]);
       },
       error: (err: { error?: { message?: string } }) => {
         this.uploading = false;
@@ -142,7 +161,22 @@ export class DocumentsComponent implements OnInit {
   }
 
   viewCourse(courseId: number): void {
-    this.router.navigate(['/courses', courseId]);
+    this.router.navigate(['/dashboard/courses', courseId]);
+  }
+
+  downloadCertificate(courseId: number): void {
+    if (this.certLoading.has(courseId)) return;
+    this.certLoading.add(courseId);
+    this.courseService.getCourseCertificate(courseId).subscribe({
+      next: (cert) => {
+        this.certLoading.delete(courseId);
+        window.open(this.courseService.downloadCertificateUrl(cert.id), '_blank');
+      },
+      error: () => {
+        this.certLoading.delete(courseId);
+        this.toastService.error('No certificate found for this course.');
+      }
+    });
   }
 
   // ─── Formatters ─────────────────────────────────────────────────────────────

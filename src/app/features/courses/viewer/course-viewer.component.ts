@@ -190,6 +190,11 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
       this.toastService.error('🔒 Complete the previous lesson\'s quiz to unlock this lesson.');
       return;
     }
+    if (this.isSessionActive) {
+      const what = (this.currentAttemptId && !this.quizSubmitted) ? 'quiz' : 'exam';
+      this.toastService.error(`⚠️ Finish or exit your active ${what} before switching lessons.`);
+      return;
+    }
     this.selectedLesson = lesson;
     this.activeTab      = 'content';
     this.videoExpanded  = false;
@@ -204,7 +209,18 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     this.courseService.trackLessonAccess(lesson.id).subscribe({ error: () => {} });
   }
 
+  /** True while a quiz or exam attempt is actively in progress (not yet submitted). */
+  get isSessionActive(): boolean {
+    return (!!this.currentAttemptId && !this.quizSubmitted) ||
+           (!!this.examAttemptId   && !this.examResult);
+  }
+
   setTab(tab: TabId): void {
+    if (this.isSessionActive && tab !== this.activeTab) {
+      const what = (this.currentAttemptId && !this.quizSubmitted) ? 'quiz' : 'exam';
+      this.toastService.error(`⚠️ Finish or exit your active ${what} before switching tabs.`);
+      return;
+    }
     this.activeTab = tab;
     if (tab === 'flashcards' && !this.sessionLoaded && !this.sessionLoading) {
       this.loadSession();
