@@ -33,16 +33,26 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
   toggleTheme(): void {
     this.isDark = !this.isDark;
     localStorage.setItem(THEME_KEY, this.isDark ? 'dark' : 'light');
+    document.body.classList.toggle('light-theme', !this.isDark);
   }
 
   readonly navItems: NavItem[] = [
-    { label: 'Overview',   icon: 'home',    route: '/dashboard/overview'   },
-    { label: 'Documents',  icon: 'file',    route: '/dashboard/documents'  },
-    { label: 'My Courses', icon: 'book',    route: '/dashboard/courses'    },
-    { label: 'Flashcards', icon: 'cards',   route: '/dashboard/flashcards' },
-    { label: 'Progress',   icon: 'chart',   route: '/dashboard/progress'   },
-    { label: 'Profile',    icon: 'user',    route: '/dashboard/profile'    },
-    { label: 'Anti-Triche', icon: 'shield', route: '/dashboard/admin/activity', adminOnly: true },
+    { label: 'Overview',    icon: 'home',    route: '/dashboard/overview'        },
+    { label: 'Documents',   icon: 'file',    route: '/dashboard/documents'       },
+    { label: 'My Courses',  icon: 'book',    route: '/dashboard/courses'         },
+    { label: 'Flashcards',  icon: 'cards',   route: '/dashboard/flashcards'      },
+    { label: 'Progress',    icon: 'chart',   route: '/dashboard/progress'        },
+    { label: 'Profile',     icon: 'user',    route: '/dashboard/profile'         },
+    { label: 'Anti-Triche', icon: 'shield',  route: '/dashboard/admin/activity', adminOnly: true },
+  ];
+
+  readonly adminNavItems: NavItem[] = [
+    { label: 'Overview',    icon: 'home',    route: '/dashboard/admin/overview',      adminOnly: true },
+    { label: 'Students',    icon: 'user',    route: '/dashboard/admin/students',      adminOnly: true },
+    { label: 'Certificates', icon: 'badge',  route: '/dashboard/admin/certificates',  adminOnly: true },
+    { label: 'Assessments', icon: 'chart',  route: '/dashboard/admin/assessments',   adminOnly: true },
+    { label: 'Anti-Triche', icon: 'shield',  route: '/dashboard/admin/activity',      adminOnly: true },
+    { label: 'Profile',     icon: 'user',    route: '/dashboard/profile'          },
   ];
 
   readonly pageTitles: Record<string, string> = {
@@ -53,6 +63,7 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     progress:   'Progress',
     profile:    'Profile',
     activity:   'Surveillance Anti-Triche',
+    students:   'Students',
   };
 
   get pageTitle(): string {
@@ -67,7 +78,10 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
   }
 
   get visibleNavItems(): NavItem[] {
-    return this.navItems.filter(item => !item.adminOnly || this.isAdmin);
+    if (this.isAdmin) {
+      return this.adminNavItems;
+    }
+    return this.navItems.filter(item => !item.adminOnly);
   }
 
   get initials(): string {
@@ -93,6 +107,7 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.notificationService.init();
+    document.body.classList.toggle('light-theme', !this.isDark);
   }
 
   ngOnDestroy(): void {
@@ -108,8 +123,14 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
       this.notificationService.markAsRead(n.id).subscribe();
       this.notificationService.markAsReadLocally(n.id);
     }
+    this.panelOpen = false;
+
+    if (n.category === 'CERTIFICATE' && n.actionUrl) {
+      window.open(n.actionUrl, '_blank');
+      return;
+    }
+
     if (n.actionUrl) {
-      this.panelOpen = false;
       this.router.navigateByUrl(n.actionUrl);
     }
   }

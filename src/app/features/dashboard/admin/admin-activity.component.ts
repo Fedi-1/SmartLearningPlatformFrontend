@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { CourseService, SuspiciousActivityDTO } from '../../../core/services/course.service';
 
 interface FlaggedAttempt {
@@ -31,9 +32,19 @@ export class AdminActivityComponent implements OnInit {
   manualError    = '';
   manualSearched = false;
 
-  constructor(private courseService: CourseService) {}
+  constructor(
+    private courseService: CourseService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['attemptId']) {
+        this.manualAttemptId = +params['attemptId'];
+        this.searchManual();
+      }
+    });
+
     this.courseService.getAdminFlaggedAttemptIds().subscribe({
       next: (ids) => {
         this.flaggedAttempts = ids.map(id => ({

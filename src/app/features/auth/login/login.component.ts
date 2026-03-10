@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
+import { UserRole } from '../../../core/enums/user-role.enum';
 
 @Component({
   selector: 'app-login',
@@ -26,6 +27,9 @@ export class LoginComponent implements OnInit {
   resendLoading = false;
   resendCooldown = false;
 
+  // Suspended-account banner
+  showSuspendedBanner = false;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -35,7 +39,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/dashboard']);
+      const user = this.authService.currentUser();
+      this.router.navigate([user?.role === UserRole.ADMIN ? '/dashboard/admin/overview' : '/dashboard']);
       return;
     }
 
@@ -61,17 +66,25 @@ export class LoginComponent implements OnInit {
 
     this.loading = true;
     this.showUnverifiedBanner = false;
+    this.showSuspendedBanner = false;
 
     this.authService.login(this.form.value).subscribe({
       next: () => {
         this.toastService.success('Welcome back!');
-        this.router.navigate(['/dashboard']);
+        const user = this.authService.currentUser();
+        if (user?.role === UserRole.ADMIN) {
+          this.router.navigate(['/dashboard/admin/overview']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
         if (err.status === 403) {
           this.unverifiedEmail = this.form.value.email;
           this.showUnverifiedBanner = true;
+        } else if (err.status === 423) {
+          this.showSuspendedBanner = true;
         } else {
           this.toastService.error('Invalid email or password');
           this.triggerShake();

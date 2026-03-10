@@ -374,6 +374,68 @@ a {
   --color-primary-subtle: rgba(99,102,241,0.12);
   --shadow-card:     0 2px 8px rgba(0,0,0,0.4);
   --shadow-elevated: 0 8px 24px rgba(0,0,0,0.5);
+
+  // ── Course viewer tokens ──────────────────────────────────────────────────
+  --cv-bg:             #0f1117;
+  --cv-surface:        #1a1d27;
+  --cv-surface2:       #13151f;
+  --cv-border:         #2a2d3a;
+  --cv-border2:        #1e2131;
+  --cv-accent:         #6366f1;
+  --cv-accent2:        #818cf8;
+  --cv-text1:          #f1f5f9;
+  --cv-text2:          #cbd5e1;
+  --cv-text3:          #94a3b8;
+  --cv-text4:          #64748b;
+  --cv-ring-track:     #2a2d3a;
+  --cv-scrollthumb:    #2a2d3a;
+  --cv-chip-bg:        rgba(255,255,255,0.06);
+  --cv-chip-border:    #2a2d3a;
+  --cv-recap-bg:       rgba(255,255,255,0.04);
+  --cv-option-bg:      rgba(255,255,255,0.03);
+  --cv-fill-bg:        rgba(255,255,255,0.04);
+  --cv-fc-front-bg:    #1a1d27;
+  --cv-fc-back-border: rgba(99,102,241,0.3);
+  --cv-fc-btn-bg:      rgba(255,255,255,0.04);
+  --cv-expl-bg:        rgba(255,255,255,0.04);
+  --cv-callout-bg:     rgba(99,102,241,0.08);
+  --cv-callout-border: rgba(99,102,241,0.25);
+  --cv-stats-bg:       rgba(255,255,255,0.03);
+  --cv-section-row-bg: rgba(255,255,255,0.03);
+  --cv-modal-bg:       #1a1d27;
+  --cv-video-bar-bg:   #13151f;
+}
+
+// ── Course viewer tokens (light) ──────────────────────────────────────────────
+.theme-light {
+  --cv-bg:             #f1f5f9;
+  --cv-surface:        #ffffff;
+  --cv-surface2:       #f8fafc;
+  --cv-border:         #e2e8f0;
+  --cv-border2:        #f1f5f9;
+  --cv-accent:         #6366f1;
+  --cv-accent2:        #4f46e5;
+  --cv-text1:          #0f172a;
+  --cv-text2:          #334155;
+  --cv-text3:          #475569;
+  --cv-text4:          #94a3b8;
+  --cv-ring-track:     #e2e8f0;
+  --cv-scrollthumb:    #cbd5e1;
+  --cv-chip-bg:        #f1f5f9;
+  --cv-chip-border:    #e2e8f0;
+  --cv-recap-bg:       #f8fafc;
+  --cv-option-bg:      #f8fafc;
+  --cv-fill-bg:        #f8fafc;
+  --cv-fc-front-bg:    #ffffff;
+  --cv-fc-back-border: #c7d2fe;
+  --cv-fc-btn-bg:      #f8fafc;
+  --cv-expl-bg:        #f8fafc;
+  --cv-callout-bg:     #eff1fe;
+  --cv-callout-border: #c7d2fe;
+  --cv-stats-bg:       #f8fafc;
+  --cv-section-row-bg: #f8fafc;
+  --cv-modal-bg:       #ffffff;
+  --cv-video-bar-bg:   #f1f5f9;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

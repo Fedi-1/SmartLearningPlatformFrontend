@@ -66,11 +66,7 @@ export interface ExamInfo {
   passingScore: number;
   maxAttempts: number;
   totalPoints: number;
-  sectionEasyCount: number;
-  sectionMediumCount: number;
-  sectionHardCount: number;
   timeLimitMinutes: number | null;
-  createdAt: string;
 }
 
 export interface ExamQuestionItem {
@@ -122,4 +118,5 @@ export interface CertificateInfo {
   score: number;
   issuedAt: string;
   hasPdf: boolean;
+  status: 'PENDING' | 'APPROVED' | 'REVOKED';
 }

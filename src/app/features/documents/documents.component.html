@@ -133,12 +133,32 @@
                             (click)="viewCourse(doc.courseId!)">
                       View Course
                     </button>
-                    <button class="btn-action btn-action--cert"
-                            [disabled]="certLoading.has(doc.courseId!) || !coursesWithCertificate.has(doc.courseId!)"
-                            [title]="!coursesWithCertificate.has(doc.courseId!) ? 'No certificate yet — pass the final exam first' : ''"
-                            (click)="downloadCertificate(doc.courseId!)">
-                      {{ certLoading.has(doc.courseId!) ? '…' : '🎓 Certificate' }}
-                    </button>
+                    @if (getCertStatus(doc.courseId!) === 'APPROVED') {
+                      <button class="btn-action btn-action--cert btn-action--cert-approved"
+                              [disabled]="certLoading.has(doc.courseId!)"
+                              title="Download your certificate"
+                              (click)="downloadCertificate(doc.courseId!)">
+                        {{ certLoading.has(doc.courseId!) ? '…' : '🎓 Certificate' }}
+                      </button>
+                    } @else if (getCertStatus(doc.courseId!) === 'PENDING') {
+                      <button class="btn-action btn-action--cert btn-action--cert-pending"
+                              disabled
+                              title="Your certificate is awaiting admin approval">
+                        ⏳ Pending Approval
+                      </button>
+                    } @else if (getCertStatus(doc.courseId!) === 'REVOKED') {
+                      <button class="btn-action btn-action--cert btn-action--cert-revoked"
+                              disabled
+                              title="Your certificate has been revoked">
+                        ❌ Revoked
+                      </button>
+                    } @else {
+                      <button class="btn-action btn-action--cert"
+                              disabled
+                              title="No certificate yet — pass the final exam first">
+                        🎓 Certificate
+                      </button>
+                    }
                   }
                   <button class="btn-action btn-action--delete"
                           (click)="openDeleteModal(doc.id)">

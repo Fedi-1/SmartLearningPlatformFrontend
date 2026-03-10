@@ -1,0 +1,121 @@
+<!-- src/app/features/dashboard/admin/students/admin-students.component.html -->
+<div class="students">
+
+  <!-- Header -->
+  <div class="students__header">
+    <div class="students__title-row">
+      <h1 class="students__title">Students</h1>
+      <span class="students__count">{{ students.length }}</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="students__toolbar">
+    <div class="search-wrap">
+      <svg class="search-wrap__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input
+        class="search-wrap__input"
+        type="text"
+        placeholder="Search by name or email…"
+        [(ngModel)]="searchQuery" />
+    </div>
+
+    <div class="filter-group">
+      <button class="filter-btn" [class.filter-btn--active]="filterStatus === 'all'"      (click)="filterStatus = 'all'">All</button>
+      <button class="filter-btn" [class.filter-btn--active]="filterStatus === 'active'"   (click)="filterStatus = 'active'">Active</button>
+      <button class="filter-btn" [class.filter-btn--active]="filterStatus === 'inactive'" (click)="filterStatus = 'inactive'">Inactive</button>
+    </div>
+
+    <div class="sort-wrap">
+      <label class="sort-wrap__label">Sort:</label>
+      <select class="sort-wrap__select" [(ngModel)]="sortKey">
+        <option value="name">Name</option>
+        <option value="createdAt">Registration Date</option>
+        <option value="lastLogin">Last Login</option>
+        <option value="engagementScore">Engagement</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  @if (loading) {
+    <div class="skeleton-list">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="skeleton-row"></div>
+      }
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!loading) {
+    <div class="table-wrap">
+      <table class="st-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Registered</th>
+            <th>Last Login</th>
+            <th>Engagement</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of filtered; track s.id) {
+            <tr class="st-table__row">
+              <td class="st-table__cell st-table__cell--student">
+                <div class="s-avatar" [style.background]="avatarColor(s)">{{ initials(s) }}</div>
+                <div class="s-info">
+                  <span class="s-info__name">{{ s.firstName }} {{ s.lastName }}</span>
+                  <span class="s-info__email">{{ s.email }}</span>
+                </div>
+              </td>
+              <td class="st-table__cell">{{ formatDate(s.createdAt) }}</td>
+              <td class="st-table__cell">{{ daysAgo(s.lastLogin) }}</td>
+              <td class="st-table__cell">
+                <span class="eng-badge" [class]="'eng-badge--' + s.engagementLevel.toLowerCase()">
+                  {{ s.engagementLevel }}
+                </span>
+              </td>
+              <td class="st-table__cell">
+                <span class="status-badge" [class.status-badge--active]="s.isActive" [class.status-badge--inactive]="!s.isActive">
+                  <span class="status-badge__dot"></span>
+                  {{ s.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="st-table__cell st-table__cell--actions">
+                <button class="btn-view" (click)="openDrawer(s.id)">View</button>
+                <button
+                  class="btn-toggle"
+                  [title]="s.isActive ? 'Suspend' : 'Activate'"
+                  (click)="onToggleStatus(s)">
+                  @if (s.isActive) {
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+                  }
+                </button>
+              </td>
+            </tr>
+          }
+          @if (filtered.length === 0) {
+            <tr>
+              <td colspan="6" class="st-table__empty">No students match your filters.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
+
+<!-- Drawer -->
+@if (selectedStudentId !== null) {
+  <app-student-drawer
+    [studentId]="selectedStudentId"
+    [open]="drawerOpen"
+    (closeDrawer)="closeDrawer()"
+    (statusToggled)="onDrawerToggleStatus($event)">
+  </app-student-drawer>
+}

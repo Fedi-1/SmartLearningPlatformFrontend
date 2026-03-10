@@ -1,596 +1,609 @@
+<!-- course-viewer.component.html -->
+
 @if (loading) {
   <div class="viewer-loading">
-    <div class="spinner-ring spinner-ring--lg"></div>
+    <div class="cv-spinner"></div>
     <p>Loading course…</p>
   </div>
 } @else if (course) {
   <div class="viewer">
 
-    <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+    <!-- ══════════════════════════════════════════════════════════════════════
+         ZONE 1 — LEFT SIDEBAR
+         ══════════════════════════════════════════════════════════════════════ -->
     <aside class="cv-sidebar">
 
-      <!-- Course info -->
-      <div class="cv-sidebar__course">
+      <!-- Course title -->
+      <div class="cv-sidebar__header">
         <h2 class="cv-sidebar__title">{{ course.title }}</h2>
-        <p class="cv-sidebar__desc">{{ course.description }}</p>
       </div>
 
-      <!-- Progress -->
-      <div class="progress-box">
-        <div class="progress-box__header">
-          <span>Progress</span>
-          <span class="progress-box__pct">{{ progressPercent }}%</span>
+      <!-- Semicircle progress indicator -->
+      <div class="cv-progress-ring-wrap">
+        <!--
+          r=50, cx=60, cy=60 — viewBox crops at y=67 showing only the top half
+          rotate(180deg) on SVG → arc sweeps left→top→right like a gauge
+          The <text> at y=67 sits right in the open mouth of the arc
+        -->
+        <svg class="cv-ring" viewBox="0 0 120 70" width="150" height="88">
+          <circle class="cv-ring__track" cx="60" cy="60" r="50" />
+          <circle class="cv-ring__fill"  cx="60" cy="60" r="50"
+                  [style.stroke-dashoffset]="ringDashOffset" />
+          <!-- text is NOT rotated — we undo the SVG rotation with a local transform -->
+          <text class="cv-ring__pct-text" x="60" y="67"
+                text-anchor="middle"
+                transform="rotate(180, 60, 60)">{{ progressPercent }}%</text>
+        </svg>
+        <div class="cv-progress-text">
+          <span class="cv-progress-text__count">{{ completedCount }} / {{ course.lessons.length }}</span>
+          <span class="cv-progress-text__sub">lessons done</span>
         </div>
-        <div class="progress-track">
-          <div class="progress-fill" [style.width.%]="progressPercent"></div>
-        </div>
-        <p class="progress-box__label">
-          {{ completedCount }} / {{ course.lessons.length }} lessons completed
-        </p>
       </div>
 
       <!-- Lesson list -->
-      <nav class="lesson-list" [class.lesson-list--session-active]="isSessionActive">
+      <nav class="cv-lesson-list"
+           [class.cv-lesson-list--session-active]="isSessionActive">
         @for (lesson of course.lessons; track lesson.id) {
-          <button class="lesson-item"
-                  [class.lesson-item--active]="selectedLesson?.id === lesson.id"
-                  [class.lesson-item--done]="isLessonCompleted(lesson.id)"
-                  [class.lesson-item--locked]="lesson.isLocked"
-                  [class.lesson-item--session-locked]="isSessionActive && selectedLesson?.id !== lesson.id"
+          <button class="cv-lesson-item"
+                  [class.cv-lesson-item--active]="selectedLesson?.id === lesson.id"
+                  [class.cv-lesson-item--done]="isLessonCompleted(lesson.id)"
+                  [class.cv-lesson-item--locked]="lesson.isLocked"
+                  [class.cv-lesson-item--session-locked]="isSessionActive && selectedLesson?.id !== lesson.id"
                   [disabled]="lesson.isLocked || (isSessionActive && selectedLesson?.id !== lesson.id)"
-                  [title]="isSessionActive && selectedLesson?.id !== lesson.id ? 'Finish your active session first' : ''"
+                  [title]="isSessionActive && selectedLesson?.id !== lesson.id
+                    ? 'Finish your active session first'
+                    : (lesson.isLocked ? 'Complete the previous lesson to unlock' : '')"
                   (click)="selectLesson(lesson)">
-            <span class="lesson-item__num">{{ lesson.lessonNumber }}</span>
-            <span class="lesson-item__title">{{ lesson.title }}</span>
-            @if (lesson.isLocked) {
-              <span class="lesson-item__lock">🔒</span>
-            } @else if (isSessionActive && selectedLesson?.id !== lesson.id) {
-              <span class="lesson-item__lock">⏳</span>
-            } @else if (isLessonCompleted(lesson.id)) {
-              <span class="lesson-item__check">✓</span>
-            }
+            <!-- Number badge -->
+            <span class="cv-lesson-item__badge"
+                  [class.cv-lesson-item__badge--done]="isLessonCompleted(lesson.id)"
+                  [class.cv-lesson-item__badge--active]="selectedLesson?.id === lesson.id && !isLessonCompleted(lesson.id)">
+              {{ lesson.lessonNumber }}
+            </span>
+            <!-- Text -->
+            <span class="cv-lesson-item__body">
+              <span class="cv-lesson-item__title">{{ lesson.title }}</span>
+              @if (lesson.estimatedReadTime) {
+                <span class="cv-lesson-item__meta">~{{ lesson.estimatedReadTime }} min</span>
+              }
+            </span>
+            <!-- Status icon -->
+            <span class="cv-lesson-item__status">
+              @if (lesson.isLocked) {
+                <span class="cv-status-icon cv-status-icon--locked">🔒</span>
+              } @else if (isSessionActive && selectedLesson?.id !== lesson.id) {
+                <span class="cv-status-icon cv-status-icon--waiting">⏳</span>
+              } @else if (isLessonCompleted(lesson.id)) {
+                <span class="cv-status-icon cv-status-icon--done">✓</span>
+              } @else if (selectedLesson?.id === lesson.id) {
+                <span class="cv-status-icon cv-status-icon--active">→</span>
+              }
+            </span>
           </button>
         }
       </nav>
+
     </aside>
 
-    <!-- ── Main ─────────────────────────────────────────────────────────────── -->
+    <!-- ══════════════════════════════════════════════════════════════════════
+         ZONE 2 + 3 — MAIN CONTENT
+         ══════════════════════════════════════════════════════════════════════ -->
     <main class="cv-main">
-
       @if (selectedLesson) {
 
-        <!-- Lesson header -->
-        <header class="lesson-header">
-          <p class="lesson-header__num">Lesson {{ selectedLesson.lessonNumber }}</p>
-          <h1 class="lesson-header__title">{{ selectedLesson.title }}</h1>
-        </header>
+        <!-- ── ZONE 2: Lesson header ──────────────────────────────────────── -->
+        <header class="cv-lesson-header">
+          <div class="cv-lesson-header__left">
+            <span class="cv-lesson-header__eyebrow">Lesson {{ selectedLesson.lessonNumber }}</span>
+            <h1 class="cv-lesson-header__title">{{ selectedLesson.title }}</h1>
+            <!-- Meta row -->
+            <div class="cv-lesson-header__meta">
+              @if (selectedLesson.estimatedReadTime) {
+                <span class="cv-meta-chip">
+                  <span class="cv-meta-chip__icon">⏱</span>
+                  ~{{ selectedLesson.estimatedReadTime }} min read
+                </span>
+              }
+              @if (selectedLesson.flashcards.length) {
+                <span class="cv-meta-chip">
+                  <span class="cv-meta-chip__icon">🃏</span>
+                  {{ selectedLesson.flashcards.length }} flashcard{{ selectedLesson.flashcards.length !== 1 ? 's' : '' }}
+                </span>
+              }
+              @if (alreadyPassed) {
+                <span class="cv-meta-chip cv-meta-chip--success">
+                  <span class="cv-meta-chip__icon">✓</span>
+                  Quiz Passed
+                </span>
+              } @else if (attemptsUsed > 0) {
+                <span class="cv-meta-chip cv-meta-chip--warn">
+                  <span class="cv-meta-chip__icon">🎯</span>
+                  Quiz Attempted
+                </span>
+              } @else {
+                <span class="cv-meta-chip cv-meta-chip--muted">
+                  <span class="cv-meta-chip__icon">🎯</span>
+                  Quiz Not Attempted
+                </span>
+              }
+            </div>
+          </div>
 
-        <!-- Lesson summary / overview -->
-        <div class="lesson-summary">
-          <span class="lesson-summary__label">📋 Overview</span>
-          <p class="lesson-summary__text">{{ selectedLesson.summary }}</p>
-        </div>
-
-        <!-- Watch Recap Video -->
-        <div class="recap-video-section">
-          @if (!recapVideoUrl && !recapGenerating) {
-            <button class="btn-watch-recap btn-watch-recap--generate" (click)="generateRecap()">
-              <span class="btn-watch-recap__icon">🎬</span>
-              Generate Lesson Recap
-            </button>
-          } @else if (recapGenerating) {
-            <button class="btn-watch-recap btn-watch-recap--loading" disabled>
-              <span class="btn-watch-recap__spinner"></span>
-              Generating video&hellip;
-            </button>
-          } @else {
-            @if (!videoExpanded) {
-              <button class="btn-watch-recap" (click)="videoExpanded = true">
-                <span class="btn-watch-recap__icon">▶</span>
-                Watch Lesson Recap
+          <!-- Recap video button — featured, right side -->
+          <div class="cv-lesson-header__recap">
+            @if (!recapVideoUrl && !recapGenerating) {
+              <button class="cv-recap-btn cv-recap-btn--generate" (click)="generateRecap()">
+                <span class="cv-recap-btn__icon">🎬</span>
+                <span class="cv-recap-btn__text">
+                  <span class="cv-recap-btn__label">Generate Recap</span>
+                  <span class="cv-recap-btn__sub">AI video summary</span>
+                </span>
+              </button>
+            } @else if (recapGenerating) {
+              <button class="cv-recap-btn cv-recap-btn--loading" disabled>
+                <span class="cv-recap-btn__spinner"></span>
+                <span class="cv-recap-btn__text">
+                  <span class="cv-recap-btn__label">Generating…</span>
+                  <span class="cv-recap-btn__sub">This may take a minute</span>
+                </span>
+              </button>
+            } @else if (!videoExpanded) {
+              <button class="cv-recap-btn cv-recap-btn--play" (click)="videoExpanded = true">
+                <span class="cv-recap-btn__play-circle">▶</span>
+                <span class="cv-recap-btn__text">
+                  <span class="cv-recap-btn__label">Watch Recap</span>
+                  <span class="cv-recap-btn__sub">Lesson {{ selectedLesson.lessonNumber }} summary</span>
+                </span>
               </button>
             } @else {
-              <div class="recap-video-player">
-                <div class="recap-video-player__header">
-                  <span class="recap-video-player__title">📹 Lesson {{ selectedLesson.lessonNumber }} Recap</span>
-                  <button class="recap-video-player__close" (click)="videoExpanded = false">✕</button>
-                </div>
-                <video
-                  [src]="recapVideoUrl"
-                  controls
-                  class="recap-video-el"
-                  preload="metadata"
-                ></video>
+              <button class="cv-recap-btn cv-recap-btn--close" (click)="videoExpanded = false">
+                <span class="cv-recap-btn__icon">✕</span>
+                <span class="cv-recap-btn__text">
+                  <span class="cv-recap-btn__label">Close Video</span>
+                </span>
+              </button>
+            }
+          </div>
+        </header>
+
+        <!-- Recap video player -->
+        @if (videoExpanded && recapVideoUrl) {
+          <div class="cv-video-player">
+            <div class="cv-video-player__bar">
+              <span>📹 Lesson {{ selectedLesson.lessonNumber }} — Recap Video</span>
+              <button class="cv-video-player__close" (click)="videoExpanded = false">✕</button>
+            </div>
+            <video [src]="recapVideoUrl" controls class="cv-video-el" preload="metadata"></video>
+          </div>
+        }
+
+        <!-- ── ZONE 3: Tab bar ────────────────────────────────────────────── -->
+        <div class="cv-tabs" [class.cv-tabs--locked]="isSessionActive">
+          <button class="cv-tab"
+                  [class.cv-tab--active]="activeTab === 'content'"
+                  [class.cv-tab--session-locked]="isSessionActive && activeTab !== 'content'"
+                  [disabled]="isSessionActive && activeTab !== 'content'"
+                  (click)="setTab('content')">
+            <span class="cv-tab__icon">📖</span> Content
+          </button>
+          <button class="cv-tab"
+                  [class.cv-tab--active]="activeTab === 'quiz'"
+                  [class.cv-tab--session-locked]="isSessionActive && activeTab !== 'quiz'"
+                  [disabled]="isSessionActive && activeTab !== 'quiz'"
+                  (click)="setTab('quiz')">
+            <span class="cv-tab__icon">🎯</span> Quiz
+          </button>
+          <button class="cv-tab"
+                  [class.cv-tab--active]="activeTab === 'flashcards'"
+                  [class.cv-tab--session-locked]="isSessionActive && activeTab !== 'flashcards'"
+                  [disabled]="isSessionActive && activeTab !== 'flashcards'"
+                  (click)="setTab('flashcards')">
+            <span class="cv-tab__icon">🃏</span> Flashcards
+            @if (selectedLesson.flashcards.length) {
+              <span class="cv-tab__badge">{{ selectedLesson.flashcards.length }}</span>
+            }
+          </button>
+          <button class="cv-tab cv-tab--exam"
+                  [class.cv-tab--active]="activeTab === 'exam'"
+                  [class.cv-tab--session-locked]="isSessionActive && activeTab !== 'exam'"
+                  [disabled]="isSessionActive && activeTab !== 'exam'"
+                  (click)="setTab('exam')">
+            <span class="cv-tab__icon">🏆</span> Final Exam
+          </button>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             CONTENT TAB
+             ══════════════════════════════════════════════════════════════════ -->
+        @if (activeTab === 'content') {
+          <div class="cv-content-tab">
+            @if (selectedLesson.summary) {
+              <div class="cv-summary-callout">
+                <span class="cv-summary-callout__label">Overview</span>
+                <p class="cv-summary-callout__text">{{ selectedLesson.summary }}</p>
               </div>
             }
-          }
-        </div>
-
-        <!-- Tab bar -->
-        <div class="tab-bar" [class.tab-bar--locked]="isSessionActive">
-          <button class="tab-btn"
-                  [class.tab-btn--active]="activeTab === 'content'"
-                  [class.tab-btn--session-locked]="isSessionActive && activeTab !== 'content'"
-                  [disabled]="isSessionActive && activeTab !== 'content'"
-                  [title]="isSessionActive && activeTab !== 'content' ? 'Finish your active session first' : ''"
-                  (click)="setTab('content')">📖 Content</button>
-          <button class="tab-btn"
-                  [class.tab-btn--active]="activeTab === 'quiz'"
-                  [class.tab-btn--session-locked]="isSessionActive && activeTab !== 'quiz'"
-                  [disabled]="isSessionActive && activeTab !== 'quiz'"
-                  [title]="isSessionActive && activeTab !== 'quiz' ? 'Finish your active session first' : ''"
-                  (click)="setTab('quiz')">🎯 Quiz
-            @if (selectedLesson.quiz && selectedLesson.quiz.length) {
-              <span class="tab-badge">{{ selectedLesson.quiz.length }}</span>
-            }
-          </button>
-          <button class="tab-btn"
-                  [class.tab-btn--active]="activeTab === 'flashcards'"
-                  [class.tab-btn--session-locked]="isSessionActive && activeTab !== 'flashcards'"
-                  [disabled]="isSessionActive && activeTab !== 'flashcards'"
-                  [title]="isSessionActive && activeTab !== 'flashcards' ? 'Finish your active session first' : ''"
-                  (click)="setTab('flashcards')">🃏 Flashcards
-            @if (selectedLesson.flashcards && selectedLesson.flashcards.length) {
-              <span class="tab-badge">{{ selectedLesson.flashcards.length }}</span>
-            }
-          </button>
-          <button class="tab-btn tab-btn--exam"
-                  [class.tab-btn--active]="activeTab === 'exam'"
-                  [class.tab-btn--session-locked]="isSessionActive && activeTab !== 'exam'"
-                  [disabled]="isSessionActive && activeTab !== 'exam'"
-                  [title]="isSessionActive && activeTab !== 'exam' ? 'Finish your active session first' : ''"
-                  (click)="setTab('exam')">
-            🏆 Final Exam
-          </button>
-        </div>
-
-        <!-- ── CONTENT TAB ─────────────────────────────────────────────────── -->
-        @if (activeTab === 'content') {
-          <div class="content-tab">
-            <div class="content-card">
-              <p class="content-text">{{ selectedLesson.content }}</p>
+            <div class="cv-content-body">
+              <p class="cv-content-body__text">{{ selectedLesson.content }}</p>
             </div>
-            <button class="btn btn-primary continue-btn" (click)="setTab('quiz')">
-              Continue to Quiz →
+            <button class="cv-continue-btn" (click)="setTab('quiz')">
+              Continue to Quiz <span class="cv-continue-btn__arrow">→</span>
             </button>
           </div>
         }
 
-        <!-- ── QUIZ TAB ────────────────────────────────────────────────────── -->
+        <!-- ══════════════════════════════════════════════════════════════════
+             QUIZ TAB
+             ══════════════════════════════════════════════════════════════════ -->
         @if (activeTab === 'quiz') {
-          <div class="quiz-tab">
+          <div class="cv-quiz-tab">
 
-            <!-- Attempt counter -->
-            <div class="attempt-bar">
+            <div class="cv-attempt-bar">
               @if (attemptsLoading) {
-                <span>Loading attempts…</span>
+                <span class="cv-attempt-bar__text">Loading attempts…</span>
               } @else {
-                <span>Attempts: {{ attemptsUsed }} / {{ maxAttempts }}</span>
+                <span class="cv-attempt-bar__text">
+                  Attempts: <strong>{{ attemptsUsed }} / {{ maxAttempts }}</strong>
+                </span>
                 @if (alreadyPassed) {
-                  <span class="attempt-bar__badge attempt-bar__badge--pass">✓ Passed</span>
+                  <span class="cv-badge cv-badge--pass">✓ Passed</span>
                 }
               }
             </div>
 
-            <!-- Loading past attempts -->
             @if (attemptsLoading) {
-              <div class="quiz-start-box">
-                <div class="spinner-ring"></div>
+              <div class="cv-state-box">
+                <div class="cv-spinner"></div>
               </div>
             }
 
-            <!-- No attempt started yet (past attempts loaded, none active) -->
             @if (!attemptsLoading && !currentAttemptId && !quizSubmitted) {
-              <div class="quiz-start-box">
+              <div class="cv-state-box">
                 @if (noAttemptsLeft) {
-                  <p class="quiz-info">You have used all {{ maxAttempts }} attempts for this quiz.</p>
+                  <p class="cv-state-box__text">You have used all {{ maxAttempts }} attempts for this quiz.</p>
                 } @else if (alreadyPassed) {
-                  <p class="quiz-info">You already passed this quiz. You can retake it for practice.</p>
-                  <button class="btn btn-ghost" (click)="startQuiz()">Retake Quiz</button>
+                  <p class="cv-state-box__text">You already passed this quiz. You can retake it for practice.</p>
+                  <button class="cv-btn cv-btn--ghost" (click)="startQuiz()">Retake Quiz</button>
                 } @else {
-                  <button class="btn btn-primary" (click)="startQuiz()">Start Quiz</button>
+                  <button class="cv-btn cv-btn--primary" (click)="startQuiz()">Start Quiz</button>
                 }
               </div>
             }
 
-            <!-- Starting attempt (waiting for server response) -->
-            @if (!attemptsLoading && !currentAttemptId && quizSubmitted === false) {
-            }
-
-            <!-- Active attempt: answer questions -->
             @if (currentAttemptId && !quizSubmitted) {
-              <!-- Countdown timer -->
               @if (quizTimeLimit) {
-                <div class="quiz-timer" [class.quiz-timer--warning]="quizTimerWarning">
-                  <span class="quiz-timer__icon">⏱</span>
-                  <span class="quiz-timer__value">{{ quizTimerDisplay }}</span>
+                <div class="cv-timer" [class.cv-timer--warning]="quizTimerWarning">
+                  <span>⏱</span>
+                  <span class="cv-timer__value">{{ quizTimerDisplay }}</span>
                 </div>
               }
-
               @for (q of currentAttemptQuestions; track q.id) {
-                <div class="question-card">
-                  <p class="question-text">
-                    <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                <div class="cv-question-card">
+                  <p class="cv-question-card__text">
+                    <span class="cv-question-card__num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
                   </p>
-
-                  <!-- MCQ or TRUE_FALSE: radio button list -->
                   @if (q.questionType === 'MCQ' || q.questionType === 'TRUE_FALSE') {
-                    <ul class="options-list">
+                    <ul class="cv-options">
                       @for (opt of q.options; track opt) {
-                        <li class="option"
-                            [class.option--selected]="isSelected(q.id, opt)"
+                        <li class="cv-option"
+                            [class.cv-option--selected]="isSelected(q.id, opt)"
                             (click)="selectAnswer(q.id, opt)">
-                          <span class="option__radio" [class.option__radio--filled]="isSelected(q.id, opt)"></span>
+                          <span class="cv-option__dot"
+                                [class.cv-option__dot--filled]="isSelected(q.id, opt)"></span>
                           <span>{{ opt }}</span>
                         </li>
                       }
                     </ul>
                   }
-
-                  <!-- FILL_BLANK: text input -->
                   @if (q.questionType === 'FILL_BLANK') {
-                    <div class="fill-blank-wrapper">
-                      <input class="fill-blank-input"
-                             type="text"
-                             placeholder="Type your answer here…"
-                             [value]="selectedAnswers.get(q.id) ?? ''"
-                             (input)="selectAnswer(q.id, $any($event.target).value)" />
-                    </div>
+                    <input class="cv-fill-input"
+                           type="text"
+                           placeholder="Type your answer here…"
+                           [value]="selectedAnswers.get(q.id) ?? ''"
+                           (input)="selectAnswer(q.id, $any($event.target).value)" />
                   }
                 </div>
               }
-
-              <button class="btn btn-primary submit-btn"
+              <button class="cv-btn cv-btn--primary cv-submit-btn"
                       [disabled]="!allQuestionsAnswered() || quizSubmitting"
                       (click)="submitQuiz('SUBMITTED')">
                 @if (quizSubmitting) { Submitting… } @else { Submit Quiz }
               </button>
             }
 
-            <!-- Results after submission -->
             @if (quizSubmitted) {
-              <div class="results-card"
-                   [class.results-card--pass]="quizPassed"
-                   [class.results-card--fail]="!quizPassed">
-                <div class="results-score">{{ quizScore }}<span>%</span></div>
-                <p class="results-label">{{ quizPassed ? '🎉 Great job! You passed!' : '😕 Keep practising!' }}</p>
-                <p class="results-threshold">Passing score: 70%</p>
+              <div class="cv-result-card"
+                   [class.cv-result-card--pass]="quizPassed"
+                   [class.cv-result-card--fail]="!quizPassed">
+                <div class="cv-result-card__score">{{ quizScore }}<span>%</span></div>
+                <p class="cv-result-card__label">{{ quizPassed ? '🎉 Great job! You passed!' : '😕 Keep practising!' }}</p>
+                <p class="cv-result-card__sub">Passing score: 70%</p>
                 @if (!quizPassed && attemptsRemaining > 0) {
-                  <p class="results-remaining">{{ attemptsRemaining }} attempt(s) remaining</p>
+                  <p class="cv-result-card__remaining">{{ attemptsRemaining }} attempt(s) remaining</p>
                 }
               </div>
 
-              <!-- Answer review -->
               @for (q of currentAttemptQuestions; track q.id) {
-                <div class="question-card question-card--review">
-                  <p class="question-text">
-                    <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                <div class="cv-question-card cv-question-card--review">
+                  <p class="cv-question-card__text">
+                    <span class="cv-question-card__num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
                   </p>
-
-                  <!-- MCQ / TRUE_FALSE review -->
                   @if (q.questionType === 'MCQ' || q.questionType === 'TRUE_FALSE') {
-                    <ul class="options-list">
+                    <ul class="cv-options">
                       @for (opt of q.options; track opt) {
-                        <li class="option option--readonly"
-                            [class.option--correct]="isCorrect(q.id, opt)"
-                            [class.option--wrong]="isSelected(q.id, opt) && !isCorrect(q.id, opt)">
-                          <span class="option__radio"></span>
+                        <li class="cv-option cv-option--readonly"
+                            [class.cv-option--correct]="isCorrect(q.id, opt)"
+                            [class.cv-option--wrong]="isSelected(q.id, opt) && !isCorrect(q.id, opt)">
+                          <span class="cv-option__dot"></span>
                           <span>{{ opt }}</span>
-                          @if (isCorrect(q.id, opt)) { <span class="option__mark">✓</span> }
-                          @if (isSelected(q.id, opt) && !isCorrect(q.id, opt)) { <span class="option__mark option__mark--wrong">✗</span> }
+                          @if (isCorrect(q.id, opt)) {
+                            <span class="cv-mark cv-mark--ok">✓</span>
+                          }
+                          @if (isSelected(q.id, opt) && !isCorrect(q.id, opt)) {
+                            <span class="cv-mark cv-mark--bad">✗</span>
+                          }
                         </li>
                       }
                     </ul>
                   }
-
-                  <!-- FILL_BLANK review -->
                   @if (q.questionType === 'FILL_BLANK') {
-                    <div class="fill-blank-review">
-                      <div class="fill-blank-review__row"
-                           [class.fill-blank-review__row--correct]="fillBlankCorrect(q.id)"
-                           [class.fill-blank-review__row--wrong]="!fillBlankCorrect(q.id)">
-                        <span class="fill-blank-review__label">Your answer:</span>
-                        <span class="fill-blank-review__value">{{ selectedAnswers.get(q.id) || '(no answer)' }}</span>
-                        <span class="option__mark" [class.option__mark--wrong]="!fillBlankCorrect(q.id)">
-                          {{ fillBlankCorrect(q.id) ? '✓' : '✗' }}
-                        </span>
-                      </div>
-                      @if (!fillBlankCorrect(q.id)) {
-                        <div class="fill-blank-review__correct">
-                          Correct answer: <strong>{{ q.correctAnswer }}</strong>
-                        </div>
-                      }
+                    <div class="cv-fill-review"
+                         [class.cv-fill-review--correct]="fillBlankCorrect(q.id)"
+                         [class.cv-fill-review--wrong]="!fillBlankCorrect(q.id)">
+                      <span>Your answer: <strong>{{ selectedAnswers.get(q.id) || '(no answer)' }}</strong></span>
+                      <span>{{ fillBlankCorrect(q.id) ? '✓' : '✗' }}</span>
                     </div>
+                    @if (!fillBlankCorrect(q.id)) {
+                      <p class="cv-fill-correct">Correct: <strong>{{ q.correctAnswer }}</strong></p>
+                    }
                   }
-
                   @if (q.explanation) {
-                    <div class="explanation">
-                      <span class="explanation__icon">💡</span>
-                      {{ q.explanation }}
-                    </div>
+                    <div class="cv-explanation"><span>💡</span> {{ q.explanation }}</div>
                   }
                 </div>
               }
 
               @if (!quizPassed && attemptsRemaining > 0) {
-                <button class="btn btn-ghost retry-btn" (click)="retryQuiz()">Retry Quiz</button>
+                <button class="cv-btn cv-btn--ghost" (click)="retryQuiz()">Retry Quiz</button>
               }
             }
 
           </div>
         }
 
-        <!-- ── FLASHCARDS TAB ──────────────────────────────────────────────── -->
+        <!-- ══════════════════════════════════════════════════════════════════
+             FLASHCARDS TAB
+             ══════════════════════════════════════════════════════════════════ -->
         @if (activeTab === 'flashcards') {
-          <div class="flashcards-tab">
+          <div class="cv-flashcards-tab">
 
-            <!-- Loading -->
             @if (sessionLoading) {
-              <div class="fc-loading">
-                <div class="spinner-ring"></div>
+              <div class="cv-state-box">
+                <div class="cv-spinner"></div>
                 <p>Loading your review session…</p>
               </div>
-            }
-
-            <!-- Up to date: no cards due -->
-            @else if (sessionLoaded && totalCards === 0 && !sessionComplete) {
-              <div class="fc-up-to-date">
-                <span class="fc-uptodate-icon">🎉</span>
-                <p class="fc-uptodate-title">All flashcards are up to date!</p>
+            } @else if (sessionLoaded && totalCards === 0 && !sessionComplete) {
+              <div class="cv-state-box cv-state-box--center">
+                <span class="cv-state-box__emoji">🎉</span>
+                <p class="cv-state-box__title">All flashcards are up to date!</p>
                 @if (nextUpcomingDate) {
-                  <p class="fc-uptodate-sub">Next review scheduled for <strong>{{ nextUpcomingDate }}</strong>.</p>
+                  <p class="cv-state-box__text">Next review: <strong>{{ nextUpcomingDate }}</strong></p>
                 } @else {
-                  <p class="fc-uptodate-sub">No upcoming reviews scheduled.</p>
+                  <p class="cv-state-box__text">No upcoming reviews scheduled.</p>
                 }
-                <button class="btn btn-ghost" (click)="loadSession()">Refresh</button>
+                <button class="cv-btn cv-btn--ghost" (click)="loadSession()">Refresh</button>
               </div>
-            }
-
-            <!-- Session complete -->
-            @else if (sessionComplete) {
-              <div class="fc-complete-card">
-                <div class="fc-complete-card__emoji">🎉</div>
-                <h2 class="fc-complete-card__title">Session Complete!</h2>
-                <p class="fc-complete-card__sub">You reviewed all due cards for this lesson. Great work!</p>
-                <div class="fc-complete-summary">
-                  <div class="fc-complete-summary__item fc-complete-summary__item--red">
-                    <span class="fc-complete-summary__emoji">😓</span>
-                    <span class="fc-complete-summary__count">{{ sessionSummary.again }}</span>
-                    <span class="fc-complete-summary__label">Again</span>
+            } @else if (sessionComplete) {
+              <div class="cv-fc-complete">
+                <div class="cv-fc-complete__emoji">🎉</div>
+                <h2 class="cv-fc-complete__title">Session Complete!</h2>
+                <p class="cv-fc-complete__sub">You reviewed all due cards. Great work!</p>
+                <div class="cv-fc-summary">
+                  <div class="cv-fc-summary__item cv-fc-summary__item--red">
+                    <span>😓</span><strong>{{ sessionSummary.again }}</strong><span>Again</span>
                   </div>
-                  <div class="fc-complete-summary__item fc-complete-summary__item--gold">
-                    <span class="fc-complete-summary__emoji">🤔</span>
-                    <span class="fc-complete-summary__count">{{ sessionSummary.good }}</span>
-                    <span class="fc-complete-summary__label">Good</span>
+                  <div class="cv-fc-summary__item cv-fc-summary__item--gold">
+                    <span>🤔</span><strong>{{ sessionSummary.good }}</strong><span>Good</span>
                   </div>
-                  <div class="fc-complete-summary__item fc-complete-summary__item--green">
-                    <span class="fc-complete-summary__emoji">✅</span>
-                    <span class="fc-complete-summary__count">{{ sessionSummary.easy }}</span>
-                    <span class="fc-complete-summary__label">Easy</span>
+                  <div class="cv-fc-summary__item cv-fc-summary__item--green">
+                    <span>✅</span><strong>{{ sessionSummary.easy }}</strong><span>Easy</span>
                   </div>
                 </div>
-                <button class="fc-done-btn" (click)="loadSession()">🔄 Start New Session</button>
+                <button class="cv-btn cv-btn--primary" (click)="loadSession()">🔄 New Session</button>
               </div>
-            }
-
-            <!-- Active session -->
-            @else if (sessionLoaded && currentCard) {
-
-              <!-- Progress bar -->
-              <div class="fc-progress-wrap">
-                <div class="fc-progress-meta">
-                  <span class="fc-progress-text">{{ sessionQueue.length - totalCards > 0 ? sessionQueue.length - totalCards : 0 }} / {{ sessionQueue.length + (sessionSummary.again + sessionSummary.good + sessionSummary.easy) }} reviewed</span>
-                  <span class="fc-cards-badge">{{ totalCards }} left</span>
+            } @else if (sessionLoaded && currentCard) {
+              <div class="cv-fc-progress-wrap">
+                <div class="cv-fc-progress-meta">
+                  <span>
+                    {{ sessionSummary.again + sessionSummary.good + sessionSummary.easy }} /
+                    {{ sessionSummary.again + sessionSummary.good + sessionSummary.easy + totalCards }} reviewed
+                  </span>
+                  <span class="cv-badge cv-badge--neutral">{{ totalCards }} left</span>
                 </div>
-                <div class="fc-progress-track">
-                  <div class="fc-progress-fill"
-                       [style.width.%]="(sessionSummary.again + sessionSummary.good + sessionSummary.easy) / ((sessionSummary.again + sessionSummary.good + sessionSummary.easy) + totalCards || 1) * 100"></div>
+                <div class="cv-fc-progress-track">
+                  <div class="cv-fc-progress-fill"
+                       [style.width.%]="(sessionSummary.again + sessionSummary.good + sessionSummary.easy) /
+                         ((sessionSummary.again + sessionSummary.good + sessionSummary.easy) + totalCards || 1) * 100">
+                  </div>
                 </div>
               </div>
 
-              <!-- 3-D flip card -->
-              <div class="fc-flashcard" [class.fc-flashcard--flipped]="cardFlipped" (click)="flipCard()">
-                <div class="fc-flashcard__inner">
-
-                  <div class="fc-flashcard__front">
-                    <span class="fc-flashcard__hint">✨ Tap to reveal</span>
-                    <p class="fc-flashcard__text">{{ currentCard.term }}</p>
+              <div class="cv-flashcard"
+                   [class.cv-flashcard--flipped]="cardFlipped"
+                   (click)="flipCard()">
+                <div class="cv-flashcard__inner">
+                  <div class="cv-flashcard__front">
+                    <span class="cv-flashcard__hint">✨ Tap to reveal</span>
+                    <p class="cv-flashcard__text">{{ currentCard.term }}</p>
                   </div>
-
-                  <div class="fc-flashcard__back">
-                    <p class="fc-flashcard__term-small">{{ currentCard.term }}</p>
-                    <p class="fc-flashcard__definition">{{ currentCard.definition }}</p>
+                  <div class="cv-flashcard__back">
+                    <p class="cv-flashcard__term-small">{{ currentCard.term }}</p>
+                    <p class="cv-flashcard__definition">{{ currentCard.definition }}</p>
                   </div>
-
                 </div>
               </div>
 
-              <!-- Rating or hint -->
               @if (cardFlipped) {
-                <div class="fc-rating-section">
-                  <span class="fc-rating-label">How well did you know this?</span>
-                  <div class="fc-rating-row">
-                    <button class="fc-rating-btn fc-rating-btn--again"
+                <div class="cv-fc-rating">
+                  <span class="cv-fc-rating__label">How well did you know this?</span>
+                  <div class="cv-fc-rating__row">
+                    <button class="cv-fc-btn cv-fc-btn--again"
                             [disabled]="ratingSubmitting"
                             (click)="rateCard('AGAIN')">
-                      <span class="fc-rating-btn__emoji">�</span>
-                      <span class="fc-rating-btn__label">Again</span>
-                      <span class="fc-rating-btn__sub">Forgot it</span>
+                      <span>😓</span>
+                      <span class="cv-fc-btn__label">Again</span>
+                      <span class="cv-fc-btn__sub">Forgot it</span>
                     </button>
-                    <button class="fc-rating-btn fc-rating-btn--good"
+                    <button class="cv-fc-btn cv-fc-btn--good"
                             [disabled]="ratingSubmitting"
                             (click)="rateCard('GOOD')">
-                      <span class="fc-rating-btn__emoji">🤔</span>
-                      <span class="fc-rating-btn__label">Good</span>
-                      <span class="fc-rating-btn__sub">Recalled with effort</span>
+                      <span>🤔</span>
+                      <span class="cv-fc-btn__label">Good</span>
+                      <span class="cv-fc-btn__sub">With effort</span>
                     </button>
-                    <button class="fc-rating-btn fc-rating-btn--easy"
+                    <button class="cv-fc-btn cv-fc-btn--easy"
                             [disabled]="ratingSubmitting"
                             (click)="rateCard('EASY')">
-                      <span class="fc-rating-btn__emoji">✅</span>
-                      <span class="fc-rating-btn__label">Easy</span>
-                      <span class="fc-rating-btn__sub">Knew it instantly</span>
+                      <span>✅</span>
+                      <span class="cv-fc-btn__label">Easy</span>
+                      <span class="cv-fc-btn__sub">Instant recall</span>
                     </button>
                   </div>
                 </div>
               } @else {
-                <p class="fc-flip-hint">👆 Click the card to reveal the answer</p>
+                <p class="cv-fc-flip-hint">👆 Click the card to reveal the answer</p>
               }
-
             }
 
           </div>
         }
 
-        <!-- ── EXAM TAB ─────────────────────────────────────────────────────── -->
+        <!-- ══════════════════════════════════════════════════════════════════
+             FINAL EXAM TAB
+             ══════════════════════════════════════════════════════════════════ -->
         @if (activeTab === 'exam') {
-          <div class="exam-tab">
+          <div class="cv-exam-tab">
 
-            <!-- Loading exam info -->
             @if (examLoading) {
-              <div class="exam-loading">
-                <div class="spinner-ring spinner-ring--lg"></div>
+              <div class="cv-state-box">
+                <div class="cv-spinner cv-spinner--lg"></div>
                 <p>Loading exam info…</p>
               </div>
-            }
-
-            <!-- Generating exam (Groq call in progress) -->
-            @else if (examGenerating) {
-              <div class="exam-loading">
-                <div class="spinner-ring spinner-ring--lg"></div>
-                <p class="exam-generating-text">
+            } @else if (examGenerating) {
+              <div class="cv-state-box">
+                <div class="cv-spinner cv-spinner--lg"></div>
+                <p>
                   Generating your final exam with AI…<br>
-                  <span class="exam-generating-sub">This may take up to a minute.</span>
+                  <span class="cv-state-box__sub">This may take up to a minute.</span>
                 </p>
               </div>
-            }
-
-            <!-- No exam yet — show generate button (only if all lessons done) -->
-            @else if (!examInfo && !examAttemptId && !examResult) {
-              <div class="exam-gate">
-                <div class="exam-gate__icon">🏆</div>
-                <h2 class="exam-gate__title">Final Exam</h2>
+            } @else if (!examInfo && !examAttemptId && !examResult) {
+              <div class="cv-exam-gate">
+                <div class="cv-exam-gate__icon">🏆</div>
+                <h2 class="cv-exam-gate__title">Final Exam</h2>
                 @if (allLessonsCompleted) {
-                  <p class="exam-gate__desc">
+                  <p class="cv-exam-gate__desc">
                     You've completed all lessons! Generate your AI-powered final exam to earn your certificate.
                   </p>
-                  <div class="exam-gate__info">
-                    <span>📝 25 questions (True/False · MCQ · Fill-in-the-Blank)</span>
-                    <span>⏱ 3 attempts allowed</span>
-                    <span>✅ 70% to pass</span>
+                  <div class="cv-exam-gate__chips">
+                    <span class="cv-meta-chip">📝 25 questions</span>
+                    <span class="cv-meta-chip">⏱ 3 attempts</span>
+                    <span class="cv-meta-chip">✅ Pass at 70%</span>
                   </div>
-                  <button class="btn btn-primary exam-gate__btn" (click)="generateExam()">
+                  <button class="cv-btn cv-btn--primary cv-exam-gate__btn" (click)="generateExam()">
                     Generate Exam
                   </button>
                 } @else {
-                  <p class="exam-gate__desc">
-                    Complete all lessons before taking the final exam.
-                  </p>
-                  <div class="exam-gate__progress">
-                    <span class="exam-gate__progress-text">
+                  <p class="cv-exam-gate__desc">Complete all lessons to unlock the final exam.</p>
+                  <div class="cv-exam-gate__progress">
+                    <span class="cv-exam-gate__progress-label">
                       {{ completedCount }} / {{ course.lessons.length }} lessons completed
                     </span>
-                    <div class="progress-track">
-                      <div class="progress-fill" [style.width.%]="progressPercent"></div>
+                    <div class="cv-progress-bar">
+                      <div class="cv-progress-bar__fill" [style.width.%]="progressPercent"></div>
                     </div>
                   </div>
                 }
               </div>
-            }
-
-            <!-- Exam info card (not yet started / past attempts) -->
-            @else if (examInfo && !examAttemptId && !examResult) {
-              <div class="exam-info-card">
-                <div class="exam-info-card__header">
-                  <h2>{{ examInfo.title }}</h2>
-                  <span class="exam-info-badge">AI Generated</span>
+            } @else if (examInfo && !examAttemptId && !examResult) {
+              <div class="cv-exam-info">
+                <div class="cv-exam-info__header">
+                  <h2 class="cv-exam-info__title">{{ examInfo.title }}</h2>
+                  <span class="cv-badge cv-badge--indigo">AI Generated</span>
                 </div>
-                <div class="exam-info-card__stats">
-                  <div class="exam-stat">
-                    <span class="exam-stat__value">{{ examInfo.sectionEasyCount + examInfo.sectionMediumCount + examInfo.sectionHardCount }}</span>
-                    <span class="exam-stat__label">Questions</span>
+                <div class="cv-exam-info__stats">
+                  <div class="cv-exam-stat">
+                    <span class="cv-exam-stat__value">25</span>
+                    <span class="cv-exam-stat__label">Questions</span>
                   </div>
-                  <div class="exam-stat">
-                    <span class="exam-stat__value">{{ examInfo.totalPoints }}</span>
-                    <span class="exam-stat__label">Points</span>
+                  <div class="cv-exam-stat">
+                    <span class="cv-exam-stat__value">{{ examInfo.totalPoints }}</span>
+                    <span class="cv-exam-stat__label">Points</span>
                   </div>
-                  <div class="exam-stat">
-                    <span class="exam-stat__value">{{ examInfo.passingScore }}%</span>
-                    <span class="exam-stat__label">Passing Score</span>
+                  <div class="cv-exam-stat">
+                    <span class="cv-exam-stat__value">{{ examInfo.passingScore }}%</span>
+                    <span class="cv-exam-stat__label">Pass Score</span>
                   </div>
-                  <div class="exam-stat">
-                    <span class="exam-stat__value">{{ examAttemptsRemaining }}</span>
-                    <span class="exam-stat__label">Attempts Left</span>
+                  <div class="cv-exam-stat">
+                    <span class="cv-exam-stat__value">{{ examAttemptsRemaining }}</span>
+                    <span class="cv-exam-stat__label">Attempts Left</span>
                   </div>
                   @if (examInfo.timeLimitMinutes) {
-                    <div class="exam-stat">
-                      <span class="exam-stat__value">{{ examInfo.timeLimitMinutes }}'</span>
-                      <span class="exam-stat__label">Time Limit</span>
+                    <div class="cv-exam-stat">
+                      <span class="cv-exam-stat__value">{{ examInfo.timeLimitMinutes }}'</span>
+                      <span class="cv-exam-stat__label">Time Limit</span>
                     </div>
                   }
                 </div>
-
-                <div class="exam-sections-info">
-                  <div class="exam-section-info-item">
-                    <span class="exam-section-dot exam-section-dot--easy"></span>
-                    <span>Section 1 — True / False ({{ examInfo.sectionEasyCount }} questions · 1 pt each)</span>
+                <div class="cv-exam-sections">
+                  <div class="cv-exam-section-row">
+                    <span class="cv-section-dot cv-section-dot--1"></span>
+                    <span>Section 1 — True / False (10 questions · 1 pt each)</span>
                   </div>
-                  <div class="exam-section-info-item">
-                    <span class="exam-section-dot exam-section-dot--medium"></span>
-                    <span>Section 2 — Multiple Choice ({{ examInfo.sectionMediumCount }} questions · 2 pts each)</span>
+                  <div class="cv-exam-section-row">
+                    <span class="cv-section-dot cv-section-dot--2"></span>
+                    <span>Section 2 — Multiple Choice (10 questions · 2 pts each)</span>
                   </div>
-                  <div class="exam-section-info-item">
-                    <span class="exam-section-dot exam-section-dot--hard"></span>
-                    <span>Section 3 — Fill in the Blank ({{ examInfo.sectionHardCount }} questions · 3 pts each)</span>
+                  <div class="cv-exam-section-row">
+                    <span class="cv-section-dot cv-section-dot--3"></span>
+                    <span>Section 3 — Fill in the Blank (5 questions · 3 pts each)</span>
                   </div>
                 </div>
-
                 @if (examAlreadyPassed) {
-                  <div class="exam-passed-banner">
+                  <div class="cv-exam-passed-banner">
                     🎉 You've already passed this exam! You can retake it for practice.
                     @if (examPastAttempts[0].hasCertificate) {
-                      <div class="exam-cert-note">🏅 Your certificate has been issued.</div>
+                      <div class="cv-exam-cert-note">🏅 Your certificate has been issued.</div>
                     }
                   </div>
                 }
-
                 @if (examNoAttemptsLeft && !examAlreadyPassed) {
-                  <p class="exam-no-attempts">You have used all {{ examInfo.maxAttempts }} attempts.</p>
+                  <p class="cv-exam-no-attempts">You have used all {{ examInfo.maxAttempts }} attempts.</p>
                 } @else {
-                  <button class="btn btn-primary exam-start-btn"
+                  <button class="cv-btn cv-btn--primary"
                           [disabled]="examAttemptsLoading"
                           (click)="startExam()">
                     {{ examAlreadyPassed ? 'Retake Exam' : 'Start Exam' }}
                   </button>
                 }
-
-                <!-- Past attempts history -->
                 @if (examPastAttempts.length > 0) {
-                  <div class="exam-history">
-                    <h3 class="exam-history__title">Past Attempts</h3>
+                  <div class="cv-exam-history">
+                    <h3 class="cv-exam-history__title">Past Attempts</h3>
                     @for (attempt of examPastAttempts; track attempt.id) {
-                      <div class="exam-history-row"
-                           [class.exam-history-row--pass]="attempt.isPassed"
-                           [class.exam-history-row--fail]="!attempt.isPassed">
-                        <span class="exam-history-row__num">Attempt {{ attempt.attemptNumber }}</span>
-                        <span class="exam-history-row__score">{{ attempt.score ?? '—' }}%</span>
-                        <span class="exam-history-row__status">
-                          {{ attempt.isPassed ? '✅ Passed' : '❌ Failed' }}
-                        </span>
-                        @if (attempt.hasCertificate) {
-                          <span class="exam-history-row__cert">🏅 Certificate</span>
-                        }
+                      <div class="cv-exam-history-row"
+                           [class.cv-exam-history-row--pass]="attempt.isPassed"
+                           [class.cv-exam-history-row--fail]="!attempt.isPassed">
+                        <span>Attempt {{ attempt.attemptNumber }}</span>
+                        <span>{{ attempt.score ?? '—' }}%</span>
+                        <span>{{ attempt.isPassed ? '✅ Passed' : '❌ Failed' }}</span>
+                        @if (attempt.hasCertificate) { <span>🏅 Certificate</span> }
                       </div>
                     }
                   </div>
                 }
               </div>
-            }
 
-            <!-- Active attempt: answer questions -->
-            @else if (examAttemptId && !examResult) {
-
-              <!-- Anti-cheat warning modal -->
+            } @else if (examAttemptId && !examResult) {
               <app-anti-cheat-modal
                 [visible]="antiCheatModalVisible"
                 [activityType]="antiCheatLastType"
@@ -598,52 +611,49 @@
                 (dismissed)="antiCheatModalVisible = false">
               </app-anti-cheat-modal>
 
-              <!-- Exam countdown timer -->
               @if (examTimeLimit) {
-                <div class="exam-timer"
-                     [class.exam-timer--orange]="examTimerOrange"
-                     [class.exam-timer--red]="examTimerRed">
-                  <span class="exam-timer__icon">⏱</span>
-                  <span class="exam-timer__value">{{ examTimerDisplay }}</span>
+                <div class="cv-timer cv-timer--exam"
+                     [class.cv-timer--orange]="examTimerOrange"
+                     [class.cv-timer--red]="examTimerRed">
+                  <span>⏱</span>
+                  <span class="cv-timer__value">{{ examTimerDisplay }}</span>
                 </div>
               }
 
-              <!-- Time expired modal -->
               @if (examTimeExpiredModalVisible) {
-                <div class="exam-expired-overlay">
-                  <div class="exam-expired-modal">
-                    <div class="exam-expired-modal__icon">⏰</div>
-                    <h3 class="exam-expired-modal__title">Time Expired</h3>
-                    <p class="exam-expired-modal__body">
-                      Your answers have been submitted automatically.
-                    </p>
-                    <button class="btn btn-primary" (click)="dismissTimeExpiredModal()">OK</button>
+                <div class="cv-expired-overlay">
+                  <div class="cv-expired-modal">
+                    <div class="cv-expired-modal__icon">⏰</div>
+                    <h3>Time Expired</h3>
+                    <p>Your answers have been submitted automatically.</p>
+                    <button class="cv-btn cv-btn--primary" (click)="dismissTimeExpiredModal()">OK</button>
                   </div>
                 </div>
               }
 
-              <!-- Section 1: True / False -->
               @if (examSection1Questions.length > 0) {
-                <div class="exam-section-header">
-                  <span class="exam-section-badge exam-section-badge--easy">Section 1</span>
+                <div class="cv-exam-section-header">
+                  <span class="cv-section-badge cv-section-badge--1">Section 1</span>
                   <h3>True / False <small>({{ examSection1Questions.length }} questions · 1 pt each)</small></h3>
                 </div>
                 @for (q of examSection1Questions; track q.id) {
-                  <div class="question-card exam-question-card">
-                    <p class="question-text">
-                      <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                  <div class="cv-question-card cv-question-card--exam">
+                    <p class="cv-question-card__text">
+                      <span class="cv-question-card__num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
                     </p>
-                    <ul class="options-list">
-                      <li class="option"
-                          [class.option--selected]="isExamAnswerSelected(q.id, 'True')"
+                    <ul class="cv-options">
+                      <li class="cv-option"
+                          [class.cv-option--selected]="isExamAnswerSelected(q.id, 'True')"
                           (click)="selectExamAnswer(q.id, 'True')">
-                        <span class="option__radio" [class.option__radio--filled]="isExamAnswerSelected(q.id, 'True')"></span>
+                        <span class="cv-option__dot"
+                              [class.cv-option__dot--filled]="isExamAnswerSelected(q.id, 'True')"></span>
                         <span>True</span>
                       </li>
-                      <li class="option"
-                          [class.option--selected]="isExamAnswerSelected(q.id, 'False')"
+                      <li class="cv-option"
+                          [class.cv-option--selected]="isExamAnswerSelected(q.id, 'False')"
                           (click)="selectExamAnswer(q.id, 'False')">
-                        <span class="option__radio" [class.option__radio--filled]="isExamAnswerSelected(q.id, 'False')"></span>
+                        <span class="cv-option__dot"
+                              [class.cv-option__dot--filled]="isExamAnswerSelected(q.id, 'False')"></span>
                         <span>False</span>
                       </li>
                     </ul>
@@ -651,24 +661,24 @@
                 }
               }
 
-              <!-- Section 2: MCQ -->
               @if (examSection2Questions.length > 0) {
-                <div class="exam-section-header">
-                  <span class="exam-section-badge exam-section-badge--medium">Section 2</span>
+                <div class="cv-exam-section-header">
+                  <span class="cv-section-badge cv-section-badge--2">Section 2</span>
                   <h3>Multiple Choice <small>({{ examSection2Questions.length }} questions · 2 pts each)</small></h3>
                 </div>
                 @for (q of examSection2Questions; track q.id) {
-                  <div class="question-card exam-question-card">
-                    <p class="question-text">
-                      <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                  <div class="cv-question-card cv-question-card--exam">
+                    <p class="cv-question-card__text">
+                      <span class="cv-question-card__num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
                     </p>
-                    <ul class="options-list">
+                    <ul class="cv-options">
                       @for (opt of [q.option1, q.option2, q.option3, q.option4]; track opt) {
                         @if (opt) {
-                          <li class="option"
-                              [class.option--selected]="isExamAnswerSelected(q.id, opt)"
+                          <li class="cv-option"
+                              [class.cv-option--selected]="isExamAnswerSelected(q.id, opt)"
                               (click)="selectExamAnswer(q.id, opt)">
-                            <span class="option__radio" [class.option__radio--filled]="isExamAnswerSelected(q.id, opt)"></span>
+                            <span class="cv-option__dot"
+                                  [class.cv-option__dot--filled]="isExamAnswerSelected(q.id, opt)"></span>
                             <span>{{ opt }}</span>
                           </li>
                         }
@@ -678,102 +688,106 @@
                 }
               }
 
-              <!-- Section 3: Fill in the Blank -->
               @if (examSection3Questions.length > 0) {
-                <div class="exam-section-header">
-                  <span class="exam-section-badge exam-section-badge--hard">Section 3</span>
+                <div class="cv-exam-section-header">
+                  <span class="cv-section-badge cv-section-badge--3">Section 3</span>
                   <h3>Fill in the Blank <small>({{ examSection3Questions.length }} questions · 3 pts each)</small></h3>
                 </div>
                 @for (q of examSection3Questions; track q.id) {
-                  <div class="question-card exam-question-card">
-                    <p class="question-text">
-                      <span class="question-num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
+                  <div class="cv-question-card cv-question-card--exam">
+                    <p class="cv-question-card__text">
+                      <span class="cv-question-card__num">Q{{ q.questionNumber }}.</span> {{ q.questionText }}
                     </p>
-                    <div class="fill-blank-wrapper">
-                      <input class="fill-blank-input"
-                             type="text"
-                             placeholder="Type your answer here…"
-                             [value]="examAnswers.get(q.id) ?? ''"
-                             (input)="selectExamAnswer(q.id, $any($event.target).value)" />
-                    </div>
+                    <input class="cv-fill-input"
+                           type="text"
+                           placeholder="Type your answer here…"
+                           [value]="examAnswers.get(q.id) ?? ''"
+                           (input)="selectExamAnswer(q.id, $any($event.target).value)" />
                   </div>
                 }
               }
 
-              <button class="btn btn-primary submit-btn exam-submit-btn"
+              <button class="cv-btn cv-btn--primary cv-submit-btn"
                       [disabled]="!allExamQuestionsAnswered() || examSubmitting"
                       (click)="submitExam('SUBMITTED')">
                 @if (examSubmitting) { Submitting… } @else { Submit Exam }
               </button>
-            }
 
-            <!-- Results after submission -->
-            @else if (examResult) {
-              <div class="exam-result"
-                   [class.exam-result--pass]="examResult.isPassed"
-                   [class.exam-result--fail]="!examResult.isPassed">
-
-                <div class="exam-result__icon">{{ examResult.isPassed ? '🏆' : '😕' }}</div>
-                <div class="exam-result__score">{{ examResult.score }}<span>%</span></div>
-                <p class="exam-result__label">
+            } @else if (examResult) {
+              <div class="cv-exam-result"
+                   [class.cv-exam-result--pass]="examResult.isPassed"
+                   [class.cv-exam-result--fail]="!examResult.isPassed">
+                <div class="cv-exam-result__icon">{{ examResult.isPassed ? '🏆' : '😕' }}</div>
+                <div class="cv-exam-result__score">{{ examResult.score }}<span>%</span></div>
+                <p class="cv-exam-result__label">
                   {{ examResult.isPassed ? 'Congratulations! You passed!' : 'Keep studying and try again!' }}
                 </p>
-                <p class="exam-result__points">
+                <p class="cv-exam-result__points">
                   {{ examResult.totalPointsEarned }} / {{ examResult.totalPointsPossible }} points
                 </p>
-
                 @if (examResult.certificateUuid) {
-                  <div class="exam-cert-issued">
-                    <span class="exam-cert-issued__icon">🏅</span>
-                    <p class="exam-cert-issued__title">Your certificate has been issued!</p>
-
+                  <div class="cv-cert-issued">
                     @if (certInfo) {
-                      <!-- Certificate card -->
-                      <div class="cert-card">
-                        <div class="cert-card__header">
-                          <span class="cert-card__badge">{{ certInfo.courseTitle }}</span>
-                          <span class="cert-card__score">Score: {{ certInfo.score }}%</span>
+                      @if (certInfo.status === 'APPROVED') {
+                        <span class="cv-cert-issued__icon">🏅</span>
+                        <p class="cv-cert-issued__title">Your certificate has been approved!</p>
+                        <div class="cv-cert-card">
+                          <div class="cv-cert-card__header">
+                            <span class="cv-badge cv-badge--indigo">{{ certInfo.courseTitle }}</span>
+                            <span class="cv-cert-card__score">Score: {{ certInfo.score }}%</span>
+                          </div>
+                          <p class="cv-cert-card__date">Issued on {{ certInfo.issuedAt | date:'mediumDate' }}</p>
+                          <div class="cv-cert-card__actions">
+                            @if (!certInfo.hasPdf) {
+                              <button class="cv-btn cv-btn--primary"
+                                      [disabled]="certGenerating"
+                                      (click)="generateCertPdf()">
+                                @if (certGenerating) {
+                                  <span class="cv-spinner cv-spinner--sm"></span> Generating…
+                                } @else { 📄 Generate PDF }
+                              </button>
+                            } @else {
+                              <button class="cv-btn cv-btn--primary" (click)="downloadCert()">
+                                ⬇️ Download Certificate
+                              </button>
+                            }
+                          </div>
                         </div>
-                        <p class="cert-card__date">
-                          Issued on {{ certInfo.issuedAt | date:'mediumDate' }}
-                        </p>
-                        <div class="cert-card__actions">
-                          @if (!certInfo.hasPdf) {
-                            <button class="btn btn-primary cert-btn"
-                                    [disabled]="certGenerating"
-                                    (click)="generateCertPdf()">
-                              @if (certGenerating) {
-                                <span class="spinner-ring spinner-ring--sm"></span> Generating…
-                              } @else {
-                                📄 Generate PDF
-                              }
-                            </button>
-                          } @else {
-                            <button class="btn btn-primary cert-btn" (click)="downloadCert()">
-                              ⬇️ Download Certificate
-                            </button>
-                          }
+                      } @else if (certInfo.status === 'PENDING') {
+                        <span class="cv-cert-issued__icon">⏳</span>
+                        <p class="cv-cert-issued__title">Certificate Pending Approval</p>
+                        <div class="cv-cert-status-info">
+                          <p class="cv-cert-status-info__text">
+                            Congratulations on passing! Your certificate is awaiting admin approval.
+                            You'll be notified once it's approved and ready to download.
+                          </p>
                         </div>
-                      </div>
+                      } @else if (certInfo.status === 'REVOKED') {
+                        <span class="cv-cert-issued__icon">❌</span>
+                        <p class="cv-cert-issued__title">Certificate Revoked</p>
+                        <div class="cv-cert-status-revoked">
+                          <p class="cv-cert-status-revoked__text">
+                            Your certificate for this course has been revoked. Please contact support for more information.
+                          </p>
+                        </div>
+                      }
                     } @else {
-                      <!-- Not loaded yet / loading -->
-                      <div class="cert-card cert-card--loading">
-                        <p class="exam-cert-issued__uuid">Certificate ID: {{ examResult.certificateUuid }}</p>
-                        <button class="btn btn-outline cert-btn" (click)="loadCourseCertificate()">
+                      <span class="cv-cert-issued__icon">🏅</span>
+                      <p class="cv-cert-issued__title">Your certificate has been issued!</p>
+                      <div class="cv-cert-card cv-cert-card--loading">
+                        <p>Certificate ID: {{ examResult.certificateUuid }}</p>
+                        <button class="cv-btn cv-btn--ghost" (click)="loadCourseCertificate()">
                           Load Certificate
                         </button>
                       </div>
                     }
                   </div>
                 }
-
-                <div class="exam-result__actions">
+                <div class="cv-exam-result__actions">
                   @if (!examResult.isPassed && examAttemptsRemaining > 0) {
-                    <button class="btn btn-primary" (click)="retryExam()">Retry Exam</button>
+                    <button class="cv-btn cv-btn--primary" (click)="retryExam()">Retry Exam</button>
                   }
-                  <button class="btn btn-ghost" (click)="examResult = null">
-                    Back to Exam Info
-                  </button>
+                  <button class="cv-btn cv-btn--ghost" (click)="examResult = null">Back to Exam Info</button>
                 </div>
               </div>
             }
@@ -782,10 +796,11 @@
         }
 
       } @else {
-        <div class="no-lesson">
+        <div class="cv-no-lesson">
           <p>Select a lesson from the sidebar to get started.</p>
         </div>
       }
     </main>
+
   </div>
 }

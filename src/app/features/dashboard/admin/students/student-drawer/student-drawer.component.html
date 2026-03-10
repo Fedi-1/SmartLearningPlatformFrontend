@@ -1,0 +1,166 @@
+<!-- src/app/features/dashboard/admin/students/student-drawer/student-drawer.component.html -->
+
+<!-- Overlay -->
+<div class="drawer-overlay" [class.drawer-overlay--visible]="open" (click)="close()"></div>
+
+<!-- Drawer panel -->
+<div class="drawer" [class.drawer--open]="open">
+
+  <!-- Close -->
+  <button class="drawer__close" (click)="close()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+
+  <!-- Skeleton -->
+  @if (loading) {
+    <div class="drawer__skeleton">
+      <div class="sk-header">
+        <div class="sk-avatar"></div>
+        <div class="sk-lines">
+          <div class="sk-line sk-line--wide"></div>
+          <div class="sk-line sk-line--narrow"></div>
+        </div>
+      </div>
+      <div class="sk-tabs">
+        <div class="sk-tab"></div>
+        <div class="sk-tab"></div>
+        <div class="sk-tab"></div>
+      </div>
+      @for (i of [1,2,3]; track i) {
+        <div class="sk-card"></div>
+      }
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading && detail) {
+    <!-- Header -->
+    <div class="drawer__header">
+      <div class="drawer__avatar-wrap">
+        <div class="drawer__avatar" [style.background]="avatarColor">{{ initials }}</div>
+        <!-- Circular progress ring -->
+        <div class="ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 70 70">
+            <circle class="ring-bg"   cx="35" cy="35" r="30" fill="none" stroke-width="5"/>
+            <circle class="ring-fill" cx="35" cy="35" r="30" fill="none" stroke-width="5"
+              [attr.stroke]="detail.engagementLevel === 'HIGH' ? '#16a34a' : detail.engagementLevel === 'MEDIUM' ? '#d97706' : '#475569'"
+              [attr.stroke-dasharray]="arcDasharray"
+              stroke-dashoffset="0"
+              transform="rotate(-90 35 35)"/>
+          </svg>
+          <span class="ring-score">{{ detail.engagementScore }}</span>
+        </div>
+      </div>
+
+      <div class="drawer__identity">
+        <h2 class="drawer__name">{{ detail.firstName }} {{ detail.lastName }}</h2>
+        <p class="drawer__email">{{ detail.email }}</p>
+        <div class="drawer__meta">
+          <span class="status-badge" [class.status-badge--active]="detail.isActive" [class.status-badge--inactive]="!detail.isActive">
+            <span class="status-badge__dot"></span>
+            {{ detail.isActive ? 'Active' : 'Inactive' }}
+          </span>
+          <button
+            class="btn-action"
+            [class.btn-action--danger]="detail.isActive"
+            [class.btn-action--success]="!detail.isActive"
+            (click)="onToggleStatus()">
+            {{ detail.isActive ? 'Suspend' : 'Activate' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="drawer__tabs">
+      <button class="tab-btn" [class.tab-btn--active]="activeTab === 'courses'"      (click)="setTab('courses')">Courses</button>
+      <button class="tab-btn" [class.tab-btn--active]="activeTab === 'certificates'" (click)="setTab('certificates')">Certificates</button>
+      <button class="tab-btn" [class.tab-btn--active]="activeTab === 'exams'"        (click)="setTab('exams')">Exam Scores</button>
+    </div>
+
+    <!-- Tab body -->
+    <div class="drawer__body">
+
+      <!-- Tab 1: Courses -->
+      @if (activeTab === 'courses') {
+        @if (detail.courses.length === 0) {
+          <p class="drawer__empty">No courses yet.</p>
+        }
+        @for (c of detail.courses; track c.id) {
+          <div class="course-card">
+            <div class="course-card__top">
+              <span class="course-card__title">{{ c.title }}</span>
+              <span class="category-badge">{{ c.category }}</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar">
+                <div class="progress-bar__fill" [style.width.%]="progressPercent(c.lessonsCompleted, c.totalLessons)"></div>
+              </div>
+              <span class="progress-bar__label">{{ c.lessonsCompleted }}/{{ c.totalLessons }} lessons</span>
+            </div>
+            <div class="course-card__exam">
+              @if (c.examPassed === null) {
+                <span class="exam-status exam-status--none">Not taken</span>
+              } @else if (c.examPassed) {
+                <span class="exam-status exam-status--passed">Passed ✓</span>
+                @if (c.examScore !== null) {
+                  <span class="exam-score">{{ c.examScore }}%</span>
+                }
+              } @else {
+                <span class="exam-status exam-status--failed">Failed ✗</span>
+                @if (c.examScore !== null) {
+                  <span class="exam-score">{{ c.examScore }}%</span>
+                }
+              }
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Tab 2: Certificates -->
+      @if (activeTab === 'certificates') {
+        @if (detail.certificates.length === 0) {
+          <p class="drawer__empty">No certificates yet.</p>
+        }
+        @for (cert of detail.certificates; track cert.id) {
+          <div class="cert-card">
+            <div class="cert-card__main">
+              <span class="cert-card__title">{{ cert.courseTitle }}</span>
+              <span class="score-badge">{{ cert.score }}%</span>
+            </div>
+            <div class="cert-card__sub">
+              <span class="cert-card__date">{{ formatDate(cert.issuedAt) }}</span>
+              <span class="cert-status" [class.cert-status--valid]="!cert.isRevoked" [class.cert-status--revoked]="cert.isRevoked">
+                {{ cert.isRevoked ? 'Revoked' : 'Valid' }}
+              </span>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Tab 3: Exam Scores -->
+      @if (activeTab === 'exams') {
+        @if (examAttempts.length === 0) {
+          <p class="drawer__empty">No exam attempts yet.</p>
+        }
+        @for (a of examAttempts; track a.id) {
+          <div class="exam-card">
+            <div class="exam-card__top">
+              <span class="exam-card__title">{{ a.courseTitle }}</span>
+              <span class="attempt-badge">#{{ a.attemptNumber }}</span>
+            </div>
+            <div class="exam-card__bottom">
+              <span class="score-badge">{{ a.score }}%</span>
+              <span class="pass-badge" [class.pass-badge--passed]="a.isPassed" [class.pass-badge--failed]="!a.isPassed">
+                {{ a.isPassed ? 'Passed' : 'Failed' }}
+              </span>
+              <span class="exam-card__date">{{ formatDate(a.submittedAt) }}</span>
+            </div>
+          </div>
+        }
+      }
+
+    </div>
+  }
+
+</div>

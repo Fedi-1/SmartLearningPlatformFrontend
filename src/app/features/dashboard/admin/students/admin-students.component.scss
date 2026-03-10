@@ -1,0 +1,366 @@
+// src/app/features/dashboard/admin/students/admin-students.component.scss
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:host {
+  --bg-primary:     var(--sh-content-bg);
+  --bg-surface:     var(--sh-topbar-bg);
+  --bg-card:        var(--sh-topbar-bg);
+  --text-primary:   var(--sh-text-primary);
+  --text-secondary: var(--sh-text-secondary);
+  --border:         var(--sh-sidebar-border);
+  --accent:         #6366f1;
+  --success:        #22c55e;
+  --danger:         #ef4444;
+  --amber:          #f59e0b;
+}
+
+.students {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  padding: 2rem 2.5rem;
+  background: var(--bg-primary);
+  min-height: 100%;
+
+  &__header { margin-bottom: 1.75rem; }
+
+  &__title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  &__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 0.15rem 0.65rem;
+    min-width: 28px;
+  }
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+}
+
+// ── Search ─────────────────────────────────────────────────────────────────
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+
+  &__icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.55rem 0.75rem 0.55rem 2.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+
+    &::placeholder { color: var(--text-secondary); }
+    &:focus { border-color: var(--accent); }
+  }
+}
+
+// ── Filter buttons ─────────────────────────────────────────────────────────
+
+.filter-group {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.filter-btn {
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { border-color: var(--accent); color: var(--text-primary); }
+
+  &--active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+// ── Sort ───────────────────────────────────────────────────────────────────
+
+.sort-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+
+  &__label {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  &__select {
+    padding: 0.45rem 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    outline: none;
+    &:focus { border-color: var(--accent); }
+  }
+}
+
+// ── Skeleton ───────────────────────────────────────────────────────────────
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+%skeleton-base {
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--border) 50%, var(--bg-surface) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 10px;
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-row {
+  @extend %skeleton-base;
+  height: 60px;
+}
+
+// ── Table ──────────────────────────────────────────────────────────────────
+
+.table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  animation: fadeSlideUp 0.4s ease both;
+}
+
+.st-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 0.875rem 1.25rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  &__row {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    &:last-child { border-bottom: none; }
+    &:hover { background: var(--bg-surface); }
+  }
+
+  &__cell {
+    padding: 1rem 1.25rem;
+    color: var(--text-primary);
+    vertical-align: middle;
+    white-space: nowrap;
+
+    &--student {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      min-width: 220px;
+    }
+
+    &--actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  &__empty {
+    padding: 2.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+}
+
+// ── Avatar ─────────────────────────────────────────────────────────────────
+
+.s-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.s-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+
+  &__name {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__email {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+}
+
+// ── Engagement badge ───────────────────────────────────────────────────────
+
+.eng-badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff;
+
+  &--high   { background: #16a34a; }
+  &--medium { background: #d97706; }
+  &--low    { background: #475569; }
+}
+
+// ── Status badge ───────────────────────────────────────────────────────────
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &--active {
+    color: var(--success);
+    .status-badge__dot { background: var(--success); }
+  }
+
+  &--inactive {
+    color: var(--text-secondary);
+    .status-badge__dot { background: var(--danger); }
+  }
+}
+
+// ── Action buttons ─────────────────────────────────────────────────────────
+
+.btn-view {
+  padding: 0.35rem 0.875rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.85; }
+}
+
+.btn-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { border-color: var(--accent); color: var(--accent); }
+}
+
+// ── Animation ──────────────────────────────────────────────────────────────
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

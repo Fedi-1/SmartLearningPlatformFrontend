@@ -53,6 +53,17 @@
         </div>
       }
 
+      <!-- Suspended account banner -->
+      @if (showSuspendedBanner) {
+        <div class="suspended-banner">
+          <span class="suspended-banner__icon">🚫</span>
+          <div>
+            <strong>Account suspended</strong>
+            <p>Your account has been suspended by an administrator. Please contact support if you believe this is a mistake.</p>
+          </div>
+        </div>
+      }
+
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
 
         <!-- Email -->

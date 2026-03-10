@@ -16,20 +16,20 @@
     margin: 0 0 .25rem;
     font-size: 1.4rem;
     font-weight: 700;
-    color: #e6edf3;
+    color: var(--sh-text-primary);
   }
 
   &__sub {
     margin: 0;
     font-size: .85rem;
-    color: #8b949e;
+    color: var(--sh-text-secondary);
   }
 }
 
 // ── Search box ──────────────────────────────────────────────────────────────
 .search-box {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--sh-topbar-bg);
+  border: 1px solid var(--sh-topbar-border);
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
   margin-bottom: 2rem;
@@ -38,7 +38,7 @@
     display: block;
     font-size: .8rem;
     font-weight: 600;
-    color: #8b949e;
+    color: var(--sh-text-secondary);
     text-transform: uppercase;
     letter-spacing: .06em;
     margin-bottom: .75rem;
@@ -53,17 +53,17 @@
   &__input {
     flex: 1;
     min-width: 160px;
-    background: #0d1117;
-    border: 1px solid #30363d;
+    background: var(--sh-content-bg);
+    border: 1px solid var(--sh-topbar-border);
     border-radius: 8px;
-    color: #e6edf3;
+    color: var(--sh-text-primary);
     padding: .55rem .9rem;
     font-size: .95rem;
     outline: none;
     transition: border-color .2s;
 
     &:focus { border-color: #388bfd; }
-    &::placeholder { color: #484f58; }
+    &::placeholder { color: var(--sh-text-muted); }
   }
 
   &__btn {
@@ -92,7 +92,7 @@
     margin: 1.25rem 0 .75rem;
     font-size: .9rem;
     font-weight: 600;
-    color: #e6edf3;
+    color: var(--sh-text-primary);
   }
 }
 
@@ -102,13 +102,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: #8b949e;
+  color: var(--sh-text-secondary);
   margin-bottom: 1rem;
 }
 
 // ── State messages ───────────────────────────────────────────────────────────
 .state-msg {
-  color: #8b949e;
+  color: var(--sh-text-secondary);
   font-size: .9rem;
   padding: 1rem 0;
 
@@ -127,8 +127,8 @@
 }
 
 .attempt-card {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--sh-topbar-bg);
+  border: 1px solid var(--sh-topbar-border);
   border-radius: 10px;
   overflow: hidden;
   transition: border-color .2s;
@@ -144,7 +144,7 @@
     align-items: center;
     justify-content: space-between;
     padding: .9rem 1.25rem;
-    color: #e6edf3;
+    color: var(--sh-text-primary);
     gap: 1rem;
   }
 
@@ -168,12 +168,12 @@
   }
 
   &__chevron {
-    color: #8b949e;
+    color: var(--sh-text-secondary);
     font-size: .75rem;
   }
 
   &__body {
-    border-top: 1px solid #21262d;
+    border-top: 1px solid var(--sh-divider);
     padding: 1rem 1.25rem;
   }
 }
@@ -187,17 +187,17 @@
   width: 100%;
   border-collapse: collapse;
   font-size: .88rem;
-  color: #c9d1d9;
+  color: var(--sh-text-primary);
 
   th {
     text-align: left;
     padding: .5rem .75rem;
-    background: #0d1117;
-    color: #8b949e;
+    background: var(--sh-content-bg);
+    color: var(--sh-text-secondary);
     font-size: .75rem;
     text-transform: uppercase;
     letter-spacing: .06em;
-    border-bottom: 1px solid #21262d;
+    border-bottom: 1px solid var(--sh-divider);
 
     &:first-child { border-radius: 6px 0 0 0; }
     &:last-child  { border-radius: 0 6px 0 0; }
@@ -205,7 +205,7 @@
 
   td {
     padding: .6rem .75rem;
-    border-bottom: 1px solid #21262d;
+    border-bottom: 1px solid var(--sh-divider);
     vertical-align: middle;
   }
 
@@ -214,7 +214,7 @@
   tfoot {
     .total-label {
       font-weight: 700;
-      color: #8b949e;
+      color: var(--sh-text-secondary);
       font-size: .75rem;
       text-transform: uppercase;
     }
@@ -230,7 +230,7 @@
 }
 
 .date-cell {
-  color: #8b949e;
+  color: var(--sh-text-secondary);
   font-size: .82rem;
 }
 

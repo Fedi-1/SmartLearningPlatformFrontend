@@ -1,0 +1,315 @@
+// src/app/features/dashboard/admin/overview/admin-overview.component.scss
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+// The shell ancestor (.theme-dark / .theme-light on .shell div) defines --sh-*
+// vars that cascade down. We re-alias them here on :host so every element
+// inside this component can use the short --bg-* / --text-* names.
+// Because --sh-* vars cascade from the parent, they automatically reflect
+// whichever theme is active — no :host-context() needed.
+:host {
+  --bg-primary:     var(--sh-content-bg);
+  --bg-surface:     var(--sh-topbar-bg);
+  --bg-card:        var(--sh-topbar-bg);
+  --text-primary:   var(--sh-text-primary);
+  --text-secondary: var(--sh-text-secondary);
+  --border:         var(--sh-sidebar-border);
+  --accent:         #6366f1;
+  --success:        #22c55e;
+  --danger:         #ef4444;
+  --amber:          #f59e0b;
+}
+
+.overview {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  padding: 2rem 2.5rem;
+  background: var(--bg-primary);
+  min-height: 100%;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem;
+  }
+
+  &__date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+// ── KPI Cards ──────────────────────────────────────────────────────────────
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 640px)  { grid-template-columns: 1fr; }
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.4rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  animation: fadeSlideUp 0.5s ease both;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--indigo { background: #6366f122; color: #6366f1; }
+    &--violet { background: #8b5cf622; color: #8b5cf6; }
+    &--amber  { background: #f59e0b22; color: #f59e0b; }
+    &--cyan   { background: #06b6d422; color: #06b6d4; }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  &__value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+}
+
+// ── Charts ─────────────────────────────────────────────────────────────────
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  animation: fadeSlideUp 0.5s ease both;
+  animation-delay: 300ms;
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.2rem;
+  }
+
+  &__sub {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin: 0 0 1.25rem;
+  }
+
+  &__canvas {
+    height: 220px;
+    position: relative;
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  }
+
+  &__empty {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+// ── Recent Activity Feed ────────────────────────────────────────────────────
+
+.feed-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  animation: fadeSlideUp 0.5s ease both;
+  animation-delay: 400ms;
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 1.25rem;
+  }
+
+  &__empty {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+.feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #6366f133;
+    color: #6366f1;
+    font-weight: 700;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+}
+
+// ── Badges ─────────────────────────────────────────────────────────────────
+
+.badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  width: fit-content;
+
+  &--indigo { background: #6366f122; color: #818cf8; }
+  &--green  { background: #22c55e22; color: #4ade80; }
+  &--red    { background: #ef444422; color: #f87171; }
+  &--amber  { background: #f59e0b22; color: #fbbf24; }
+  &--gray   { background: #94a3b822; color: #94a3b8; }
+}
+
+// ── Skeletons ──────────────────────────────────────────────────────────────
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+%skeleton-base {
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--border) 50%, var(--bg-surface) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 14px;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.skeleton-card {
+  @extend %skeleton-base;
+  height: 96px;
+}
+
+.skeleton-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.skeleton-chart {
+  @extend %skeleton-base;
+  height: 280px;
+}
+
+.skeleton-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-row {
+  @extend %skeleton-base;
+  height: 52px;
+  border-radius: 8px;
+}
+
+// ── Animation ──────────────────────────────────────────────────────────────
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

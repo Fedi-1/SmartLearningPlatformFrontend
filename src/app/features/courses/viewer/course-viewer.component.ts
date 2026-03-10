@@ -538,6 +538,11 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     return Math.round((this.completedCount / this.course.lessons.length) * 100);
   }
 
+  get ringDashOffset(): number {
+    const halfCirc = Math.PI * 50; // r=50, half circumference ≈ 157.08
+    return halfCirc * (1 - this.progressPercent / 100);
+  }
+
   isLessonCompleted(lessonId: number): boolean {
     return this.progressMap.get(lessonId)?.isCompleted ?? false;
   }

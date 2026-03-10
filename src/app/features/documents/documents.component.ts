@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { DocumentService } from '../../core/services/document.service';
 import { CourseService } from '../../core/services/course.service';
 import { ToastService } from '../../shared/components/toast/toast.service';
-import { DocumentItem, FileType } from '../../core/models/document.model';
+import { DocumentItem, FileType, CertificateInfo } from '../../core/models/document.model';
 
 const ALLOWED_TYPES = ['application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -37,8 +37,12 @@ export class DocumentsComponent implements OnInit {
   // Track which courseIds are currently fetching a certificate
   certLoading = new Set<number>();
 
-  // Track which courseIds actually have a certificate (loaded on init)
-  coursesWithCertificate = new Set<number>();
+  // Map of courseId → CertificateInfo (loaded on init)
+  certificateMap = new Map<number, CertificateInfo>();
+
+  getCertStatus(courseId: number): 'PENDING' | 'APPROVED' | 'REVOKED' | null {
+    return this.certificateMap.get(courseId)?.status ?? null;
+  }
 
   get availableCategories(): string[] {
     const cats = this.documents
@@ -71,7 +75,7 @@ export class DocumentsComponent implements OnInit {
   loadCertificates(): void {
     this.courseService.getMyCertificates().subscribe({
       next: (certs) => {
-        this.coursesWithCertificate = new Set(certs.map(c => c.courseId));
+        this.certificateMap = new Map(certs.map(c => [c.courseId, c]));
       },
       error: () => {} // silently ignore — button stays disabled
     });
@@ -166,6 +170,8 @@ export class DocumentsComponent implements OnInit {
 
   downloadCertificate(courseId: number): void {
     if (this.certLoading.has(courseId)) return;
+    const status = this.getCertStatus(courseId);
+    if (status !== 'APPROVED') return;
     this.certLoading.add(courseId);
     this.courseService.getCourseCertificate(courseId).subscribe({
       next: (cert) => {

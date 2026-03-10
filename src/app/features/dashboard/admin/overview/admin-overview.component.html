@@ -1,0 +1,132 @@
+<!-- src/app/features/dashboard/admin/overview/admin-overview.component.html -->
+<div class="overview">
+
+  <!-- Page Header -->
+  <div class="overview__header">
+    <div>
+      <h1 class="overview__title">Overview</h1>
+      <p class="overview__date">{{ today }}</p>
+    </div>
+  </div>
+
+  <!-- Loading Skeleton -->
+  @if (loading) {
+    <div class="skeleton-grid">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="skeleton-card"></div>
+      }
+    </div>
+    <div class="skeleton-charts">
+      <div class="skeleton-chart"></div>
+      <div class="skeleton-chart"></div>
+    </div>
+    <div class="skeleton-feed">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="skeleton-row"></div>
+      }
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading) {
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="animation-delay: 0ms">
+        <div class="kpi-card__icon kpi-card__icon--indigo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+          </svg>
+        </div>
+        <div class="kpi-card__body">
+          <span class="kpi-card__value">{{ displayedStats.totalStudents | number }}</span>
+          <span class="kpi-card__label">Total Students</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" style="animation-delay: 80ms">
+        <div class="kpi-card__icon kpi-card__icon--violet">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+          </svg>
+        </div>
+        <div class="kpi-card__body">
+          <span class="kpi-card__value">{{ displayedStats.totalCourses | number }}</span>
+          <span class="kpi-card__label">Courses Generated</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" style="animation-delay: 160ms">
+        <div class="kpi-card__icon kpi-card__icon--amber">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </div>
+        <div class="kpi-card__body">
+          <span class="kpi-card__value">{{ displayedStats.totalCertificates | number }}</span>
+          <span class="kpi-card__label">Certificates Issued</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" style="animation-delay: 240ms">
+        <div class="kpi-card__icon kpi-card__icon--cyan">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <div class="kpi-card__body">
+          <span class="kpi-card__value">{{ displayedStats.totalDocuments | number }}</span>
+          <span class="kpi-card__label">Documents Uploaded</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <h2 class="chart-card__title">Course Generation Activity</h2>
+        <p class="chart-card__sub">Last 30 days</p>
+        <div class="chart-card__canvas">
+          <canvas #lineCanvas></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h2 class="chart-card__title">Courses by Category</h2>
+        <p class="chart-card__sub">Distribution</p>
+        @if (categories.length === 0) {
+          <div class="chart-card__empty">No category data yet</div>
+        } @else {
+          <div class="chart-card__canvas">
+            <canvas #donutCanvas></canvas>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="feed-card">
+      <h2 class="feed-card__title">Recent Activity</h2>
+      @if (recentActivity.length === 0) {
+        <p class="feed-card__empty">No recent activity found.</p>
+      } @else {
+        <ul class="feed">
+          @for (entry of recentActivity; track entry.timestamp) {
+            <li class="feed__item">
+              <div class="feed__left">
+                <div class="feed__avatar">{{ entry.studentName.charAt(0) }}</div>
+                <div class="feed__info">
+                  <span class="feed__name">{{ entry.studentName }}</span>
+                  <span [class]="'badge ' + getActionBadgeClass(entry.action)">{{ entry.action.replace('_', ' ') }}</span>
+                </div>
+              </div>
+              <span class="feed__time">{{ formatRelativeTime(entry.timestamp) }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+  }
+</div>

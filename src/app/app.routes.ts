@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 import { inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -92,7 +93,28 @@ export const routes: Routes = [
       },
       {
         path: 'admin/activity',
+        canActivate: [adminGuard],
         loadComponent: () => import('./features/dashboard/admin/admin-activity.component').then(m => m.AdminActivityComponent)
+      },
+      {
+        path: 'admin/overview',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/dashboard/admin/overview/admin-overview.component').then(m => m.AdminOverviewComponent)
+      },
+      {
+        path: 'admin/students',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/dashboard/admin/students/admin-students.component').then(m => m.AdminStudentsComponent)
+      },
+      {
+        path: 'admin/certificates',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/dashboard/admin/certificates/admin-certificates.component').then(m => m.AdminCertificatesComponent)
+      },
+      {
+        path: 'admin/assessments',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/dashboard/admin/assessments/admin-assessments.component').then(m => m.AdminAssessmentsComponent)
       }
     ]
   },
