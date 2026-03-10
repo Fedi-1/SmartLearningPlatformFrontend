@@ -2,25 +2,25 @@
 <div class="admin-header">
   <div class="admin-header__icon">🛡️</div>
   <div>
-    <h2 class="admin-header__title">Surveillance Anti-Triche</h2>
-    <p class="admin-header__sub">Tentatives d'examen avec activités suspectes détectées</p>
+    <h2 class="admin-header__title">Academic Integrity Monitor</h2>
+    <p class="admin-header__sub">Exam attempts with detected suspicious activity</p>
   </div>
 </div>
 
 <!-- ── MANUAL SEARCH ─────────────────────────────────────────────────────── -->
 <div class="search-box">
-  <label class="search-box__label">Rechercher une tentative par ID</label>
+  <label class="search-box__label">Search attempt by ID</label>
   <div class="search-box__row">
     <input
       class="search-box__input"
       type="number"
-      placeholder="ID de tentative..."
+      placeholder="Attempt ID..."
       [(ngModel)]="manualAttemptId"
       (keyup.enter)="searchManual()"
       min="1" />
     <button class="search-box__btn" (click)="searchManual()" [disabled]="manualLoading || !manualAttemptId">
       @if (manualLoading) { <span class="spin">⏳</span> }
-      @else { 🔍 Rechercher }
+      @else { 🔍 Search }
     </button>
   </div>
 
@@ -30,13 +30,13 @@
 
   @if (manualSearched && manualActivities.length > 0) {
     <div class="activity-table-wrap">
-      <p class="search-box__result-title">Résultats pour la tentative #{{ manualAttemptId }}</p>
+      <p class="search-box__result-title">Results for attempt #{{ manualAttemptId }}</p>
       <table class="activity-table">
         <thead>
           <tr>
-            <th>Type d'activité</th>
+            <th>Activity Type</th>
             <th>Occurrences</th>
-            <th>Détecté à</th>
+            <th>Detected At</th>
           </tr>
         </thead>
         <tbody>
@@ -60,7 +60,7 @@
             <td class="total-label">Total</td>
             <td colspan="2">
               <span class="chip" [ngClass]="totalSeverityClass(manualActivities[0].totalCount)">
-                {{ manualActivities[0].totalCount }} événements
+                {{ manualActivities[0].totalCount }} events
               </span>
             </td>
           </tr>
@@ -71,23 +71,23 @@
 </div>
 
 <!-- ── FLAGGED ATTEMPTS LIST ──────────────────────────────────────────────── -->
-<div class="section-title">Tentatives signalées ({{ flaggedAttempts.length }})</div>
+<div class="section-title">Flagged Attempts ({{ flaggedAttempts.length }})</div>
 
 @if (loadingList) {
   <div class="state-msg">
-    <span class="spin">⏳</span> Chargement des tentatives signalées...
+    <span class="spin">⏳</span> Loading flagged attempts...
   </div>
 }
 
 @else if (errorList) {
   <div class="state-msg state-msg--error">
-    ⚠️ Impossible de charger les tentatives. Vérifiez vos droits admin.
+    ⚠️ Unable to load attempts. Check your admin permissions.
   </div>
 }
 
 @else if (flaggedAttempts.length === 0) {
   <div class="state-msg state-msg--empty">
-    ✅ Aucune activité suspecte détectée pour le moment.
+    ✅ No suspicious activity detected at the moment.
   </div>
 }
 
@@ -98,12 +98,14 @@
         <button class="attempt-card__header" (click)="toggleAttempt(item)">
           <div class="attempt-card__left">
             <span class="attempt-card__icon">📝</span>
-            <span class="attempt-card__title">Tentative #{{ item.attemptId }}</span>
+            <span class="attempt-card__title">
+              Attempt #{{ item.attemptId }}{{ item.studentName ? ' — ' + item.studentName : '' }}
+            </span>
           </div>
           <div class="attempt-card__right">
             @if (item.totalCount > 0) {
               <span class="chip" [ngClass]="totalSeverityClass(item.totalCount)">
-                {{ item.totalCount }} événements
+                {{ item.totalCount }} events
               </span>
             }
             <span class="attempt-card__chevron">{{ item.expanded ? '▲' : '▼' }}</span>
@@ -113,16 +115,16 @@
         @if (item.expanded) {
           <div class="attempt-card__body">
             @if (item.loading) {
-              <div class="state-msg"><span class="spin">⏳</span> Chargement...</div>
+              <div class="state-msg"><span class="spin">⏳</span> Loading...</div>
             } @else if (item.activities.length === 0) {
-              <div class="state-msg">Aucune donnée.</div>
+              <div class="state-msg">No data.</div>
             } @else {
               <table class="activity-table">
                 <thead>
                   <tr>
-                    <th>Type d'activité</th>
+                    <th>Activity Type</th>
                     <th>Occurrences</th>
-                    <th>Détecté à</th>
+                    <th>Detected At</th>
                   </tr>
                 </thead>
                 <tbody>

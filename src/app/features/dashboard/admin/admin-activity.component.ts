@@ -10,6 +10,7 @@ interface FlaggedAttempt {
   totalCount: number;
   loading: boolean;
   expanded: boolean;
+  studentName?: string;
 }
 
 @Component({
@@ -91,23 +92,23 @@ export class AdminActivityComponent implements OnInit {
         this.manualLoading    = false;
         this.manualSearched   = true;
         if (activities.length === 0) {
-          this.manualError = 'Aucune activité suspecte trouvée pour cette tentative.';
+          this.manualError = 'No suspicious activity found for this attempt.';
         }
       },
       error: (err) => {
         this.manualLoading  = false;
         this.manualSearched = true;
-        this.manualError    = err?.error?.message ?? 'Tentative introuvable ou accès refusé.';
+        this.manualError    = err?.error?.message ?? 'Attempt not found or access denied.';
       }
     });
   }
 
   activityLabel(type: string): string {
     const map: Record<string, string> = {
-      TAB_SWITCH:      'Changement d\'onglet',
-      RIGHT_CLICK:     'Clic droit',
-      COPY_PASTE:      'Copier / Coller',
-      UNUSUAL_TIMING:  'Timing suspect'
+      TAB_SWITCH:      'Tab Switch',
+      RIGHT_CLICK:     'Right Click',
+      COPY_PASTE:      'Copy / Paste',
+      UNUSUAL_TIMING:  'Unusual Timing'
     };
     return map[type] ?? type;
   }

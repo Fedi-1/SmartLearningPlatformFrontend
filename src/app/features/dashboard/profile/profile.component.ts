@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { UserRole } from '../../../core/enums/user-role.enum';
 
 export interface StudentProfile {
   id: number;
@@ -23,7 +24,14 @@ export interface StudentProfile {
 })
 export class ProfileComponent implements OnInit {
 
-  private readonly API = 'http://localhost:8069/api/students';
+  private readonly STUDENT_API = 'http://localhost:8069/api/students';
+  private readonly ADMIN_API   = 'http://localhost:8069/api/admin';
+
+  private get API(): string {
+    return this.authService.currentUser()?.role === UserRole.ADMIN
+      ? this.ADMIN_API
+      : this.STUDENT_API;
+  }
 
   loading = true;
   saving  = false;
@@ -91,6 +99,10 @@ export class ProfileComponent implements OnInit {
         this.toast.error(err?.error?.message ?? 'Failed to change password.');
       }
     });
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.currentUser()?.role === UserRole.ADMIN;
   }
 
   get initials(): string {

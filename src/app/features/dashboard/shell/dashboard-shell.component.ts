@@ -50,20 +50,24 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     { label: 'Overview',    icon: 'home',    route: '/dashboard/admin/overview',      adminOnly: true },
     { label: 'Students',    icon: 'user',    route: '/dashboard/admin/students',      adminOnly: true },
     { label: 'Certificates', icon: 'badge',  route: '/dashboard/admin/certificates',  adminOnly: true },
-    { label: 'Assessments', icon: 'chart',  route: '/dashboard/admin/assessments',   adminOnly: true },
-    { label: 'Anti-Triche', icon: 'shield',  route: '/dashboard/admin/activity',      adminOnly: true },
+    { label: 'Assessments',   icon: 'chart',  route: '/dashboard/admin/assessments',   adminOnly: true },
+    { label: 'Activity Logs', icon: 'file',   route: '/dashboard/admin/activity-logs', adminOnly: true },
+    { label: 'Anti-Triche',   icon: 'shield', route: '/dashboard/admin/activity',      adminOnly: true },
     { label: 'Profile',     icon: 'user',    route: '/dashboard/profile'          },
   ];
 
   readonly pageTitles: Record<string, string> = {
-    overview:   'Overview',
-    documents:  'Documents',
-    courses:    'My Courses',
-    flashcards: 'Flashcards',
-    progress:   'Progress',
-    profile:    'Profile',
-    activity:   'Surveillance Anti-Triche',
-    students:   'Students',
+    overview:       'Overview',
+    documents:      'Documents',
+    courses:        'My Courses',
+    flashcards:     'Flashcards',
+    progress:       'Progress',
+    profile:        'Profile',
+    activity:       'Academic Integrity Monitor',
+    students:       'Students',
+    certificates:   'Certificates',
+    assessments:    'Assessments',
+    'activity-logs': 'Activity Logs',
   };
 
   get pageTitle(): string {

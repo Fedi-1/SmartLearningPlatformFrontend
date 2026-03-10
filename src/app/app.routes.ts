@@ -115,6 +115,11 @@ export const routes: Routes = [
         path: 'admin/assessments',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/dashboard/admin/assessments/admin-assessments.component').then(m => m.AdminAssessmentsComponent)
+      },
+      {
+        path: 'admin/activity-logs',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/dashboard/admin/activity-logs/admin-activity-logs.component').then(m => m.AdminActivityLogsComponent)
       }
     ]
   },

@@ -98,6 +98,24 @@ export interface AdminExamAttemptItem {
   suspiciousEventsCount: number;
 }
 
+export interface ActivityLogItem {
+  id: number;
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  action: string;
+  entityType: string;
+  entityId: number;
+  timestamp: string;
+}
+
+export interface ActivityLogPageResponse {
+  content: ActivityLogItem[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+}
+
 export interface StudentDetail {
   id: number;
   firstName: string;
@@ -193,6 +211,15 @@ export class AdminService {
   getAllExamAttempts(): Observable<AdminExamAttemptItem[]> {
     return this.http.get<AdminExamAttemptItem[]>(`${API}/exam-attempts`).pipe(
       catchError(() => of([]))
+    );
+  }
+
+  getActivityLogs(page: number, size: number, action: string, studentId: number | null): Observable<ActivityLogPageResponse> {
+    let params: Record<string, string | number> = { page, size };
+    if (action) params['action'] = action;
+    if (studentId !== null) params['studentId'] = studentId;
+    return this.http.get<ActivityLogPageResponse>(`${API}/activity-logs`, { params }).pipe(
+      catchError(() => of({ content: [], totalElements: 0, totalPages: 0, currentPage: 0 }))
     );
   }
 }

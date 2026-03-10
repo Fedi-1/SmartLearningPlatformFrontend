@@ -130,8 +130,10 @@
             </div>
             <div class="cert-card__sub">
               <span class="cert-card__date">{{ formatDate(cert.issuedAt) }}</span>
-              <span class="cert-status" [class.cert-status--valid]="!cert.isRevoked" [class.cert-status--revoked]="cert.isRevoked">
-                {{ cert.isRevoked ? 'Revoked' : 'Valid' }}
+              <span class="cert-status"
+                    [class.cert-status--valid]="cert.status === 'APPROVED'"
+                    [class.cert-status--revoked]="cert.status === 'REVOKED'">
+                {{ cert.status === 'REVOKED' ? 'Revoked' : cert.status === 'PENDING' ? 'Pending' : 'Valid' }}
               </span>
             </div>
           </div>
