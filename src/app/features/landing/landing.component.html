@@ -9,7 +9,6 @@
     <ul class="navbar__links">
       <li><a href="#features">Features</a></li>
       <li><a href="#how-it-works">How it works</a></li>
-      <li><a href="#stats">Community</a></li>
     </ul>
 
     <div class="navbar__actions">
@@ -27,7 +26,6 @@
     <div class="navbar__mobile">
       <a href="#features"    (click)="toggleMobileMenu()">Features</a>
       <a href="#how-it-works"(click)="toggleMobileMenu()">How it works</a>
-      <a href="#stats"       (click)="toggleMobileMenu()">Community</a>
       <hr />
       <a routerLink="/login"    class="btn btn-ghost btn-sm" (click)="toggleMobileMenu()">Sign in</a>
       <a routerLink="/register" class="btn btn-primary btn-sm" (click)="toggleMobileMenu()">Get started</a>
@@ -178,9 +176,9 @@
       <div class="cta-orb cta-orb--3"></div>
       <div class="cta-grid-overlay"></div>
       <div class="cta-content">
-        <span class="cta-eyebrow">Join 50,000+ learners</span>
+        <span class="cta-eyebrow">Start your AI learning journey</span>
         <h2>Ready to transform<br>your learning?</h2>
-        <p>Accelerate your career with AI-powered paths,<br>real-time feedback, and expert-curated content.</p>
+        <p>Upload your documents, let AI build your course,<br>and earn verified certificates at your own pace.</p>
         <div class="cta-actions">
           <a routerLink="/register" class="btn btn-primary btn-lg">Start for free today</a>
           <a routerLink="/login"    class="btn btn-ghost btn-lg">Sign in →</a>
@@ -222,7 +220,6 @@
           <h4>Product</h4>
           <a href="#features">Features</a>
           <a href="#how-it-works">How it works</a>
-          <a href="#stats">Results</a>
         </div>
         <div class="footer__col">
           <h4>Account</h4>
@@ -254,3 +251,5 @@
 
   </div>
 </footer>
+
+<app-chat-widget mode="visitor"></app-chat-widget>

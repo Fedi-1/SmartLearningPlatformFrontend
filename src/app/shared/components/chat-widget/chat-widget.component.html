@@ -1,0 +1,160 @@
+<!-- src/app/shared/components/chat-widget/chat-widget.component.html -->
+
+<!-- ── Toggle button (always visible, fixed bottom-right) ───────────────── -->
+<button
+  class="chat-toggle-btn"
+  (click)="toggleWidget()"
+  [attr.aria-label]="isOpen() ? 'Close chat' : 'Ask LearnAI Assistant'"
+  title="Ask LearnAI Assistant"
+>
+  @if (isOpen()) {
+    <!-- X icon -->
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  } @else {
+    <!-- Chat bubble icon -->
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  }
+</button>
+
+<!-- ── Chat panel (visible when open) ──────────────────────────────────── -->
+@if (isOpen()) {
+  <div class="chat-panel" role="dialog" aria-label="LearnAI Assistant Chat">
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="chat-header__left">
+        <div class="chat-header__avatar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        </div>
+        <div>
+          <span class="chat-header__title">LearnAI Assistant</span>
+          <span class="chat-header__badge" [class.chat-header__badge--student]="mode === 'student'">
+            {{ modeBadgeLabel }}
+          </span>
+        </div>
+      </div>
+      <button class="chat-header__close" (click)="closeWidget()" aria-label="Close chat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Messages area -->
+    <div class="chat-messages" #messagesContainer>
+
+      @for (msg of messages(); track $index) {
+
+        <!-- User message -->
+        @if (msg.role === 'user') {
+          <div class="msg msg--user">
+            <div class="msg__bubble msg__bubble--user">
+              <p class="msg__text">{{ msg.content }}</p>
+            </div>
+            <div class="msg__meta msg__meta--right">
+              <span class="msg__avatar msg__avatar--user">You</span>
+              <span class="msg__time">{{ relativeTime(msg.timestamp) }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Assistant message -->
+        @else if (msg.role === 'assistant') {
+          <div class="msg msg--assistant">
+            <div class="msg__meta msg__meta--left">
+              <div class="msg__avatar msg__avatar--bot">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  <line x1="12" y1="3" x2="12" y2="7"/>
+                  <circle cx="9" cy="16" r="1" fill="currentColor"/>
+                  <circle cx="15" cy="16" r="1" fill="currentColor"/>
+                </svg>
+              </div>
+              <span class="msg__time">{{ relativeTime(msg.timestamp) }}</span>
+            </div>
+            <div class="msg__bubble msg__bubble--assistant">
+              <p class="msg__text">{{ msg.content }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- Error message -->
+        @else if (msg.role === 'error') {
+          <div class="msg msg--assistant">
+            <div class="msg__meta msg__meta--left">
+              <div class="msg__avatar msg__avatar--bot">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </div>
+            </div>
+            <div class="msg__bubble msg__bubble--error">
+              <p class="msg__text">{{ msg.content }}</p>
+            </div>
+          </div>
+        }
+
+      }
+
+      <!-- Typing indicator -->
+      @if (isLoading()) {
+        <div class="msg msg--assistant">
+          <div class="msg__meta msg__meta--left">
+            <div class="msg__avatar msg__avatar--bot">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                <circle cx="9" cy="16" r="1" fill="currentColor"/>
+                <circle cx="15" cy="16" r="1" fill="currentColor"/>
+              </svg>
+            </div>
+          </div>
+          <div class="msg__bubble msg__bubble--assistant typing-bubble">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+      }
+
+    </div>
+
+    <!-- Input area -->
+    <div class="chat-input-area">
+      <input
+        class="chat-input"
+        type="text"
+        [(ngModel)]="inputText"
+        (keydown)="onKeyDown($event)"
+        placeholder="Type a message…"
+        [disabled]="isLoading()"
+        autocomplete="off"
+        aria-label="Message input"
+      />
+      <button
+        class="chat-send-btn"
+        (click)="sendMessage()"
+        [disabled]="!inputText.trim() || isLoading()"
+        aria-label="Send message"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+}

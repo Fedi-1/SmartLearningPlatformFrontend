@@ -24,13 +24,15 @@ import {
 } from '../../../core/models/document.model';
 import { AntiCheatService, SuspiciousActivityType } from '../../../core/services/anti-cheat.service';
 import { AntiCheatModalComponent } from '../../../shared/components/anti-cheat-modal/anti-cheat-modal.component';
+import { ChatWidgetComponent } from '../../../shared/components/chat-widget/chat-widget.component';
+import { PageTitleService } from '../../../core/services/page-title.service';
 
 type TabId = 'content' | 'quiz' | 'flashcards' | 'exam';
 
 @Component({
   selector: 'app-course-viewer',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, AntiCheatModalComponent],
+  imports: [CommonModule, RouterModule, FormsModule, AntiCheatModalComponent, ChatWidgetComponent],
   templateUrl: './course-viewer.component.html',
   styleUrl:    './course-viewer.component.scss'
 })
@@ -124,7 +126,8 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     private location: Location,
     private courseService: CourseService,
     private toastService: ToastService,
-    private antiCheat: AntiCheatService
+    private antiCheat: AntiCheatService,
+    private pageTitleService: PageTitleService
   ) {}
 
   ngOnDestroy(): void {
@@ -132,6 +135,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     this.stopExamTimer();
     this.antiCheat.detach();
     this.antiCheatSub?.unsubscribe();
+    this.pageTitleService.clear();
     // Abandon active quiz attempt when navigating away
     if (this.currentAttemptId && !this.quizSubmitted) {
       this.courseService.abandonQuizAttempt(this.currentAttemptId).subscribe({ error: () => {} });
@@ -160,6 +164,8 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     const id = Number(this.route.snapshot.paramMap.get('courseId'));
     if (!id) { this.router.navigate(['/documents']); return; }
 
+    this.pageTitleService.set('Loading…');
+
     forkJoin({
       course:   this.courseService.getCourse(id),
       progress: this.courseService.getCourseProgress(id)
@@ -171,6 +177,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
           if (p) l.isLocked = p.isLocked;
         });
         this.course  = course;
+        this.pageTitleService.set(course.title);
         this.loading = false;
         const first = course.lessons.find(l => !l.isLocked) ?? course.lessons[0];
         if (first) this.selectLesson(first);

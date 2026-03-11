@@ -68,73 +68,65 @@
   }
 
   &__title {
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--cv-text1);
     line-height: 1.4;
-    margin: 0;
+    margin: 0 0 0.5rem;
+  }
+
+  &__category-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--cv-accent);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 }
 
-// ── Progress ring (semicircle) ─────────────────────────────────────────────
-.cv-progress-ring-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  padding: 1rem 1rem 0.75rem;
+// ── Progress bar ──────────────────────────────────────────────────────────────
+.cv-sidebar-progress {
+  padding: 0.875rem 1rem;
   border-bottom: 1px solid var(--cv-border2);
   flex-shrink: 0;
-}
 
-.cv-ring {
-  display: block;
-  transform: rotate(180deg);
+  &__labels {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
 
-  &__track {
-    fill: none;
-    stroke: var(--cv-ring-track);
-    stroke-width: 7;
-    stroke-linecap: round;
-    stroke-dasharray: 157.08 314.16;
+  &__count {
+    font-size: 0.75rem;
+    color: var(--cv-text3);
+    font-weight: 500;
+  }
+
+  &__pct {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--cv-text1);
+  }
+
+  &__bar {
+    width: 100%;
+    height: 6px;
+    background: var(--cv-border);
+    border-radius: 99px;
+    overflow: hidden;
   }
 
   &__fill {
-    fill: none;
-    stroke: var(--cv-accent);
-    stroke-width: 7;
-    stroke-linecap: round;
-    stroke-dasharray: 157.08 314.16;
-    transition: stroke-dashoffset 0.5s ease;
-  }
-
-  // SVG text — positioned inside the arc, transform undoes the SVG rotation
-  &__pct-text {
-    fill: var(--cv-text1);
-    font-size: 14px;
-    font-weight: 800;
-    font-family: 'DM Sans', sans-serif;
-    dominant-baseline: auto;
-  }
-}
-
-.cv-progress-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.1rem;
-
-  &__count {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--cv-text2);
-  }
-
-  &__sub {
-    font-size: 0.7rem;
-    color: var(--cv-text4);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    height: 100%;
+    background: var(--cv-accent);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    min-width: 0;
   }
 }
 
@@ -154,7 +146,7 @@
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.8rem 1rem;
   background: none;
   border: none;
   border-left: 3px solid transparent;
@@ -169,7 +161,7 @@
   }
 
   &--active {
-    background: rgba(99, 102, 241, 0.1) !important;
+    background: rgba(99, 102, 241, 0.12) !important;
     border-left-color: var(--cv-accent) !important;
     color: var(--cv-text1);
   }
@@ -202,21 +194,22 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.2rem;
     min-width: 0;
   }
 
   &__title {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 600;
     color: inherit;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.3;
   }
 
   &__meta {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--cv-text4);
   }
 

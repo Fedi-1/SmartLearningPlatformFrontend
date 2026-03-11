@@ -56,6 +56,7 @@ export interface CourseDetail {
   description: string;
   totalLessons: number;
   lessons: LessonItem[];
+  category?: string | null;
 }
 
 // ─── Exam models ──────────────────────────────────────────────────────────────

@@ -4,6 +4,8 @@ import { Router, RouterModule, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService, AppNotification } from '../../../core/services/notification.service';
 import { UserRole } from '../../../core/enums/user-role.enum';
+import { ChatWidgetComponent } from '../../../shared/components/chat-widget/chat-widget.component';
+import { PageTitleService } from '../../../core/services/page-title.service';
 
 // Persisted theme preference
 const THEME_KEY = 'dash-theme';
@@ -18,7 +20,7 @@ interface NavItem {
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLinkActive],
+  imports: [CommonModule, RouterModule, RouterLinkActive, ChatWidgetComponent],
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss'
 })
@@ -71,6 +73,9 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
   };
 
   get pageTitle(): string {
+    // Course viewer (and any other page) can push a custom title via PageTitleService
+    const custom = this.pageTitleService.customTitle();
+    if (custom) return custom;
     const seg = this.router.url.split('/').pop()?.split('?')[0] ?? '';
     return this.pageTitles[seg] ?? 'Dashboard';
   }
@@ -106,7 +111,8 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private notificationService: NotificationService,
-    private elRef: ElementRef
+    private elRef: ElementRef,
+    private pageTitleService: PageTitleService
   ) {}
 
   ngOnInit(): void {

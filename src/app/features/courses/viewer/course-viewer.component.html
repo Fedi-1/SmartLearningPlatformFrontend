@@ -16,27 +16,19 @@
       <!-- Course title -->
       <div class="cv-sidebar__header">
         <h2 class="cv-sidebar__title">{{ course.title }}</h2>
+        @if (course.category) {
+          <span class="cv-sidebar__category-badge">{{ course.category }}</span>
+        }
       </div>
 
-      <!-- Semicircle progress indicator -->
-      <div class="cv-progress-ring-wrap">
-        <!--
-          r=50, cx=60, cy=60 — viewBox crops at y=67 showing only the top half
-          rotate(180deg) on SVG → arc sweeps left→top→right like a gauge
-          The <text> at y=67 sits right in the open mouth of the arc
-        -->
-        <svg class="cv-ring" viewBox="0 0 120 70" width="150" height="88">
-          <circle class="cv-ring__track" cx="60" cy="60" r="50" />
-          <circle class="cv-ring__fill"  cx="60" cy="60" r="50"
-                  [style.stroke-dashoffset]="ringDashOffset" />
-          <!-- text is NOT rotated — we undo the SVG rotation with a local transform -->
-          <text class="cv-ring__pct-text" x="60" y="67"
-                text-anchor="middle"
-                transform="rotate(180, 60, 60)">{{ progressPercent }}%</text>
-        </svg>
-        <div class="cv-progress-text">
-          <span class="cv-progress-text__count">{{ completedCount }} / {{ course.lessons.length }}</span>
-          <span class="cv-progress-text__sub">lessons done</span>
+      <!-- Progress bar -->
+      <div class="cv-sidebar-progress">
+        <div class="cv-sidebar-progress__labels">
+          <span class="cv-sidebar-progress__count">{{ completedCount }} / {{ course.lessons.length }} lessons</span>
+          <span class="cv-sidebar-progress__pct">{{ progressPercent }}%</span>
+        </div>
+        <div class="cv-sidebar-progress__bar">
+          <div class="cv-sidebar-progress__fill" [style.width.%]="progressPercent"></div>
         </div>
       </div>
 
@@ -804,3 +796,8 @@
 
   </div>
 }
+
+<app-chat-widget
+  mode="student"
+  [lessonContext]="selectedLesson?.content ?? null">
+</app-chat-widget>
