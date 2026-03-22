@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -26,6 +26,7 @@ import { AntiCheatService, SuspiciousActivityType } from '../../../core/services
 import { AntiCheatModalComponent } from '../../../shared/components/anti-cheat-modal/anti-cheat-modal.component';
 import { ChatWidgetComponent } from '../../../shared/components/chat-widget/chat-widget.component';
 import { PageTitleService } from '../../../core/services/page-title.service';
+import { ChatContextService } from '../../../shared/services/chat-context.service';
 
 type TabId = 'content' | 'quiz' | 'flashcards' | 'exam';
 
@@ -110,24 +111,24 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
   examTimeExpiredModalVisible = false;
 
   // ─── Anti-cheat state ─────────────────────────────────────────────────────────
-  antiCheatModalVisible = false;
-  antiCheatLastType: SuspiciousActivityType | null = null;
+  suspiciousActivityWarningVisible = false;
+  suspiciousActivityReason = '';
+  antiCheatSub: Subscription | null = null;
   antiCheatTotalCount = 0;
-  private antiCheatSub: Subscription | null = null;
-  /** Show warning modal after this many total events. */
-  private readonly WARN_THRESHOLD = 3;
+  antiCheatLastType: SuspiciousActivityType | null = null;
+  antiCheatModalVisible = false;
+  readonly WARN_THRESHOLD = 5;
 
-  // ─── Progress (from DB) ──────────────────────────────────────────────────────
-  progressMap: Map<number, LessonProgressItem> = new Map();
+  private chatContextService = inject(ChatContextService);
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private location: Location,
-    private courseService: CourseService,
-    private toastService: ToastService,
-    private antiCheat: AntiCheatService,
-    private pageTitleService: PageTitleService
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly location: Location,
+    private readonly courseService: CourseService,
+    private readonly toastService: ToastService,
+    private readonly antiCheat: AntiCheatService,
+    private readonly pageTitleService: PageTitleService
   ) {}
 
   ngOnDestroy(): void {
@@ -203,6 +204,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedLesson = lesson;
+    this.chatContextService.setContext(this.selectedLesson?.content ?? null);
     this.activeTab      = 'content';
     this.videoExpanded  = false;
     this.recapGenerating = false;
@@ -255,10 +257,8 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
       console.error('[Quiz] Cannot start — quizId is null. Lesson:', this.selectedLesson);
       return;
     }
-    console.log('[Quiz] Starting attempt for quizId:', this.selectedLesson.quizId);
     this.courseService.startQuizAttempt(this.selectedLesson.quizId).subscribe({
       next: (attempt) => {
-        console.log('[Quiz] Attempt started:', attempt);
         this.currentAttemptId        = attempt.id;
         this.maxAttempts             = attempt.maxAttempts;
         this.currentAttemptQuestions = attempt.questions ?? [];
@@ -323,7 +323,6 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
       studentAnswer: this.selectedAnswers.get(q.id) ?? ''
     }));
 
-    console.log('[Quiz] Submitting attemptId:', this.currentAttemptId, 'reason:', finishReason);
     this.quizSubmitting = true;
     this.stopTimer();
 
@@ -533,10 +532,11 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
   }
 
   // ─── Progress ────────────────────────────────────────────────────────────────
+  progressMap: Map<number, LessonProgressItem> = new Map();
 
   get completedCount(): number {
     let count = 0;
-    this.progressMap.forEach(p => { if (p.isCompleted) count++; });
+    this.progressMap.forEach((p: LessonProgressItem) => { if (p.isCompleted) count++; });
     return count;
   }
 
@@ -609,8 +609,10 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.examLoading = false;
         // 404 means no exam yet — that's fine
-        if (err?.status !== 404) {
+        if (err?.status !== 404 && err?.error?.status !== 404) {
           this.toastService.error('Failed to load exam info.');
+        } else {
+        // Do NOT show toast or notification on 404
         }
       }
     });
@@ -712,13 +714,12 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
         this.antiCheatSub = null;
         this.antiCheatModalVisible = false;
         this.loadExamPastAttempts();
-        // Load certificate info if passed
-        if (result.isPassed && result.certificateId) {
-          this.courseService.getCourseCertificate(this.course!.id).subscribe({
-            next: (cert) => { this.certInfo = cert; },
-            error: () => {}
-          });
+        
+        if (result.certificateUuid) {
+          this.loadCourseCertificate();
         }
+
+        // Load certificate info if passed  (already done above but keeping just in case. removed original to unify)
       },
       error: (err) => {
         this.examSubmitting = false;
@@ -825,7 +826,10 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
         this.certInfo    = cert;
         this.certLoading = false;
       },
-      error: () => { this.certLoading = false; }
+      error: (err) => { 
+        this.certLoading = false; 
+        console.log('[Cert] load failed:', err.status, err.error);
+}
     });
   }
 
@@ -847,6 +851,6 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
 
   downloadCert(): void {
     if (!this.certInfo) return;
-    window.open(this.courseService.downloadCertificateUrl(this.certInfo.id), '_blank');
+    window.open(this.courseService.downloadCertificateUrl(this.certInfo.certificateUuid), '_blank');
   }
 }

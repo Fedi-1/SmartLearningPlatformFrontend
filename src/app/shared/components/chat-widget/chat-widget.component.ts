@@ -95,6 +95,8 @@ export class ChatWidgetComponent implements OnDestroy, AfterViewChecked {
     const text = this.inputText.trim();
     if (!text || this.isLoading()) return;
 
+    const contextToSend = this.lessonContext || null;
+
     // Add user message to display
     this.messages.update(msgs => [
       ...msgs,
@@ -111,7 +113,7 @@ export class ChatWidgetComponent implements OnDestroy, AfterViewChecked {
       .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
 
     this.chatService
-      .sendMessage(history, this.mode, this.lessonContext ?? undefined)
+      .sendMessage(history, this.mode, contextToSend || undefined)
       .subscribe({
         next: (res) => {
           this.messages.update(msgs => [

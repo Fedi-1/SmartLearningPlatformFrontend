@@ -27,6 +27,8 @@ export class ResetPasswordComponent implements OnInit {
 
   form!: FormGroup;
   token = '';
+  validating = true;
+  tokenValid = false;
   loading = false;
   success = false;
   errorMessage = '';
@@ -45,8 +47,21 @@ export class ResetPasswordComponent implements OnInit {
     this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
 
     if (!this.token) {
-      this.errorMessage = 'Invalid or missing reset token. Please request a new password reset link.';
+      this.router.navigate(['/forgot-password']);
+      return;
     }
+
+    // Validate the token immediately
+    this.authService.validateResetToken(this.token).subscribe({
+      next: () => {
+        this.validating = false;
+        this.tokenValid = true;
+      },
+      error: () => {
+        this.validating = false;
+        this.tokenValid = false;
+      }
+    });
 
     this.form = this.fb.group({
       newPassword:     ['', [Validators.required, Validators.minLength(8)]],

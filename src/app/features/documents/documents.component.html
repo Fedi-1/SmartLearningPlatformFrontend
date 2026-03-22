@@ -4,6 +4,13 @@
   <section class="upload-section">
     <h2 class="section-title">Upload a Document</h2>
 
+    @if (uploadError) {
+      <div class="upload-error-banner">
+        <span class="error-icon">⚠️</span>
+        <span class="error-text">{{ uploadError }}</span>
+      </div>
+    }
+
     <div class="upload-card"
          [class.upload-card--dragover]="dragOver"
          [class.upload-card--has-file]="!!selectedFile"

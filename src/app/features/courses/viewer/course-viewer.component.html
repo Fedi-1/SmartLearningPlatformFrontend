@@ -521,7 +521,6 @@
               <div class="cv-exam-info">
                 <div class="cv-exam-info__header">
                   <h2 class="cv-exam-info__title">{{ examInfo.title }}</h2>
-                  <span class="cv-badge cv-badge--indigo">AI Generated</span>
                 </div>
                 <div class="cv-exam-info__stats">
                   <div class="cv-exam-stat">
@@ -765,9 +764,9 @@
                       }
                     } @else {
                       <span class="cv-cert-issued__icon">🏅</span>
-                      <p class="cv-cert-issued__title">Your certificate has been issued!</p>
+                      <p class="cv-cert-issued__title" style="color: white;">Your certificate has been issued!</p>
                       <div class="cv-cert-card cv-cert-card--loading">
-                        <p>Certificate ID: {{ examResult.certificateUuid }}</p>
+                        <p style="color: white;">Certificate ID: {{ examResult.certificateUuid }}</p>
                         <button class="cv-btn cv-btn--ghost" (click)="loadCourseCertificate()">
                           Load Certificate
                         </button>
@@ -797,7 +796,4 @@
   </div>
 }
 
-<app-chat-widget
-  mode="student"
-  [lessonContext]="selectedLesson?.content ?? null">
-</app-chat-widget>
+<app-chat-widget mode="student"></app-chat-widget>

@@ -217,8 +217,8 @@ export class CourseService {
     return this.http.post<CertificateInfo>(`${CERTIFICATES_API}/${certificateId}/generate`, {});
   }
 
-  downloadCertificateUrl(certificateId: number): string {
-    return `${CERTIFICATES_API}/${certificateId}/download`;
+  downloadCertificateUrl(certificateUuid: string): string {
+    return `${CERTIFICATES_API}/${certificateUuid}/download`;
   }
 
   // ─── Admin: Suspicious Activity ───────────────────────────────────────────

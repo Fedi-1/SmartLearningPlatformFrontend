@@ -28,6 +28,7 @@ export class DocumentsComponent implements OnInit {
   dragOver     = false;
 
   selectedFile: File | null = null;
+  uploadError: string | null = null;
 
   showDeleteModal  = false;
   deletingId: number | null = null;
@@ -38,10 +39,10 @@ export class DocumentsComponent implements OnInit {
   certLoading = new Set<number>();
 
   // Map of courseId → CertificateInfo (loaded on init)
-  certificateMap = new Map<number, CertificateInfo>();
+  certificateMap = new Map<number, string>();
 
-  getCertStatus(courseId: number): 'PENDING' | 'APPROVED' | 'REVOKED' | null {
-    return this.certificateMap.get(courseId)?.status ?? null;
+  getCertStatus(courseId: number): string | null {
+    return this.certificateMap.get(courseId) ?? null;
   }
 
   get availableCategories(): string[] {
@@ -69,13 +70,15 @@ export class DocumentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDocuments();
-    this.loadCertificates();
   }
 
   loadCertificates(): void {
     this.courseService.getMyCertificates().subscribe({
       next: (certs) => {
-        this.certificateMap = new Map(certs.map(c => [c.courseId, c]));
+        certs.forEach(cert => {
+          this.certificateMap.set(cert.courseId, cert.status);
+        });
+        console.log('[Docs] certificateMap:', [...this.certificateMap.entries()]);
       },
       error: () => {} // silently ignore — button stays disabled
     });
@@ -84,7 +87,12 @@ export class DocumentsComponent implements OnInit {
   loadDocuments(): void {
     this.loadingDocs = true;
     this.documentService.getMyDocuments().subscribe({
-      next:  (docs: DocumentItem[]) => { this.documents = docs; this.loadingDocs = false; },
+      next:  (docs: DocumentItem[]) => { 
+        this.documents = docs; 
+        this.loadingDocs = false; 
+        console.log('[Docs] documents loaded:', this.documents.map(d => d.courseId));
+        this.loadCertificates();
+      },
       error: ()   => { this.loadingDocs = false; }
     });
   }
@@ -121,13 +129,18 @@ export class DocumentsComponent implements OnInit {
       return;
     }
     this.selectedFile = file;
+    this.uploadError = null;
   }
 
-  clearFile(): void { this.selectedFile = null; }
+  clearFile(): void { 
+    this.selectedFile = null; 
+    this.uploadError = null;
+  }
 
   confirmUpload(): void {
     if (!this.selectedFile) return;
     this.uploading = true;
+    this.uploadError = null;
     this.documentService.upload(this.selectedFile).subscribe({
       next: (res: { courseId: number }) => {
         this.uploading    = false;
@@ -137,10 +150,14 @@ export class DocumentsComponent implements OnInit {
         this.loadCertificates();
         this.router.navigate(['/dashboard/courses', res.courseId]);
       },
-      error: (err: { error?: { message?: string } }) => {
+      error: (err: any) => {
         this.uploading = false;
-        const msg = err?.error?.message ?? 'Upload failed. Please try again.';
-        this.toastService.error(msg);
+        if (err.status === 409) {
+          this.uploadError = err.error?.message || 'You have already uploaded this document.';
+        } else {
+          const msg = err?.error?.message ?? 'Upload failed. Please try again.';
+          this.toastService.error(msg);
+        }
       }
     });
   }
@@ -176,7 +193,7 @@ export class DocumentsComponent implements OnInit {
     this.courseService.getCourseCertificate(courseId).subscribe({
       next: (cert) => {
         this.certLoading.delete(courseId);
-        window.open(this.courseService.downloadCertificateUrl(cert.id), '_blank');
+        window.open(this.courseService.downloadCertificateUrl(cert.certificateUuid), '_blank');
       },
       error: () => {
         this.certLoading.delete(courseId);

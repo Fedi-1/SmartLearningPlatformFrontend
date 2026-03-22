@@ -470,8 +470,9 @@
 .cv-flashcards-tab,
 .cv-exam-tab {
   flex: 1;
+  height: 100%;
   overflow-y: auto;
-  padding: 1.75rem 2rem;
+  padding: 1.75rem 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -622,7 +623,10 @@
   }
 }
 
-.cv-submit-btn { align-self: flex-end; }
+.cv-submit-btn { 
+  align-self: flex-end; 
+  margin-top: 1.5rem;
+}
 
 // ── Badges ────────────────────────────────────────────────────────────────────
 .cv-badge {
@@ -1288,7 +1292,7 @@
 
   &__text {
     font-size: 0.875rem;
-    color: #B45309;
+    color: #fbbf24;
     margin: 0;
     text-align: center;
     line-height: 1.5;
