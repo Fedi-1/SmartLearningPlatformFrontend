@@ -22,10 +22,12 @@ import {
   AfterViewChecked,
   signal,
   computed,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService, ChatMessage } from '../../services/chat.service';
+import { ChatContextService } from '../../services/chat-context.service';
 
 interface DisplayMessage {
   role: 'user' | 'assistant' | 'error';
@@ -51,13 +53,21 @@ export class ChatWidgetComponent implements OnDestroy, AfterViewChecked {
   inputText = '';
   isLoading = signal(false);
   private shouldScrollToBottom = false;
+  private readonly chatContextService = inject(ChatContextService);
 
   constructor(private readonly chatService: ChatService) {}
+
+  private get effectiveLessonContext(): string | null {
+    const inputContext = this.lessonContext?.trim();
+    if (inputContext) return inputContext;
+    const sharedContext = this.chatContextService.getContext()?.trim();
+    return sharedContext || null;
+  }
 
   // ── Welcome message text based on mode/context ──────────────────────────
   get welcomeText(): string {
     if (this.mode === 'student') {
-      return this.lessonContext
+      return this.effectiveLessonContext
         ? 'Hi! I\'m here to help you understand this lesson. Ask me anything 📚'
         : 'Hi! I\'m your learning assistant. How can I help you? 🎓';
     }
@@ -95,7 +105,7 @@ export class ChatWidgetComponent implements OnDestroy, AfterViewChecked {
     const text = this.inputText.trim();
     if (!text || this.isLoading()) return;
 
-    const contextToSend = this.lessonContext || null;
+    const contextToSend = this.effectiveLessonContext;
 
     // Add user message to display
     this.messages.update(msgs => [

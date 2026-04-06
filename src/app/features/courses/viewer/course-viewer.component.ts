@@ -132,6 +132,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnDestroy(): void {
+    this.chatContextService.setContext(null);
     this.stopTimer();
     this.stopExamTimer();
     this.antiCheat.detach();
