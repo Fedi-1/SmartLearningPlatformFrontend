@@ -1,73 +1,76 @@
 @if (loading) {
-  <div class="sk-wrap">
-    <div class="sk-row" style="height:260px"></div>
-    <div class="sk-row" style="height:260px"></div>
-    <div class="sk-row" style="height:200px"></div>
+  <div class="progress-skeleton">
+    <div class="skeleton-title"></div>
+    <div class="skeleton-subtitle"></div>
+    <div class="skeleton-cards">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="skeleton-card"></div>
+      }
+    </div>
+    <div class="skeleton-charts">
+      <div class="skeleton-chart"></div>
+      <div class="skeleton-chart"></div>
+    </div>
   </div>
 }
 
 @else if (error) {
-  <div class="state-error"><span>⚠️</span><p>Failed to load progress data.</p></div>
+  <div class="state-error">
+    <span>⚠️</span>
+    <p>Failed to load progress data.</p>
+  </div>
 }
 
-@else if (data) {
+@else {
+  <section class="progress-page">
+    <header class="progress-header">
+      <h1>Your Progress</h1>
+      <p>Track your learning journey and achievements</p>
+    </header>
 
-  <!-- Section 1: Doughnut -->
-  <section class="panel">
-    <h2 class="panel__title">Course Completion</h2>
-    <div class="chart-container chart-container--doughnut">
-      <canvas #doughnutCanvas></canvas>
-    </div>
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-card__top">
+          <div class="stat-icon stat-icon--primary">📘</div>
+          <span class="stat-change stat-change--positive">{{ stats.completedCourses }} completed</span>
+        </div>
+        <p class="stat-label">Total Courses</p>
+        <p class="stat-value">{{ stats.totalCourses }}</p>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-card__top">
+          <div class="stat-icon stat-icon--success">🏆</div>
+          <span class="stat-change" [class.stat-change--positive]="stats.averageQuizScore >= 70">
+            {{ quizzesAverageText }}
+          </span>
+        </div>
+        <p class="stat-label">Quizzes Taken</p>
+        <p class="stat-value">{{ stats.totalQuizzes }}</p>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-card__top">
+          <div class="stat-icon stat-icon--warning">🗂️</div>
+          <span class="stat-change">Total</span>
+        </div>
+        <p class="stat-label">Flashcards Reviewed</p>
+        <p class="stat-value">{{ stats.flashcardsReviewed }}</p>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-card__top">
+          <div class="stat-icon stat-icon--orange">⏰</div>
+          <span class="stat-change">Total</span>
+        </div>
+        <p class="stat-label">Study Time</p>
+        <p class="stat-value">{{ formattedStudyTime }}</p>
+      </article>
+    </section>
+
+    <app-progress-charts
+      [quizHistory]="quizHistory"
+      [courseBreakdown]="courseBreakdown">
+    </app-progress-charts>
   </section>
-
-  <!-- Section 2: Bar -->
-  <section class="panel">
-    <h2 class="panel__title">Quiz Pass Rate by Course</h2>
-    <div class="chart-container chart-container--bar">
-      <canvas #barCanvas></canvas>
-    </div>
-  </section>
-
-  <!-- Section 3: Table -->
-  <section class="panel">
-    <h2 class="panel__title">Course Summary</h2>
-    @if (data.courses.length === 0) {
-      <p class="panel__empty">No courses yet.</p>
-    } @else {
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Course</th>
-              <th>Progress</th>
-              <th>Quizzes Passed</th>
-              <th>Exam Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (course of data.courses; track course.courseId) {
-              <tr>
-                <td class="td-title">{{ course.title }}</td>
-                <td>
-                  <div class="td-progress">
-                    <div class="progress-bar">
-                      <div class="progress-bar__fill" [style.width.%]="course.progressPercentage"></div>
-                    </div>
-                    <span>{{ course.progressPercentage }}%</span>
-                  </div>
-                </td>
-                <td>{{ course.quizzesPassed }} / {{ course.totalQuizzes }}</td>
-                <td>
-                  <span class="status-badge" [class]="'status-badge--' + (course.examPassed ? 'green' : course.progressPercentage === 100 ? 'gold' : 'grey')">
-                    {{ examStatus(course) }}
-                  </span>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </section>
-
 }

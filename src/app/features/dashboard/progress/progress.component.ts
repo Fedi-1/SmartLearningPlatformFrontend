@@ -1,136 +1,114 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DashboardService, DashboardCourse, DashboardResponse } from '../../../core/services/dashboard.service';
-import {
-  Chart,
-  DoughnutController,
-  BarController,
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend
-} from 'chart.js';
+import { DashboardService, DashboardResponse } from '../../../core/services/dashboard.service';
+import { ProgressChartsComponent } from './progress-charts.component';
 
-Chart.register(DoughnutController, BarController, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+interface ProgressStatsViewModel {
+  totalCourses: number;
+  completedCourses: number;
+  totalQuizzes: number;
+  averageQuizScore: number;
+  flashcardsReviewed: number;
+  studyMinutes: number;
+}
+
+interface QuizHistoryItem {
+  name: string;
+  score: number;
+}
+
+export interface CourseBreakdownItem {
+  name: string;
+  value: number;
+  color: string;
+}
 
 @Component({
   selector: 'app-progress',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ProgressChartsComponent],
   templateUrl: './progress.component.html',
   styleUrl: './progress.component.scss'
 })
-export class ProgressComponent implements OnInit, AfterViewInit, OnDestroy {
-
-  @ViewChild('doughnutCanvas') doughnutCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('barCanvas')      barCanvas!:      ElementRef<HTMLCanvasElement>;
+export class ProgressComponent implements OnInit {
 
   loading = true;
-  error   = false;
+  error = false;
   data: DashboardResponse | null = null;
+  stats: ProgressStatsViewModel = {
+    totalCourses: 0,
+    completedCourses: 0,
+    totalQuizzes: 0,
+    averageQuizScore: 0,
+    flashcardsReviewed: 0,
+    studyMinutes: 0
+  };
 
-  private doughnutChart?: Chart;
-  private barChart?:      Chart;
+  quizHistory: QuizHistoryItem[] = [];
+  courseBreakdown: CourseBreakdownItem[] = [];
+
+  private readonly chartColors = ['#6366f1', '#10b981', '#f59e0b'];
 
   constructor(private dashboardService: DashboardService) {}
 
   ngOnInit(): void {
     this.dashboardService.getDashboard().subscribe({
-      next: (res) => { this.data = res; this.loading = false; },
-      error: ()    => { this.error = true; this.loading = false; }
+      next: (res) => {
+        this.data = res;
+        this.mapViewData(res);
+        this.loading = false;
+      },
+      error: () => {
+        this.error = true;
+        this.loading = false;
+      }
     });
   }
 
-  ngAfterViewInit(): void {
-    // Charts are created after data arrives — handled in ngOnInit via a check
+  get quizzesAverageText(): string {
+    return this.stats.averageQuizScore > 0 ? `Avg: ${this.stats.averageQuizScore}%` : 'Avg: N/A';
   }
 
-  ngAfterViewChecked(): void {
-    if (!this.loading && !this.error && this.data && !this.doughnutChart && this.doughnutCanvas) {
-      this.buildCharts();
+  get formattedStudyTime(): string {
+    if (this.stats.studyMinutes >= 60) {
+      return `${Math.round(this.stats.studyMinutes / 60)}h`;
     }
+    return `${this.stats.studyMinutes}m`;
   }
 
-  buildCharts(): void {
-    const courses = this.data!.courses;
+  private mapViewData(res: DashboardResponse): void {
+    const completed = res.courses.filter((course) => course.progressPercentage === 100).length;
+    const inProgress = res.courses.filter(
+      (course) => course.progressPercentage > 0 && course.progressPercentage < 100
+    ).length;
+    const notStarted = res.courses.filter((course) => course.progressPercentage === 0).length;
 
-    // ── Doughnut ────────────────────────────────────────────────────────────
-    const completed   = courses.filter(c => c.progressPercentage === 100).length;
-    const inProgress  = courses.filter(c => c.progressPercentage > 0 && c.progressPercentage < 100).length;
-    const notStarted  = courses.filter(c => c.progressPercentage === 0).length;
+    this.stats = {
+      totalCourses: res.stats.totalCourses,
+      completedCourses: res.stats.completedCourses,
+      totalQuizzes: res.stats.totalQuizAttempts,
+      averageQuizScore: Math.round(res.stats.averageQuizScore || 0),
+      flashcardsReviewed: res.stats.totalFlashcards,
+      studyMinutes: res.stats.totalStudyMinutes || 0
+    };
 
-    this.doughnutChart = new Chart(this.doughnutCanvas.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: ['Completed', 'In Progress', 'Not Started'],
-        datasets: [{
-          data: [completed, inProgress, notStarted],
-          backgroundColor: ['#10b981', '#6366f1', '#484f58'],
-          borderColor: '#161b22',
-          borderWidth: 3,
-          hoverOffset: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { color: '#8b949e', padding: 16, font: { size: 12 } }
-          },
-          tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', borderWidth: 1 }
-        }
-      }
-    });
+    this.quizHistory = res.courses
+      .filter((course) => course.totalQuizzes > 0)
+      .slice(0, 10)
+      .map((course, index) => {
+        const score = course.totalQuizzes > 0
+          ? Math.round((course.quizzesPassed / course.totalQuizzes) * 100)
+          : 0;
+        return {
+          name: `Quiz ${index + 1}`,
+          score
+        };
+      });
 
-    // ── Bar ─────────────────────────────────────────────────────────────────
-    const labels = courses.map(c => c.title.length > 20 ? c.title.slice(0, 18) + '…' : c.title);
-    const scores = courses.map(c => {
-      // Use progressPercentage as a proxy for quiz score if averageQuizScore per course isn't available
-      return c.quizzesPassed > 0 && c.totalQuizzes > 0
-        ? Math.round((c.quizzesPassed / c.totalQuizzes) * 100)
-        : 0;
-    });
-
-    this.barChart = new Chart(this.barCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Quiz Pass Rate (%)',
-          data: scores,
-          backgroundColor: 'rgba(99, 102, 241, 0.6)',
-          borderColor: '#6366f1',
-          borderWidth: 1,
-          borderRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: { ticks: { color: '#8b949e', maxRotation: 30 }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { min: 0, max: 100, ticks: { color: '#8b949e' }, grid: { color: 'rgba(255,255,255,0.05)' } }
-        },
-        plugins: {
-          legend: { labels: { color: '#8b949e' } },
-          tooltip: { backgroundColor: '#1c2128', borderColor: '#30363d', borderWidth: 1 }
-        }
-      }
-    });
-  }
-
-  examStatus(course: DashboardCourse): string {
-    if (course.examPassed) return 'Passed';
-    if (course.progressPercentage === 100) return 'Ready';
-    return 'Not attempted';
-  }
-
-  ngOnDestroy(): void {
-    this.doughnutChart?.destroy();
-    this.barChart?.destroy();
+    this.courseBreakdown = [
+      { name: 'Completed', value: completed, color: this.chartColors[0] },
+      { name: 'In Progress', value: inProgress, color: this.chartColors[1] },
+      { name: 'Not Started', value: notStarted, color: this.chartColors[2] }
+    ].filter((item) => item.value > 0);
   }
 }

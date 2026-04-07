@@ -18,21 +18,117 @@
 
 @else {
   <div class="panel">
-    <h2 class="panel__title">Flashcards Due by Course</h2>
+    <h2 class="panel__title">Flashcards Review Queue</h2>
 
-    <div class="fc-grid">
-      @for (fc of dueList; track fc.courseId) {
-        @if (fc.dueCount > 0) {
-          <div class="fc-card">
-            <div class="fc-card__body">
-              <span class="fc-card__course">{{ fc.courseTitle }}</span>
-              <span class="fc-due-badge">{{ fc.dueCount }} due</span>
-            </div>
-            <button class="btn btn--indigo" (click)="startReview(fc.courseId)">
-              Start Review →
-            </button>
-          </div>
-        }
+    <div class="metrics-strip">
+      <div class="metric-pill">
+        <span class="metric-pill__label">Total due cards</span>
+        <span class="metric-pill__value">{{ totalDueCards }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-pill__label">Courses</span>
+        <span class="metric-pill__value">{{ totalCourses }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-pill__label">Urgent courses</span>
+        <span class="metric-pill__value">{{ urgentCoursesCount }}</span>
+      </div>
+    </div>
+
+    <div class="tier-block">
+      <p class="tier-label">Urgent — review first</p>
+      @if (urgentCourses.length === 0) {
+        <p class="tier-empty">No urgent courses right now.</p>
+      } @else {
+        <div class="course-list">
+          @for (fc of urgentCourses; track fc.courseId) {
+            <article class="course-row course-row--urgent">
+              <div class="course-row__main">
+                <h3 class="course-row__title" [title]="fc.courseTitle">{{ fc.courseTitle }}</h3>
+                <div class="course-row__progress">
+                  <div class="progress-track">
+                    <span class="progress-fill progress-fill--urgent" [style.width.%]="progressPercent(fc)"></span>
+                  </div>
+                  <span class="progress-label">{{ fc.dueCount }} / {{ totalCards(fc) }} cards</span>
+                </div>
+              </div>
+              <div class="course-row__due">
+                <span class="course-row__due-value">{{ fc.dueCount }}</span>
+                <span class="course-row__due-unit">due</span>
+              </div>
+              <button class="btn btn--outline" (click)="startReview(fc.courseId)">Start →</button>
+            </article>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="tier-block">
+      <p class="tier-label">Moderate — up next</p>
+      @if (moderateCourses.length === 0) {
+        <p class="tier-empty">No moderate courses right now.</p>
+      } @else {
+        <div class="course-list">
+          @for (fc of moderateCourses; track fc.courseId) {
+            <article class="course-row course-row--moderate">
+              <div class="course-row__main">
+                <h3 class="course-row__title" [title]="fc.courseTitle">{{ fc.courseTitle }}</h3>
+                <div class="course-row__progress">
+                  <div class="progress-track">
+                    <span class="progress-fill progress-fill--moderate" [style.width.%]="progressPercent(fc)"></span>
+                  </div>
+                  <span class="progress-label">{{ fc.dueCount }} / {{ totalCards(fc) }} cards</span>
+                </div>
+              </div>
+              <div class="course-row__due">
+                <span class="course-row__due-value">{{ fc.dueCount }}</span>
+                <span class="course-row__due-unit">due</span>
+              </div>
+              <button class="btn btn--outline" (click)="startReview(fc.courseId)">Start →</button>
+            </article>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="tier-block">
+      <p class="tier-label">Low priority</p>
+
+      @if (hasLowCourses) {
+        <button class="low-toggle" (click)="toggleLowPriority()">
+          @if (lowExpanded) {
+            Show less ↑
+          } @else {
+            Show {{ lowCourses.length }} more courses ↓
+          }
+        </button>
+      }
+
+      @if (lowExpanded && lowCourses.length > 0) {
+        <div class="course-list">
+          @for (fc of lowCourses; track fc.courseId) {
+            <article class="course-row course-row--low">
+              <div class="course-row__main">
+                <h3 class="course-row__title" [title]="fc.courseTitle">{{ fc.courseTitle }}</h3>
+                <div class="course-row__progress">
+                  <div class="progress-track">
+                    <span class="progress-fill progress-fill--low" [style.width.%]="progressPercent(fc)"></span>
+                  </div>
+                  <span class="progress-label">{{ fc.dueCount }} / {{ totalCards(fc) }} cards</span>
+                </div>
+              </div>
+              <div class="course-row__due">
+                <span class="course-row__due-value">{{ fc.dueCount }}</span>
+                <span class="course-row__due-unit">due</span>
+              </div>
+              <button class="btn btn--outline" (click)="startReview(fc.courseId)">Start →</button>
+            </article>
+          }
+        </div>
+      } @else if (hasLowCourses) {
+        <p class="tier-empty">Low-priority courses are hidden.</p>
+      } @else {
+        <p class="tier-empty">No low-priority courses right now.</p>
       }
     </div>
 

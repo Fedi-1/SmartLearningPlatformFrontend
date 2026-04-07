@@ -1,0 +1,42 @@
+<section class="charts-grid">
+  <article class="chart-card">
+    <h2 class="chart-card__title">
+      <span class="chart-card__icon">〽</span>
+      Quiz Score History
+    </h2>
+
+    @if (quizHistory.length === 0) {
+      <p class="chart-card__empty">No quizzes taken yet</p>
+    } @else {
+      <div class="chart-box chart-box--bar">
+        <canvas #barCanvas></canvas>
+      </div>
+    }
+  </article>
+
+  <article class="chart-card">
+    <h2 class="chart-card__title">
+      <span class="chart-card__icon">◎</span>
+      Course Breakdown
+    </h2>
+
+    @if (courseBreakdown.length === 0) {
+      <p class="chart-card__empty">No courses yet</p>
+    } @else {
+      <div class="pie-layout">
+        <div class="chart-box chart-box--pie">
+          <canvas #pieCanvas></canvas>
+        </div>
+
+        <ul class="pie-legend">
+          @for (item of courseBreakdown; track item.name) {
+            <li>
+              <span class="legend-dot" [style.background]="item.color"></span>
+              <span class="legend-label">{{ item.name }}: <strong>{{ item.value }}</strong></span>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </article>
+</section>

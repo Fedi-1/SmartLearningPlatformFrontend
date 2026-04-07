@@ -12,6 +12,7 @@ export interface DashboardStats {
   averageQuizScore: number;
   flashcardsDueToday: number;
   totalFlashcards: number;
+  totalStudyMinutes: number;
 }
 
 export interface DashboardCourse {

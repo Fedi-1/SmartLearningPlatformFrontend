@@ -395,6 +395,8 @@ a {
   --cv-option-bg:      rgba(255,255,255,0.03);
   --cv-fill-bg:        rgba(255,255,255,0.04);
   --cv-fc-front-bg:    #1a1d27;
+  --cv-fc-back-bg:     linear-gradient(145deg, #1f2a52 0%, #171e3a 50%, #121725 100%);
+  --cv-fc-back-text:   #e0e7ff;
   --cv-fc-back-border: rgba(99,102,241,0.3);
   --cv-fc-btn-bg:      rgba(255,255,255,0.04);
   --cv-expl-bg:        rgba(255,255,255,0.04);
@@ -427,6 +429,8 @@ a {
   --cv-option-bg:      #f8fafc;
   --cv-fill-bg:        #f8fafc;
   --cv-fc-front-bg:    #ffffff;
+  --cv-fc-back-bg:     linear-gradient(155deg, #ffffff 0%, #eef5ff 56%, #e5efff 100%);
+  --cv-fc-back-text:   #17345c;
   --cv-fc-back-border: #c7d2fe;
   --cv-fc-btn-bg:      #f8fafc;
   --cv-expl-bg:        #f8fafc;

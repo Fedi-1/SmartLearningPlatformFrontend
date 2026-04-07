@@ -27,6 +27,7 @@ import { AntiCheatModalComponent } from '../../../shared/components/anti-cheat-m
 import { ChatWidgetComponent } from '../../../shared/components/chat-widget/chat-widget.component';
 import { PageTitleService } from '../../../core/services/page-title.service';
 import { ChatContextService } from '../../../shared/services/chat-context.service';
+import { StudySessionService } from '../../../core/services/study-session.service';
 
 type TabId = 'content' | 'quiz' | 'flashcards' | 'exam';
 
@@ -44,6 +45,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
 
   selectedLesson: LessonItem | null = null;
   activeTab: TabId = 'content';
+  private initialTab: TabId = 'content';
 
   // ─── Quiz state ──────────────────────────────────────────────────────────────
   selectedAnswers: Map<number, string> = new Map();
@@ -120,18 +122,25 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
   readonly WARN_THRESHOLD = 5;
 
   private chatContextService = inject(ChatContextService);
+  private currentStudySessionId: number | null = null;
+  private studyHeartbeatInterval: ReturnType<typeof setInterval> | null = null;
+  private lastInteractionAt = Date.now();
+  private readonly STUDY_HEARTBEAT_MS = 30000;
+  private readonly STUDY_IDLE_THRESHOLD_MS = 60000;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly location: Location,
     private readonly courseService: CourseService,
+    private readonly studySessionService: StudySessionService,
     private readonly toastService: ToastService,
     private readonly antiCheat: AntiCheatService,
     private readonly pageTitleService: PageTitleService
   ) {}
 
   ngOnDestroy(): void {
+    this.stopStudySession();
     this.chatContextService.setContext(null);
     this.stopTimer();
     this.stopExamTimer();
@@ -150,6 +159,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
 
   @HostListener('window:beforeunload', ['$event'])
   onBeforeUnload(event: BeforeUnloadEvent): void {
+    this.stopStudySession();
     if (this.currentAttemptId && !this.quizSubmitted) {
       this.courseService.abandonQuizAttempt(this.currentAttemptId).subscribe({ error: () => {} });
       event.preventDefault();
@@ -162,9 +172,31 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.hidden) {
+      this.stopStudySession();
+      return;
+    }
+    this.ensureStudySessionForCurrentLesson();
+  }
+
+  @HostListener('document:mousemove')
+  @HostListener('document:keydown')
+  @HostListener('document:click')
+  @HostListener('document:scroll')
+  onUserInteraction(): void {
+    this.lastInteractionAt = Date.now();
+  }
+
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('courseId'));
     if (!id) { this.router.navigate(['/documents']); return; }
+
+    const tabParam = this.route.snapshot.queryParamMap.get('tab');
+    if (tabParam === 'content' || tabParam === 'quiz' || tabParam === 'flashcards' || tabParam === 'exam') {
+      this.initialTab = tabParam;
+    }
 
     this.pageTitleService.set('Loading…');
 
@@ -183,6 +215,9 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
         this.loading = false;
         const first = course.lessons.find(l => !l.isLocked) ?? course.lessons[0];
         if (first) this.selectLesson(first);
+        if (this.initialTab !== 'content') {
+          this.setTab(this.initialTab);
+        }
       },
       error: () => {
         this.loading = false;
@@ -217,6 +252,85 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
       this.attemptsLoading = false;
     }
     this.courseService.trackLessonAccess(lesson.id).subscribe({ error: () => {} });
+    this.restartStudySessionForLesson(lesson.id);
+  }
+
+  private ensureStudySessionForCurrentLesson(): void {
+    if (document.hidden || !this.course || !this.selectedLesson || this.currentStudySessionId) {
+      return;
+    }
+    this.startStudySession(this.course.id, this.selectedLesson.id);
+  }
+
+  private restartStudySessionForLesson(lessonId: number): void {
+    if (!this.course || document.hidden) {
+      return;
+    }
+
+    if (this.currentStudySessionId) {
+      this.stopStudySession(() => this.startStudySession(this.course!.id, lessonId));
+      return;
+    }
+
+    this.startStudySession(this.course.id, lessonId);
+  }
+
+  private startStudySession(courseId: number, lessonId: number): void {
+    this.lastInteractionAt = Date.now();
+
+    this.studySessionService.start(courseId, lessonId).subscribe({
+      next: (session) => {
+        this.currentStudySessionId = session.sessionId;
+        this.startStudyHeartbeat();
+      },
+      error: () => {
+        // Keep this silent to avoid noisy UX while navigating lessons.
+      }
+    });
+  }
+
+  private startStudyHeartbeat(): void {
+    this.stopStudyHeartbeat();
+    this.studyHeartbeatInterval = setInterval(() => {
+      const sessionId = this.currentStudySessionId;
+      if (!sessionId || document.hidden) {
+        return;
+      }
+
+      const idleMs = Date.now() - this.lastInteractionAt;
+      if (idleMs > this.STUDY_IDLE_THRESHOLD_MS) {
+        return;
+      }
+
+      this.studySessionService.heartbeat(sessionId).subscribe({
+        error: () => {
+          // Keep this silent and continue local tracking.
+        }
+      });
+    }, this.STUDY_HEARTBEAT_MS);
+  }
+
+  private stopStudyHeartbeat(): void {
+    if (this.studyHeartbeatInterval !== null) {
+      clearInterval(this.studyHeartbeatInterval);
+      this.studyHeartbeatInterval = null;
+    }
+  }
+
+  private stopStudySession(onDone?: () => void): void {
+    this.stopStudyHeartbeat();
+    const sessionId = this.currentStudySessionId;
+    this.currentStudySessionId = null;
+
+    if (!sessionId) {
+      onDone?.();
+      return;
+    }
+
+    this.studySessionService.stop(sessionId).subscribe({
+      next: () => onDone?.(),
+      error: () => onDone?.()
+    });
   }
 
   /** True while a quiz or exam attempt is actively in progress (not yet submitted). */

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { DashboardService, DashboardCourse } from '../../../core/services/dashboard.service';
 import { DocumentService } from '../../../core/services/document.service';
@@ -19,13 +19,15 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
   courses: DashboardCourse[] = [];
   groupedCourses: Array<{ category: string; courses: DashboardCourse[] }> = [];
   selectedCategory = '';
+  searchTerm = '';
   error = false;
 
   private deleteSub?: Subscription;
 
   constructor(
     private dashboardService: DashboardService,
-    private documentService: DocumentService
+    private documentService: DocumentService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -62,6 +64,19 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
     this.selectedCategory = category;
   }
 
+  get filteredSelectedCourses(): DashboardCourse[] {
+    const selectedCourses = this.selectedGroup?.courses ?? [];
+    const query = this.searchTerm.trim().toLowerCase();
+
+    if (!query) {
+      return selectedCourses;
+    }
+
+    return selectedCourses.filter((course) =>
+      course.title.toLowerCase().includes(query)
+    );
+  }
+
   private buildGroupedCourses(courses: DashboardCourse[]): Array<{ category: string; courses: DashboardCourse[] }> {
     const grouped = new Map<string, DashboardCourse[]>();
 
@@ -95,5 +110,9 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
       && course.completedLessons === course.totalLessons
       && course.quizzesPassed === course.totalQuizzes
       && !course.examPassed;
+  }
+
+  goToExam(courseId: number): void {
+    this.router.navigate(['/dashboard/courses', courseId], { queryParams: { tab: 'exam' } });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -9,6 +9,7 @@ import { PageTitleService } from '../../../core/services/page-title.service';
 
 // Persisted theme preference
 const THEME_KEY = 'dash-theme';
+const SIDEBAR_COLLAPSE_KEY = 'dash-sidebar-collapsed';
 
 interface NavItem {
   label: string;
@@ -32,10 +33,17 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
   // Notification panel state
   panelOpen = false;
 
+  isSidebarCollapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === 'true';
+
   toggleTheme(): void {
     this.isDark = !this.isDark;
     localStorage.setItem(THEME_KEY, this.isDark ? 'dark' : 'light');
     document.body.classList.toggle('light-theme', !this.isDark);
+  }
+
+  toggleSidebar(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+    localStorage.setItem(SIDEBAR_COLLAPSE_KEY, this.isSidebarCollapsed ? 'true' : 'false');
   }
 
   readonly navItems: NavItem[] = [

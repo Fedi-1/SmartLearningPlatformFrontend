@@ -1,4 +1,8 @@
-<div class="shell" [class.theme-dark]="isDark" [class.theme-light]="!isDark">
+<div
+  class="shell"
+  [class.theme-dark]="isDark"
+  [class.theme-light]="!isDark"
+  [class.shell--collapsed]="isSidebarCollapsed">
 
   <!-- ── SIDEBAR ─────────────────────────────────────────────────────────── -->
   <aside class="sidebar">
@@ -12,6 +16,7 @@
         <a
           class="sidebar__link"
           [class.sidebar__link--admin]="item.adminOnly"
+          [attr.title]="isSidebarCollapsed ? item.label : null"
           [routerLink]="item.route"
           routerLinkActive="sidebar__link--active"
           [routerLinkActiveOptions]="{ exact: item.route === '/dashboard/courses' ? false : true }">
@@ -40,9 +45,24 @@
           <p class="sidebar__user-email">{{ user?.email }}</p>
         </div>
       </div>
-      <button class="sidebar__logout" (click)="logout()">
+      <button class="sidebar__logout" (click)="logout()" [attr.title]="isSidebarCollapsed ? 'Sign out' : null">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Sign out
+        <span>Sign out</span>
+      </button>
+
+      <button
+        class="sidebar__collapse-toggle"
+        type="button"
+        [attr.aria-label]="isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        [attr.title]="isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        (click)="toggleSidebar()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          @if (isSidebarCollapsed) {
+            <polyline points="9 18 15 12 9 6"/>
+          } @else {
+            <polyline points="15 18 9 12 15 6"/>
+          }
+        </svg>
       </button>
     </div>
   </aside>
