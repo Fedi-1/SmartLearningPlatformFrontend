@@ -1,0 +1,267 @@
+/* src/app/dashboard/community/community.component.scss */
+:host {
+  display: block;
+}
+
+.community-page {
+  padding: 1rem;
+  color: #e7e9f5;
+}
+
+.community-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #f4f6ff;
+  }
+}
+
+.new-chat-btn {
+  border: 0;
+  border-radius: 0.65rem;
+  background: #6366f1;
+  color: #fff;
+  padding: 0.55rem 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.search-wrap {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  border: 1px solid #2f3348;
+  border-radius: 0.75rem;
+  background: #1e2130;
+  color: #f4f6ff;
+  padding: 0.75rem 0.9rem;
+  outline: none;
+}
+
+.search-results {
+  position: absolute;
+  z-index: 5;
+  inset-inline: 0;
+  top: calc(100% + 0.5rem);
+  border: 1px solid #30354e;
+  border-radius: 0.75rem;
+  background: #1e2130;
+  overflow: hidden;
+}
+
+.search-status {
+  position: absolute;
+  z-index: 5;
+  inset-inline: 0;
+  top: calc(100% + 0.5rem);
+  border: 1px solid #30354e;
+  border-radius: 0.75rem;
+  background: #1e2130;
+  color: #aeb5d2;
+  padding: 0.75rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.search-status--error {
+  color: #f8b4b4;
+  border-color: #5d2e40;
+  background: #2a1d2a;
+}
+
+.search-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  padding: 0.65rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+
+  &:hover {
+    background: #272b3f;
+  }
+}
+
+.avatar {
+  inline-size: 2.35rem;
+  block-size: 2.35rem;
+  border-radius: 999px;
+  background: #6366f1;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  font-weight: 700;
+  color: #f2f4ff;
+}
+
+.email {
+  color: #9aa1bf;
+  font-size: 0.86rem;
+}
+
+.conversation-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.conversation-item {
+  width: 100%;
+  border: 1px solid #30354e;
+  border-radius: 0.9rem;
+  background: #1e2130;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    border-color: #4f56a4;
+    background: #232741;
+  }
+}
+
+.content {
+  min-width: 0;
+  flex: 1;
+
+  .name {
+    margin: 0;
+    font-size: 0.98rem;
+  }
+
+  .preview {
+    margin: 0.2rem 0 0;
+    color: #8d93ad;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &.preview--unread {
+      color: #f5f7ff;
+    }
+  }
+}
+
+.meta-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+
+  .time {
+    color: #9096b3;
+    font-size: 0.78rem;
+  }
+}
+
+.badge {
+  min-width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  padding: 0 0.35rem;
+}
+
+.state {
+  border: 1px dashed #34384e;
+  border-radius: 0.9rem;
+  background: #1a1d27;
+  color: #a8aec9;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+:host-context(.light-theme) .community-page {
+  color: #1f2a40;
+}
+
+:host-context(.light-theme) .community-header h2 {
+  color: #151f35;
+}
+
+:host-context(.light-theme) .search-input {
+  background: #ffffff;
+  color: #1f2a40;
+  border-color: #c8d3ea;
+}
+
+:host-context(.light-theme) .search-results,
+:host-context(.light-theme) .search-status {
+  background: #ffffff;
+  border-color: #c8d3ea;
+}
+
+:host-context(.light-theme) .search-status {
+  color: #45567f;
+}
+
+:host-context(.light-theme) .search-item:hover {
+  background: #eef3ff;
+}
+
+:host-context(.light-theme) .name {
+  color: #18233e;
+}
+
+:host-context(.light-theme) .email {
+  color: #607198;
+}
+
+:host-context(.light-theme) .conversation-item {
+  background: #ffffff;
+  border-color: #d0d8ec;
+
+  &:hover {
+    background: #f6f9ff;
+    border-color: #9baee6;
+  }
+}
+
+:host-context(.light-theme) .content .preview {
+  color: #607198;
+}
+
+:host-context(.light-theme) .content .preview.preview--unread {
+  color: #18233e;
+}
+
+:host-context(.light-theme) .meta-right .time {
+  color: #617296;
+}
+
+:host-context(.light-theme) .state {
+  background: #f8faff;
+  border-color: #d0d8ec;
+  color: #607198;
+}

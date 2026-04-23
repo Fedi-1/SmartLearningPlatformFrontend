@@ -1,0 +1,70 @@
+<!-- src/app/dashboard/community/community.component.html -->
+<section class="community-page">
+  <header class="community-header">
+    <h2>Community</h2>
+    <button class="new-chat-btn" type="button" (click)="toggleSearch()">New Chat</button>
+  </header>
+
+  @if (showSearch()) {
+    <div class="search-wrap">
+      <input
+        type="text"
+        class="search-input"
+        [value]="searchQuery()"
+        placeholder="Search students by name or email..."
+        (input)="onSearch(($any($event.target).value ?? '').toString())" />
+
+      @if (searchResults().length > 0) {
+        <div class="search-results">
+          @for (student of searchResults(); track student.id) {
+            <button class="search-item" type="button" (click)="startNewChat(student)">
+              <span class="avatar">{{ student.initials }}</span>
+              <span class="meta">
+                <span class="name">{{ student.fullName }}</span>
+                <span class="email">{{ student.email }}</span>
+              </span>
+            </button>
+          }
+        </div>
+      } @else if (searchLoading()) {
+        <div class="search-status">Searching students...</div>
+      } @else if (searchError()) {
+        <div class="search-status search-status--error">Search failed. Please try again.</div>
+      } @else if (searchHasRun()) {
+        <div class="search-status">No students found. Your own account is excluded.</div>
+      }
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="state">Loading conversations...</div>
+  } @else if (conversations().length === 0) {
+    <div class="state">No conversations yet. Start chatting!</div>
+  } @else {
+    <div class="conversation-list">
+      @for (conversation of conversations(); track conversation.id) {
+        <button
+          class="conversation-item"
+          type="button"
+          (click)="openConversation(conversation.otherStudentId)">
+
+          <div class="avatar">{{ conversation.otherStudentInitials }}</div>
+
+          <div class="content">
+            <p class="name">{{ conversation.otherStudentName }}</p>
+            <p class="preview" [class.preview--unread]="conversation.unreadCount > 0">
+              {{ previewText(conversation.lastMessage) }}
+            </p>
+          </div>
+
+          <div class="meta-right">
+            <span class="time">{{ formatRelativeTime(conversation.lastMessageAt) }}</span>
+            @if (conversation.unreadCount > 0) {
+              <span class="badge">{{ conversation.unreadCount }}</span>
+            }
+          </div>
+        </button>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,281 @@
+/* src/app/dashboard/community/conversation/conversation.component.scss */
+:host {
+  display: block;
+  height: 100%;
+}
+
+.conversation-page {
+  height: calc(100dvh - 12rem);
+  display: flex;
+  flex-direction: column;
+  background: #1a1d27;
+  border: 1px solid #2f344b;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.conversation-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #2f344b;
+  background: #1e2130;
+}
+
+.back-btn {
+  border: 0;
+  background: transparent;
+  color: #d7dcf8;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.peer {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+
+  .name {
+    margin: 0;
+    color: #f3f6ff;
+    font-weight: 700;
+  }
+}
+
+.avatar {
+  inline-size: 2.15rem;
+  block-size: 2.15rem;
+  border-radius: 999px;
+  background: #6366f1;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.msg-row {
+  display: flex;
+  justify-content: flex-start;
+
+  &.msg-row--mine {
+    justify-content: flex-end;
+  }
+}
+
+.bubble {
+  max-width: min(80%, 42rem);
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+
+  &.bubble--mine {
+    background: #6366f1;
+    color: #fff;
+    border-bottom-right-radius: 0.35rem;
+  }
+
+  &.bubble--other {
+    background: #2d3148;
+    color: #edf0ff;
+    border-bottom-left-radius: 0.35rem;
+  }
+}
+
+.text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.time {
+  font-size: 0.75rem;
+  opacity: 0.82;
+  align-self: flex-end;
+}
+
+.shared-course-card {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0.7rem;
+  padding: 0.55rem;
+  background: rgba(0, 0, 0, 0.18);
+
+  p {
+    margin: 0 0 0.4rem;
+    font-size: 0.88rem;
+  }
+}
+
+.view-course-btn {
+  border: 0;
+  border-radius: 0.55rem;
+  background: #11162a;
+  color: #fff;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.view-course-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.composer {
+  border-top: 1px solid #2f344b;
+  background: #1e2130;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.composer-input {
+  width: 100%;
+  border: 1px solid #343a56;
+  border-radius: 0.75rem;
+  background: #191c2a;
+  color: #eef1ff;
+  padding: 0.7rem;
+  resize: vertical;
+  min-height: 2.8rem;
+}
+
+.composer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.share-btn,
+.send-btn {
+  border: 0;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  color: #fff;
+  background: #6366f1;
+  min-width: 2.3rem;
+  height: 2.3rem;
+}
+
+.send-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.share-panel {
+  border: 1px solid #343a56;
+  border-radius: 0.75rem;
+  background: #191c2a;
+  padding: 0.6rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.share-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+
+  span {
+    color: #dfe4ff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  button {
+    border: 0;
+    border-radius: 0.55rem;
+    background: #6366f1;
+    color: #fff;
+    padding: 0.3rem 0.65rem;
+    cursor: pointer;
+  }
+}
+
+.share-empty {
+  margin: 0;
+  color: #98a0c2;
+}
+
+:host-context(.light-theme) .conversation-page {
+  background: #ffffff;
+  border-color: #d6dceb;
+}
+
+:host-context(.light-theme) .conversation-header {
+  background: #f8faff;
+  border-bottom-color: #d6dceb;
+}
+
+:host-context(.light-theme) .back-btn {
+  color: #3b445c;
+}
+
+:host-context(.light-theme) .peer .name {
+  color: #182033;
+}
+
+:host-context(.light-theme) .messages {
+  background: #fbfcff;
+}
+
+:host-context(.light-theme) .bubble.bubble--other {
+  background: #e9eef8;
+  color: #1f2a40;
+}
+
+:host-context(.light-theme) .time {
+  color: #4b5877;
+}
+
+:host-context(.light-theme) .shared-course-card {
+  border-color: #c5d0e8;
+  background: #f4f7ff;
+
+  p {
+    color: #2a3550;
+  }
+}
+
+:host-context(.light-theme) .view-course-btn {
+  background: #3647d6;
+  color: #fff;
+}
+
+:host-context(.light-theme) .composer {
+  background: #f8faff;
+  border-top-color: #d6dceb;
+}
+
+:host-context(.light-theme) .composer-input {
+  background: #ffffff;
+  color: #1f2a40;
+  border-color: #c9d3ea;
+}
+
+:host-context(.light-theme) .share-panel {
+  background: #ffffff;
+  border-color: #c9d3ea;
+}
+
+:host-context(.light-theme) .share-item span {
+  color: #24314d;
+}
+
+:host-context(.light-theme) .share-empty {
+  color: #556489;
+}

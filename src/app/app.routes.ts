@@ -92,6 +92,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/profile/profile.component').then(m => m.ProfileComponent)
       },
       {
+        path: 'community',
+        loadComponent: () => import('./dashboard/community/community.component').then(m => m.CommunityComponent)
+      },
+      {
+        path: 'community/:otherStudentId',
+        loadComponent: () => import('./dashboard/community/conversation/conversation.component').then(m => m.ConversationComponent)
+      },
+      {
         path: 'admin/activity',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/dashboard/admin/admin-activity.component').then(m => m.AdminActivityComponent)

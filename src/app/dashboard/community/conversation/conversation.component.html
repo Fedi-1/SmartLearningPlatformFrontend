@@ -1,0 +1,72 @@
+<!-- src/app/dashboard/community/conversation/conversation.component.html -->
+<section class="conversation-page">
+  <header class="conversation-header">
+    <button class="back-btn" type="button" (click)="goBack()" aria-label="Back to inbox">
+      ←
+    </button>
+
+    @if (conversation(); as conv) {
+      <div class="peer">
+        <div class="avatar">{{ conv.otherStudentInitials }}</div>
+        <div>
+          <p class="name">{{ conv.otherStudentName }}</p>
+        </div>
+      </div>
+    }
+  </header>
+
+  <div class="messages" #messagesContainer>
+    @for (message of messages(); track message.id) {
+      <div class="msg-row" [class.msg-row--mine]="message.isMine">
+        <div class="bubble" [class.bubble--mine]="message.isMine" [class.bubble--other]="!message.isMine">
+          <p class="text">{{ message.content }}</p>
+
+          @if (message.sharedCourseId) {
+            <div class="shared-course-card">
+              <p>📚 Shared Course: {{ message.sharedCourseTitle ?? 'Untitled Course' }}</p>
+              <button
+                type="button"
+                class="view-course-btn"
+                [disabled]="message.isMine"
+                (click)="openSharedCourse(message.sharedCourseId)">
+                {{ message.isMine ? 'Shared by you' : 'Open Shared Course' }}
+              </button>
+            </div>
+          }
+
+          <span class="time">{{ formatTime(message.sentAt) }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <footer class="composer">
+    <textarea
+      class="composer-input"
+      [value]="messageInput()"
+      (input)="messageInput.set(($any($event.target).value ?? '').toString())"
+      (keydown)="onEnterKey($event)"
+      placeholder="Type a message..."
+      rows="2"></textarea>
+
+    <div class="composer-actions">
+      <button class="share-btn" type="button" (click)="toggleCourseShare()" title="Share course">📚</button>
+      <button class="send-btn" type="button" (click)="sendMessage()" [disabled]="sending()">➤</button>
+    </div>
+
+    @if (showCourseShare()) {
+      <div class="share-panel">
+        @if (myCoursesToShare().length === 0) {
+          <p class="share-empty">No courses available to share.</p>
+        } @else {
+          @for (course of myCoursesToShare(); track course.id) {
+            <div class="share-item">
+              <span>{{ course.title }}</span>
+              <button type="button" (click)="shareCourse(course)">Share</button>
+            </div>
+          }
+        }
+      </div>
+    }
+  </footer>
+</section>

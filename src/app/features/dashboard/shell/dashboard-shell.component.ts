@@ -53,6 +53,7 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     { label: 'Flashcards',  icon: 'cards',   route: '/dashboard/flashcards'      },
     { label: 'Progress',    icon: 'chart',   route: '/dashboard/progress'        },
     { label: 'Profile',     icon: 'user',    route: '/dashboard/profile'         },
+    { label: 'Community',   icon: 'chat',    route: '/dashboard/community'       },
     { label: 'Anti-Triche', icon: 'shield',  route: '/dashboard/admin/activity', adminOnly: true },
   ];
 

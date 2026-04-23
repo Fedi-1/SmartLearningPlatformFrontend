@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { TokenService } from './token.service';
 
 export interface AppNotification {
@@ -27,6 +27,9 @@ export class NotificationService {
   readonly unreadCount = computed(() =>
     this._notifications().filter(n => n.type === 'IN_APP' && !n.isRead).length
   );
+
+  private sseEventsSubject = new Subject<unknown>();
+  readonly sseEvents$ = this.sseEventsSubject.asObservable();
 
   private eventSource: EventSource | null = null;
 
@@ -73,8 +76,12 @@ export class NotificationService {
 
     this.eventSource.addEventListener('notification', (event: MessageEvent) => {
       try {
-        const notification: AppNotification = JSON.parse(event.data);
-        this._notifications.update(list => [notification, ...list]);
+        const payload = JSON.parse(event.data) as unknown;
+        this.sseEventsSubject.next(payload);
+
+        if (this.isAppNotification(payload)) {
+          this._notifications.update(list => [payload, ...list]);
+        }
       } catch (_) {}
     });
 
@@ -94,5 +101,15 @@ export class NotificationService {
     }
     this.eventSource?.close();
     this.eventSource = null;
+  }
+
+  private isAppNotification(value: unknown): value is AppNotification {
+    if (!value || typeof value !== 'object') return false;
+    const v = value as Partial<AppNotification>;
+    return typeof v.id === 'number'
+      && typeof v.userId === 'number'
+      && (v.type === 'EMAIL' || v.type === 'IN_APP')
+      && typeof v.title === 'string'
+      && typeof v.message === 'string';
   }
 }
