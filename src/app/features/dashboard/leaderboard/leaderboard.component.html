@@ -1,0 +1,72 @@
+<!-- src/app/features/dashboard/leaderboard/leaderboard.component.html -->
+<section class="leaderboard-page">
+  <header class="leaderboard-page__header">
+    <h2>Leaderboard 🏆</h2>
+  </header>
+
+  @if (loading()) {
+    <div class="leaderboard-page__loading">Loading leaderboard...</div>
+  } @else {
+    @if (myProfile()) {
+      <article class="my-rank-card">
+        <div>
+          <p class="my-rank-card__label">My Position</p>
+          <h3>
+            @if (myPosition() > 0) {
+              #{{ myPosition() }}
+            } @else {
+              Outside Top 20
+            }
+          </h3>
+        </div>
+        <div class="my-rank-card__meta">
+          <span class="my-rank-card__rank" [style.color]="rankColor(myProfile()!.rank)">
+            {{ rankIcon(myProfile()!.rank) }} {{ myProfile()!.rank }}
+          </span>
+          <span class="my-rank-card__xp">{{ myProfile()!.xpPoints }} XP</span>
+          <span class="my-rank-card__streak">🔥 {{ myProfile()!.currentStreak }}</span>
+        </div>
+      </article>
+    }
+
+    @if (leaderboard().length === 0) {
+      <div class="leaderboard-page__empty">No leaderboard data yet.</div>
+    } @else {
+      <section class="leaderboard-list">
+        @for (student of leaderboard(); track student.id; let i = $index) {
+          <article
+            class="leaderboard-row"
+            [class.leaderboard-row--gold]="i === 0"
+            [class.leaderboard-row--silver]="i === 1"
+            [class.leaderboard-row--bronze]="i === 2"
+            (click)="viewProfile(student.id)">
+
+            <div class="leaderboard-row__pos">#{{ i + 1 }}</div>
+
+            <div class="leaderboard-row__medal">
+              @if (i < 3) {
+                {{ medal(i + 1) }}
+              }
+            </div>
+
+            <div class="leaderboard-row__avatar" [style.background]="rankColor(student.rank)">
+              {{ student.initials }}
+            </div>
+
+            <div class="leaderboard-row__identity">
+              <p class="leaderboard-row__name">{{ student.fullName }}</p>
+              <span class="leaderboard-row__badge" [style.color]="rankColor(student.rank)">
+                {{ rankIcon(student.rank) }} {{ student.rank }}
+              </span>
+            </div>
+
+            <div class="leaderboard-row__stats">
+              <span class="leaderboard-row__xp">{{ student.xpPoints }} XP</span>
+              <span class="leaderboard-row__streak">🔥 {{ student.currentStreak }}</span>
+            </div>
+          </article>
+        }
+      </section>
+    }
+  }
+</section>

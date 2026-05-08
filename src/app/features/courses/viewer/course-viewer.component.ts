@@ -567,10 +567,10 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
   }
 
   loadSession(): void {
-    if (!this.course) return;
+    if (!this.selectedLesson) return;
     this.sessionLoading = true;
     this.sessionLoaded  = false;
-    this.courseService.getFlashcardSession(this.course.id).subscribe({
+    this.courseService.getLessonFlashcardSession(this.selectedLesson.id).subscribe({
       next: (session) => {
         this.sessionQueue        = [...session.flashcards];
         this.nextUpcomingDate    = session.nextUpcomingReviewDate;
@@ -598,10 +598,10 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
 
   rateCard(rating: FlashcardRating): void {
     const card = this.currentCard;
-    if (!card || this.ratingSubmitting) return;
+    if (!card || !this.selectedLesson || this.ratingSubmitting) return;
     this.ratingSubmitting = true;
 
-    this.courseService.reviewFlashcard(card.id, rating).subscribe({
+    this.courseService.reviewLessonFlashcard(this.selectedLesson.id, card.id, rating).subscribe({
       next: (result) => {
         this.ratingSubmitting = false;
 

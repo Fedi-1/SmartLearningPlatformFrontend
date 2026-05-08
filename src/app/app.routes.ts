@@ -96,6 +96,14 @@ export const routes: Routes = [
         loadComponent: () => import('./dashboard/community/community.component').then(m => m.CommunityComponent)
       },
       {
+        path: 'leaderboard',
+        loadComponent: () => import('./features/dashboard/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent)
+      },
+      {
+        path: 'profile/:studentId',
+        loadComponent: () => import('./features/dashboard/profile/public-profile.component').then(m => m.PublicProfileComponent)
+      },
+      {
         path: 'community/:otherStudentId',
         loadComponent: () => import('./dashboard/community/conversation/conversation.component').then(m => m.ConversationComponent)
       },

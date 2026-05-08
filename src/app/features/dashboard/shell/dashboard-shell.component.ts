@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
+// C:\Users\firas\Desktop\PFE Project\SmartLearningPlatformFrontend\src\app\features\dashboard\shell\dashboard-shell.component.ts
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -6,6 +7,8 @@ import { NotificationService, AppNotification } from '../../../core/services/not
 import { UserRole } from '../../../core/enums/user-role.enum';
 import { ChatWidgetComponent } from '../../../shared/components/chat-widget/chat-widget.component';
 import { PageTitleService } from '../../../core/services/page-title.service';
+import { GamificationService, StudentProfileDTO } from '../../../core/services/gamification.service';
+import { XpBarComponent } from '../../../shared/components/xp-bar/xp-bar.component';
 
 // Persisted theme preference
 const THEME_KEY = 'dash-theme';
@@ -21,11 +24,15 @@ interface NavItem {
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLinkActive, ChatWidgetComponent],
+  imports: [CommonModule, RouterModule, RouterLinkActive, ChatWidgetComponent, XpBarComponent],
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss'
 })
 export class DashboardShellComponent implements OnInit, OnDestroy {
+
+  private readonly gamificationService = inject(GamificationService);
+
+  myProfile = signal<StudentProfileDTO | null>(null);
 
   // Dark theme is default; persisted in localStorage
   isDark = localStorage.getItem(THEME_KEY) !== 'light';
@@ -54,6 +61,7 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     { label: 'Progress',    icon: 'chart',   route: '/dashboard/progress'        },
     { label: 'Profile',     icon: 'user',    route: '/dashboard/profile'         },
     { label: 'Community',   icon: 'chat',    route: '/dashboard/community'       },
+    { label: 'Leaderboard', icon: 'trophy',  route: '/dashboard/leaderboard'     },
     { label: 'Anti-Triche', icon: 'shield',  route: '/dashboard/admin/activity', adminOnly: true },
   ];
 
@@ -127,6 +135,20 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.notificationService.init();
     document.body.classList.toggle('light-theme', !this.isDark);
+
+    const currentUser = this.authService.currentUser();
+    if (currentUser?.role === UserRole.STUDENT) {
+      this.gamificationService.getMyProfile().subscribe({
+        next: (profile) => {
+          this.myProfile.set(profile);
+        },
+        error: () => {
+          this.myProfile.set(null);
+        }
+      });
+    } else {
+      this.myProfile.set(null);
+    }
   }
 
   ngOnDestroy(): void {

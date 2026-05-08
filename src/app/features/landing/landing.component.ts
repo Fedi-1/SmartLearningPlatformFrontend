@@ -1,8 +1,9 @@
-// src/app/features/landing/landing.component.ts
-import { Component, OnInit, OnDestroy, HostListener, ElementRef, AfterViewInit } from '@angular/core';
+// C:/Users/firas/Desktop/PFE Project/SmartLearningPlatformFrontend/src/app/features/landing/landing.component.ts
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, AfterViewInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ChatWidgetComponent } from '../../shared/components/chat-widget/chat-widget.component';
+import { CertificateVerifyResponse, CertificateVerifyService } from '../../core/services/certificate-verify.service';
 
 @Component({
   selector: 'app-landing',
@@ -141,7 +142,16 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   visibleSteps: boolean[] = [false, false, false, false];
   lineProgress = 0;
 
-  constructor(private el: ElementRef) {}
+  uuidInput = signal('');
+  verifyResult = signal<CertificateVerifyResponse | null>(null);
+  verifying = signal(false);
+  verifyError = signal('');
+  searched = signal(false);
+
+  constructor(
+    private el: ElementRef,
+    private certificateVerifyService: CertificateVerifyService
+  ) {}
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -165,6 +175,33 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  verifyCertificate(): void {
+    const uuid = this.uuidInput().trim();
+    if (!uuid) return;
+
+    this.verifying.set(true);
+    this.searched.set(true);
+    this.verifyResult.set(null);
+    this.verifyError.set('');
+
+    this.certificateVerifyService.verifyCertificate(uuid).subscribe({
+      next: (response) => {
+        this.verifyResult.set(response);
+        this.verifying.set(false);
+      },
+      error: () => {
+        this.verifyError.set('Certificate not found. Please check the UUID.');
+        this.verifying.set(false);
+      }
+    });
+  }
+
+  onVerifyKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.verifyCertificate();
+    }
   }
 
   private setupReveal(): void {

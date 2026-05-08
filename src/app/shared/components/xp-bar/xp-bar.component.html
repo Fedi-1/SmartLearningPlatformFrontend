@@ -1,0 +1,32 @@
+<!-- src/app/shared/components/xp-bar/xp-bar.component.html -->
+<div class="xp-bar">
+  <div class="xp-bar__rank">
+    <span class="xp-bar__rank-icon">
+      {{ rankIcon() }}
+    </span>
+    <span class="xp-bar__rank-name" [style.color]="rankColor()">
+      {{ profile().rank }}
+    </span>
+    <span class="xp-bar__streak">
+      🔥 {{ profile().currentStreak }}
+    </span>
+  </div>
+
+  <div class="xp-bar__progress-track">
+    <div
+      class="xp-bar__progress-fill"
+      [style.width.%]="progressPercent()"
+      [style.background]="rankColor()">
+    </div>
+  </div>
+
+  <div class="xp-bar__label">
+    <span>{{ profile().xpPoints }} XP</span>
+    <span *ngIf="profile().xpToNextRank > 0">
+      {{ profile().xpToNextRank }} XP to next rank
+    </span>
+    <span *ngIf="profile().xpToNextRank === 0">
+      Max Rank 👑
+    </span>
+  </div>
+</div>

@@ -92,6 +92,7 @@ export interface FlashcardSessionResponse {
 }
 
 const COURSES_API    = 'http://localhost:8069/api/courses';
+const LESSONS_API    = 'http://localhost:8069/api/lessons';
 const QUIZZES_API    = 'http://localhost:8069/api/quizzes';
 const ATTEMPTS_API   = 'http://localhost:8069/api/quiz-attempts';
 const FLASHCARDS_API = 'http://localhost:8069/api/flashcards';
@@ -153,8 +154,19 @@ export class CourseService {
     );
   }
 
+  reviewLessonFlashcard(lessonId: number, flashcardId: number, rating: FlashcardRating): Observable<FlashcardReviewResponse> {
+    return this.http.post<FlashcardReviewResponse>(
+      `${LESSONS_API}/${lessonId}/flashcards/${flashcardId}/review`,
+      { rating }
+    );
+  }
+
   getFlashcardSession(courseId: number): Observable<FlashcardSessionResponse> {
     return this.http.get<FlashcardSessionResponse>(`${COURSES_API}/${courseId}/flashcards/session`);
+  }
+
+  getLessonFlashcardSession(lessonId: number): Observable<FlashcardSessionResponse> {
+    return this.http.get<FlashcardSessionResponse>(`${LESSONS_API}/${lessonId}/flashcards/session`);
   }
 
   getDueFlashcards(courseId: number): Observable<FlashcardDueResponse[]> {

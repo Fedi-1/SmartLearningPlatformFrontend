@@ -96,12 +96,7 @@
                   ~{{ selectedLesson.estimatedReadTime }} min read
                 </span>
               }
-              @if (selectedLesson.flashcards.length) {
-                <span class="cv-meta-chip">
-                  <span class="cv-meta-chip__icon">🃏</span>
-                  {{ selectedLesson.flashcards.length }} flashcard{{ selectedLesson.flashcards.length !== 1 ? 's' : '' }}
-                </span>
-              }
+
               @if (alreadyPassed) {
                 <span class="cv-meta-chip cv-meta-chip--success">
                   <span class="cv-meta-chip__icon">✓</span>
@@ -191,9 +186,7 @@
                   [disabled]="isSessionActive && activeTab !== 'flashcards'"
                   (click)="setTab('flashcards')">
             <span class="cv-tab__icon">🃏</span> Flashcards
-            @if (selectedLesson.flashcards.length) {
-              <span class="cv-tab__badge">{{ selectedLesson.flashcards.length }}</span>
-            }
+
           </button>
           <button class="cv-tab cv-tab--exam"
                   [class.cv-tab--active]="activeTab === 'exam'"
