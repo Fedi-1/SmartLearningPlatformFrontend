@@ -1,6 +1,6 @@
 /* src/app/features/dashboard/leaderboard/leaderboard.component.scss */
 .leaderboard-page {
-  color: #e2e8f0;
+  color: var(--sh-text-primary, #0f172a);
 
   &__header {
     margin-bottom: 1rem;
@@ -15,16 +15,16 @@
 
   &__loading,
   &__empty {
-    background: #1a1d27;
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: var(--sh-topbar-bg, #ffffff);
+    border: 1px solid var(--sh-topbar-border, #e2e8f0);
     border-radius: 12px;
     padding: 1rem;
-    color: #94a3b8;
+    color: var(--sh-text-secondary, #64748b);
   }
 }
 
 .my-rank-card {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(168, 85, 247, 0.2));
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(168, 85, 247, 0.12));
   border: 1px solid rgba(129, 140, 248, 0.45);
   border-radius: 12px;
   padding: 1rem;
@@ -39,13 +39,13 @@
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #c7d2fe;
+    color: var(--sh-active-fg, #1e3a5f);
   }
 
   h3 {
     margin: 0.25rem 0 0;
     font-size: 1.2rem;
-    color: #f8fafc;
+    color: var(--sh-text-primary, #0f172a);
   }
 
   &__meta {
@@ -59,8 +59,8 @@
   &__rank,
   &__xp,
   &__streak {
-    background: rgba(15, 17, 23, 0.6);
-    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: color-mix(in srgb, var(--sh-topbar-bg, #ffffff) 86%, var(--sh-active-bar, #1e3a5f));
+    border: 1px solid var(--sh-topbar-border, #e2e8f0);
     border-radius: 999px;
     padding: 0.25rem 0.6rem;
     font-size: 0.76rem;
@@ -69,7 +69,7 @@
 
   &__xp,
   &__streak {
-    color: #e2e8f0;
+    color: var(--sh-text-primary, #0f172a);
   }
 }
 
@@ -84,8 +84,8 @@
   grid-template-columns: 48px 34px 44px 1fr auto;
   align-items: center;
   gap: 0.7rem;
-  background: #1a1d27;
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: var(--sh-topbar-bg, #ffffff);
+  border: 1px solid var(--sh-topbar-border, #e2e8f0);
   border-radius: 12px;
   padding: 0.7rem 0.8rem;
   transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
@@ -94,26 +94,26 @@
   &:hover {
     transform: translateY(-1px);
     border-color: rgba(129, 140, 248, 0.5);
-    box-shadow: 0 8px 18px rgba(2, 6, 23, 0.35);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
   }
 
   &--gold {
-    background: linear-gradient(90deg, rgba(245, 158, 11, 0.08), #1a1d27 40%);
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), var(--sh-topbar-bg, #ffffff) 42%);
     border-color: rgba(245, 158, 11, 0.3);
   }
 
   &--silver {
-    background: linear-gradient(90deg, rgba(148, 163, 184, 0.1), #1a1d27 40%);
+    background: linear-gradient(90deg, rgba(148, 163, 184, 0.14), var(--sh-topbar-bg, #ffffff) 42%);
     border-color: rgba(148, 163, 184, 0.35);
   }
 
   &--bronze {
-    background: linear-gradient(90deg, rgba(234, 88, 12, 0.1), #1a1d27 40%);
+    background: linear-gradient(90deg, rgba(234, 88, 12, 0.13), var(--sh-topbar-bg, #ffffff) 42%);
     border-color: rgba(234, 88, 12, 0.35);
   }
 
   &__pos {
-    color: #cbd5e1;
+    color: var(--sh-text-secondary, #64748b);
     font-size: 0.86rem;
     font-weight: 700;
     text-align: center;
@@ -145,7 +145,7 @@
 
   &__name {
     margin: 0;
-    color: #f8fafc;
+    color: var(--sh-text-primary, #0f172a);
     font-size: 0.9rem;
     font-weight: 600;
     white-space: nowrap;
@@ -170,13 +170,30 @@
   &__xp {
     font-size: 0.86rem;
     font-weight: 700;
-    color: #f8fafc;
+    color: var(--sh-text-primary, #0f172a);
   }
 
   &__streak {
     font-size: 0.74rem;
-    color: #94a3b8;
+    color: var(--sh-text-secondary, #64748b);
     font-weight: 600;
+  }
+}
+
+:host-context(.theme-dark) {
+  .my-rank-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(168, 85, 247, 0.2));
+
+    &__rank,
+    &__xp,
+    &__streak {
+      background: rgba(15, 17, 23, 0.6);
+      border-color: rgba(148, 163, 184, 0.25);
+    }
+  }
+
+  .leaderboard-row:hover {
+    box-shadow: 0 8px 18px rgba(2, 6, 23, 0.35);
   }
 }
 

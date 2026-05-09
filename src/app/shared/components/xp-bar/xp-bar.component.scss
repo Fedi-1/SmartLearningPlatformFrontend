@@ -5,8 +5,8 @@
 }
 
 .xp-bar {
-  background: #1a1d27;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: var(--sh-topbar-bg, #ffffff);
+  border: 1px solid var(--sh-topbar-border, #e2e8f0);
   border-radius: 10px;
   padding: 0.7rem 0.8rem;
   display: flex;
@@ -33,9 +33,9 @@
   &__streak {
     margin-left: auto;
     font-size: 0.72rem;
-    color: #f8fafc;
-    background: rgba(99, 102, 241, 0.22);
-    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: var(--sh-text-primary, #0f172a);
+    background: color-mix(in srgb, var(--sh-active-bg, #e8eff7) 78%, transparent);
+    border: 1px solid color-mix(in srgb, var(--sh-active-bar, #1e3a5f) 22%, transparent);
     border-radius: 999px;
     padding: 0.18rem 0.45rem;
     font-weight: 600;
@@ -45,7 +45,7 @@
   &__progress-track {
     width: 100%;
     height: 8px;
-    background: #0f1117;
+    background: color-mix(in srgb, var(--sh-text-muted, #94a3b8) 22%, transparent);
     border-radius: 999px;
     overflow: hidden;
   }
@@ -62,15 +62,30 @@
     align-items: center;
     gap: 0.4rem;
     font-size: 0.7rem;
-    color: #94a3b8;
+    color: var(--sh-text-secondary, #64748b);
 
     span:first-child {
-      color: #e2e8f0;
+      color: var(--sh-text-primary, #0f172a);
       font-weight: 700;
     }
 
     span:last-child {
       text-align: right;
     }
+  }
+}
+
+:host-context(.theme-dark) .xp-bar {
+  background: #1a1d27;
+  border-color: rgba(148, 163, 184, 0.2);
+
+  &__streak {
+    color: #f8fafc;
+    background: rgba(99, 102, 241, 0.22);
+    border-color: rgba(99, 102, 241, 0.35);
+  }
+
+  &__progress-track {
+    background: #0f1117;
   }
 }
