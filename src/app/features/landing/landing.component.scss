@@ -1737,7 +1737,9 @@
   }
 
   &__badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.4rem 1rem;
     background: rgba(99, 102, 241, 0.1);
     border: 1px solid rgba(99, 102, 241, 0.3);
@@ -1745,6 +1747,14 @@
     font-size: 0.85rem;
     color: #6366f1;
     margin-bottom: 1.5rem;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
   }
 
   &__title {
@@ -1841,8 +1851,36 @@
 
 .verify-result {
   &__icon {
-    font-size: 2rem;
+    width: 2.2rem;
+    height: 2.2rem;
     flex-shrink: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    &--valid {
+      color: #22c55e;
+      background: rgba(34, 197, 94, 0.14);
+    }
+
+    &--invalid {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.14);
+    }
+
+    &--error {
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.14);
+    }
   }
 
   &__content {

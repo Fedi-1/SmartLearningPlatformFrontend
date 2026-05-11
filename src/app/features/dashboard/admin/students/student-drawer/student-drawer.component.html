@@ -102,12 +102,12 @@
               @if (c.examPassed === null) {
                 <span class="exam-status exam-status--none">Not taken</span>
               } @else if (c.examPassed) {
-                <span class="exam-status exam-status--passed">Passed ✓</span>
+                <span class="exam-status exam-status--passed"><span class="exam-status__icon" aria-hidden="true"></span>Passed</span>
                 @if (c.examScore !== null) {
                   <span class="exam-score">{{ c.examScore }}%</span>
                 }
               } @else {
-                <span class="exam-status exam-status--failed">Failed ✗</span>
+                <span class="exam-status exam-status--failed"><span class="exam-status__icon" aria-hidden="true"></span>Failed</span>
                 @if (c.examScore !== null) {
                   <span class="exam-score">{{ c.examScore }}%</span>
                 }

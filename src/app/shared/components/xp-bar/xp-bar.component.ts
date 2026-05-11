@@ -1,7 +1,7 @@
 // src/app/shared/components/xp-bar/xp-bar.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, InputSignal, computed, input } from '@angular/core';
-import { StudentProfileDTO, getRankColor, getRankIcon } from '../../../core/services/gamification.service';
+import { StudentProfileDTO, getRankColor } from '../../../core/services/gamification.service';
 
 @Component({
   selector: 'app-xp-bar',
@@ -15,8 +15,6 @@ export class XpBarComponent {
   profile: InputSignal<StudentProfileDTO> = input.required<StudentProfileDTO>();
 
   rankColor = computed(() => getRankColor(this.profile().rank));
-
-  rankIcon = computed(() => getRankIcon(this.profile().rank));
 
   progressPercent = computed(() => {
     if (this.profile().xpToNextRank === 0) {

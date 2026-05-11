@@ -16,7 +16,13 @@
 
 @else if (error) {
   <div class="state-error">
-    <span>⚠️</span>
+    <span class="state-error__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M12 9v4" />
+        <path d="M12 17h.01" />
+        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+      </svg>
+    </span>
     <p>Failed to load progress data.</p>
   </div>
 }
@@ -31,7 +37,12 @@
     <section class="stats-grid">
       <article class="stat-card">
         <div class="stat-card__top">
-          <div class="stat-icon stat-icon--primary">📘</div>
+          <div class="stat-icon stat-icon--primary" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z" />
+            </svg>
+          </div>
           <span class="stat-change stat-change--positive">{{ stats.completedCourses }} completed</span>
         </div>
         <p class="stat-label">Total Courses</p>
@@ -40,7 +51,14 @@
 
       <article class="stat-card">
         <div class="stat-card__top">
-          <div class="stat-icon stat-icon--success">🏆</div>
+          <div class="stat-icon stat-icon--success" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="8" />
+              <circle cx="12" cy="12" r="3" />
+              <path d="M22 2 15 9" />
+              <path d="M16 2h6v6" />
+            </svg>
+          </div>
           <span class="stat-change" [class.stat-change--positive]="stats.averageQuizScore >= 70">
             {{ quizzesAverageText }}
           </span>
@@ -51,7 +69,14 @@
 
       <article class="stat-card">
         <div class="stat-card__top">
-          <div class="stat-icon stat-icon--warning">🗂️</div>
+          <div class="stat-icon stat-icon--warning" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="4" y="5" width="12" height="15" rx="2" />
+              <path d="M8 3h10a2 2 0 0 1 2 2v13" />
+              <path d="M8 10h4" />
+              <path d="M8 14h3" />
+            </svg>
+          </div>
           <span class="stat-change">Total</span>
         </div>
         <p class="stat-label">Flashcards Reviewed</p>
@@ -60,7 +85,14 @@
 
       <article class="stat-card">
         <div class="stat-card__top">
-          <div class="stat-icon stat-icon--orange">⏰</div>
+          <div class="stat-icon stat-icon--orange" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="13" r="8" />
+              <path d="M12 9v4l3 2" />
+              <path d="M5 3 2 6" />
+              <path d="m22 6-3-3" />
+            </svg>
+          </div>
           <span class="stat-change">Total</span>
         </div>
         <p class="stat-label">Study Time</p>

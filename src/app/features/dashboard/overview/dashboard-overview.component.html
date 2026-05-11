@@ -16,7 +16,13 @@
 <!-- ── ERROR ─────────────────────────────────────────────────────────────── -->
 @else if (error) {
   <div class="state-error">
-    <span>⚠️</span>
+    <span class="state-error__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M12 9v4" />
+        <path d="M12 17h.01" />
+        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+      </svg>
+    </span>
     <p>Failed to load dashboard. Please refresh.</p>
   </div>
 }
@@ -27,28 +33,51 @@
   <!-- Stat cards -->
   <div class="stat-grid">
     <div class="stat-card">
-      <div class="stat-card__icon-wrap stat-card__icon-wrap--indigo">📚</div>
+      <div class="stat-card__icon-wrap stat-card__icon-wrap--indigo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z" />
+        </svg>
+      </div>
       <div class="stat-card__body">
         <span class="stat-card__value">{{ data.stats.totalCourses }}</span>
         <span class="stat-card__label">Total Courses</span>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-card__icon-wrap stat-card__icon-wrap--green">✅</div>
+      <div class="stat-card__icon-wrap stat-card__icon-wrap--green" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      </div>
       <div class="stat-card__body">
         <span class="stat-card__value">{{ data.stats.completedLessons }}<small>/{{ data.stats.totalLessons }}</small></span>
         <span class="stat-card__label">Lessons Completed</span>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-card__icon-wrap stat-card__icon-wrap--gold">🎯</div>
+      <div class="stat-card__icon-wrap stat-card__icon-wrap--gold" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="8" />
+          <circle cx="12" cy="12" r="3" />
+          <path d="M22 2 15 9" />
+          <path d="M16 2h6v6" />
+        </svg>
+      </div>
       <div class="stat-card__body">
         <span class="stat-card__value">{{ data.stats.averageQuizScore }}<small>%</small></span>
         <span class="stat-card__label">Avg Quiz Score</span>
       </div>
     </div>
     <div class="stat-card" [class.stat-card--urgent]="data.stats.flashcardsDueToday > 0">
-      <div class="stat-card__icon-wrap stat-card__icon-wrap--orange">🃏</div>
+      <div class="stat-card__icon-wrap stat-card__icon-wrap--orange" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="4" y="5" width="12" height="15" rx="2" />
+          <path d="M8 3h10a2 2 0 0 1 2 2v13" />
+          <path d="M8 10h4" />
+          <path d="M8 14h3" />
+        </svg>
+      </div>
       <div class="stat-card__body">
         <span class="stat-card__value">{{ data.stats.flashcardsDueToday }}</span>
         <span class="stat-card__label">Flashcards Due</span>
@@ -70,7 +99,15 @@
           <div class="course-row__top">
             <span class="course-row__title">
               @if (course.progressPercentage === 100 && course.examPassed) {
-                <span class="trophy" title="Completed!">🏆</span>
+                <span class="trophy" title="Completed!" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M8 21h8" />
+                    <path d="M12 17v4" />
+                    <path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" />
+                    <path d="M5 5H3v2a4 4 0 0 0 4 4" />
+                    <path d="M19 5h2v2a4 4 0 0 1-4 4" />
+                  </svg>
+                </span>
               }
               {{ course.title }}
             </span>
@@ -106,7 +143,7 @@
     <ul class="activity-list">
       @for (item of data.recentActivity; track item.timestamp) {
         <li class="activity-item">
-          <span class="activity-item__icon">{{ activityIcon(item.action) }}</span>
+          <span class="activity-item__icon" [ngClass]="activityIconClass(item.action)" aria-hidden="true"></span>
           <span class="activity-item__desc">{{ item.description }}</span>
           <span class="activity-item__time">{{ relativeTime(item.timestamp) }}</span>
         </li>

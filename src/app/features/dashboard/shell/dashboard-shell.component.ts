@@ -186,15 +186,15 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
     }
   }
 
-  categoryIcon(category: AppNotification['category']): string {
+  categoryIconClass(category: AppNotification['category']): string {
     switch (category) {
-      case 'EXAM_RESULT':         return '📝';
-      case 'CERTIFICATE':         return '🏆';
-      case 'COURSE_COMPLETE':     return '🎓';
-      case 'ALERT':               return '⚠️';
-      case 'SUSPICIOUS_ACTIVITY': return '🔍';
-      case 'REMINDER':            return '🔔';
-      default:                    return '📣';
+      case 'EXAM_RESULT':         return 'notif-item__icon--exam';
+      case 'CERTIFICATE':         return 'notif-item__icon--certificate';
+      case 'COURSE_COMPLETE':     return 'notif-item__icon--course';
+      case 'ALERT':               return 'notif-item__icon--alert';
+      case 'SUSPICIOUS_ACTIVITY': return 'notif-item__icon--search';
+      case 'REMINDER':            return 'notif-item__icon--reminder';
+      default:                    return 'notif-item__icon--announcement';
     }
   }
 

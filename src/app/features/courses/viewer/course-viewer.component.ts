@@ -30,6 +30,12 @@ import { ChatContextService } from '../../../shared/services/chat-context.servic
 import { StudySessionService } from '../../../core/services/study-session.service';
 
 type TabId = 'content' | 'quiz' | 'flashcards' | 'exam';
+type RecapSubtitleTrack = {
+  srclang: 'en' | 'fr' | 'ar';
+  label: string;
+  src: string;
+  default: boolean;
+};
 
 @Component({
   selector: 'app-course-viewer',
@@ -231,12 +237,12 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
 
   selectLesson(lesson: LessonItem): void {
     if (lesson.isLocked) {
-      this.toastService.error('🔒 Complete the previous lesson\'s quiz to unlock this lesson.');
+      this.toastService.error('Complete the previous lesson\'s quiz to unlock this lesson.');
       return;
     }
     if (this.isSessionActive) {
       const what = (this.currentAttemptId && !this.quizSubmitted) ? 'quiz' : 'exam';
-      this.toastService.error(`⚠️ Finish or exit your active ${what} before switching lessons.`);
+      this.toastService.error(`Finish or exit your active ${what} before switching lessons.`);
       return;
     }
     this.selectedLesson = lesson;
@@ -342,7 +348,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
   setTab(tab: TabId): void {
     if (this.isSessionActive && tab !== this.activeTab) {
       const what = (this.currentAttemptId && !this.quizSubmitted) ? 'quiz' : 'exam';
-      this.toastService.error(`⚠️ Finish or exit your active ${what} before switching tabs.`);
+      this.toastService.error(`Finish or exit your active ${what} before switching tabs.`);
       return;
     }
     this.activeTab = tab;
@@ -677,6 +683,53 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     return `http://localhost:8069/api/lessons/recap-video?path=${encodeURIComponent(p)}`;
   }
 
+  get recapSubtitleTracks(): RecapSubtitleTrack[] {
+    const lesson = this.selectedLesson;
+    const videoPath = lesson?.recapVideoPath;
+    if (!lesson || !videoPath) return [];
+    const defaultLanguage = this.detectLessonSubtitleLanguage(lesson);
+
+    return [
+      {
+        srclang: 'en',
+        label: 'English',
+        src: this.recapSubtitleUrl(lesson.subtitleEnPath || this.deriveSubtitlePath(videoPath, 'en')),
+        default: defaultLanguage === 'en',
+      },
+      {
+        srclang: 'fr',
+        label: 'Français',
+        src: this.recapSubtitleUrl(lesson.subtitleFrPath || this.deriveSubtitlePath(videoPath, 'fr')),
+        default: defaultLanguage === 'fr',
+      },
+      {
+        srclang: 'ar',
+        label: 'العربية',
+        src: this.recapSubtitleUrl(lesson.subtitleArPath || this.deriveSubtitlePath(videoPath, 'ar')),
+        default: defaultLanguage === 'ar',
+      },
+    ];
+  }
+
+  private detectLessonSubtitleLanguage(lesson: LessonItem): 'en' | 'fr' | 'ar' {
+    const preview = (lesson.content || '').slice(0, 240).toLowerCase();
+    if (/[\u0600-\u06ff]/.test(preview)) return 'ar';
+    if (/\b(le|la|les|un|une|des|et|est|en|de|du|pour|avec|sur|dans|qui|que|ce|se|ne|pas|plus|aussi|comme|il|elle|nous|vous|ils|elles)\b/.test(preview)) {
+      return 'fr';
+    }
+    return 'en';
+  }
+
+  private deriveSubtitlePath(videoPath: string, language: 'en' | 'fr' | 'ar'): string {
+    return /\.mp4$/i.test(videoPath)
+      ? videoPath.replace(/\.mp4$/i, `.${language}.vtt`)
+      : `${videoPath}.${language}.vtt`;
+  }
+
+  private recapSubtitleUrl(path: string): string {
+    return `http://localhost:8069/api/lessons/recap-subtitle?path=${encodeURIComponent(path)}`;
+  }
+
   generateRecap(): void {
     if (!this.selectedLesson || this.recapGenerating) return;
 
@@ -692,6 +745,9 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
         this.recapGenerating = false;
         if (res.recapVideoPath && this.selectedLesson) {
           this.selectedLesson.recapVideoPath = res.recapVideoPath;
+          this.selectedLesson.subtitleEnPath = res.subtitleEnPath ?? this.deriveSubtitlePath(res.recapVideoPath, 'en');
+          this.selectedLesson.subtitleFrPath = res.subtitleFrPath ?? this.deriveSubtitlePath(res.recapVideoPath, 'fr');
+          this.selectedLesson.subtitleArPath = res.subtitleArPath ?? this.deriveSubtitlePath(res.recapVideoPath, 'ar');
           this.videoExpanded = true;
         } else {
           this.toastService.error('Recap video could not be generated.');
@@ -740,7 +796,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
       next: (exam) => {
         this.examInfo = exam;
         this.examGenerating = false;
-        this.toastService.success('✅ Exam generated successfully!');
+        this.toastService.success('Exam generated successfully!');
         this.loadExamPastAttempts();
       },
       error: (err) => {
@@ -955,7 +1011,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
       next: (cert) => {
         this.certInfo       = cert;
         this.certGenerating = false;
-        this.toastService.success('✅ Certificate PDF generated!');
+        this.toastService.success('Certificate PDF generated!');
       },
       error: (err) => {
         this.certGenerating = false;

@@ -68,10 +68,10 @@ export class ChatWidgetComponent implements OnDestroy, AfterViewChecked {
   get welcomeText(): string {
     if (this.mode === 'student') {
       return this.effectiveLessonContext
-        ? 'Hi! I\'m here to help you understand this lesson. Ask me anything 📚'
-        : 'Hi! I\'m your learning assistant. How can I help you? 🎓';
+        ? 'Hi! I\'m here to help you understand this lesson. Ask me anything.'
+        : 'Hi! I\'m your learning assistant. How can I help you?';
     }
-    return 'Hi! I\'m the LearnAI assistant. Ask me anything about the platform 👋';
+    return 'Hi! I\'m the LearnAI assistant. Ask me anything about the platform.';
   }
 
   // ── Mode badge label ─────────────────────────────────────────────────────

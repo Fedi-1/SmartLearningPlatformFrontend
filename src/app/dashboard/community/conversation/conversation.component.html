@@ -23,7 +23,13 @@
 
           @if (message.sharedCourseId) {
             <div class="shared-course-card">
-              <p>📚 Shared Course: {{ message.sharedCourseTitle ?? 'Untitled Course' }}</p>
+              <p>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z" />
+                </svg>
+                Shared Course: {{ message.sharedCourseTitle ?? 'Untitled Course' }}
+              </p>
               <button
                 type="button"
                 class="view-course-btn"
@@ -50,8 +56,18 @@
       rows="2"></textarea>
 
     <div class="composer-actions">
-      <button class="share-btn" type="button" (click)="toggleCourseShare()" title="Share course">📚</button>
-      <button class="send-btn" type="button" (click)="sendMessage()" [disabled]="sending()">➤</button>
+      <button class="share-btn" type="button" (click)="toggleCourseShare()" title="Share course" aria-label="Share course">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z" />
+        </svg>
+      </button>
+      <button class="send-btn" type="button" (click)="sendMessage()" [disabled]="sending()" aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="m22 2-7 20-4-9-9-4 20-7Z" />
+          <path d="M22 2 11 13" />
+        </svg>
+      </button>
     </div>
 
     @if (showCourseShare()) {

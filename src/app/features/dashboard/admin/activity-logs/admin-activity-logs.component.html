@@ -37,7 +37,11 @@
 
     @if (actionFilter || studentNameFilter) {
       <button class="btn-clear" (click)="clearFilters()">
-        ✕ Clear filters
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+        Clear filters
       </button>
     }
   </div>

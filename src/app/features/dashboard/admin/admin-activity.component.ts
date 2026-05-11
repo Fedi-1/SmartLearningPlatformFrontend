@@ -113,14 +113,14 @@ export class AdminActivityComponent implements OnInit {
     return map[type] ?? type;
   }
 
-  activityIcon(type: string): string {
+  activityIconClass(type: string): string {
     const map: Record<string, string> = {
-      TAB_SWITCH:     '🔀',
-      RIGHT_CLICK:    '🖱️',
-      COPY_PASTE:     '📋',
-      UNUSUAL_TIMING: '⏱️'
+      TAB_SWITCH:     'type-cell__icon--switch',
+      RIGHT_CLICK:    'type-cell__icon--click',
+      COPY_PASTE:     'type-cell__icon--copy',
+      UNUSUAL_TIMING: 'type-cell__icon--time'
     };
-    return map[type] ?? '⚠️';
+    return map[type] ?? 'type-cell__icon--warning';
   }
 
   severityClass(count: number): string {

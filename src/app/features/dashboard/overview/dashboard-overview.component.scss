@@ -45,7 +45,18 @@
   height: 40vh;
   color: var(--gray-500, #64748B);
   font-size: 0.9rem;
-  span { font-size: 2rem; }
+
+  &__icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    color: #d97706;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      stroke-width: 1.8;
+    }
+  }
 }
 
 // ── Stat grid ─────────────────────────────────────────────────────────────────
@@ -86,7 +97,14 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    font-size: 1.25rem;
+
+    svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
     &--indigo { background: var(--color-primary-subtle, #E8EFF7); color: var(--color-primary, #1E3A5F); }
     &--green  { background: #DCFCE7; color: var(--color-success, #16A34A); }
@@ -188,7 +206,22 @@
   }
 }
 
-.trophy { margin-right: 0.25rem; }
+.trophy {
+  display: inline-flex;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+  color: #b45309;
+  vertical-align: -0.15rem;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
 
 .badge {
   font-size: 0.68rem;
@@ -300,7 +333,121 @@
 
   &:last-child { border-bottom: none; }
 
-  &__icon { font-size: 1rem; flex-shrink: 0; }
+  &__icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    color: var(--color-primary, #1E3A5F);
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      margin: auto;
+    }
+
+    &--document::before {
+      width: 0.38rem;
+      height: 0.55rem;
+      border-top: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+      transform: translate(0.12rem, -0.1rem);
+    }
+
+    &--course::before {
+      width: 0.65rem;
+      height: 0.45rem;
+      border: 2px solid currentColor;
+      border-left: 0;
+      border-radius: 0 3px 3px 0;
+    }
+
+    &--success::before {
+      width: 0.62rem;
+      height: 0.32rem;
+      border-left: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(-45deg) translate(0.02rem, -0.06rem);
+    }
+
+    &--quiz,
+    &--exam,
+    &--award {
+      border-radius: 50%;
+    }
+
+    &--quiz::before {
+      width: 0.35rem;
+      height: 0.35rem;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+    }
+
+    &--exam::before {
+      width: 0.55rem;
+      height: 2px;
+      background: currentColor;
+      box-shadow: 0 4px 0 currentColor;
+    }
+
+    &--award::before {
+      width: 0.55rem;
+      height: 0.55rem;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+    }
+
+    &--award::after {
+      width: 0.45rem;
+      height: 0.38rem;
+      border-left: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+      transform: translateY(0.45rem);
+    }
+
+    &--error {
+      color: #dc2626;
+      border-radius: 50%;
+    }
+
+    &--error::before,
+    &--error::after {
+      width: 0.65rem;
+      height: 2px;
+      background: currentColor;
+    }
+
+    &--error::before { transform: rotate(45deg); }
+    &--error::after { transform: rotate(-45deg); }
+
+    &--cards::before {
+      width: 0.52rem;
+      height: 0.72rem;
+      border: 2px solid currentColor;
+      border-radius: 2px;
+      transform: rotate(-10deg);
+    }
+
+    &--certificate::before {
+      width: 0.55rem;
+      height: 0.55rem;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      transform: translateY(-0.12rem);
+    }
+
+    &--certificate::after {
+      width: 0.55rem;
+      height: 0.45rem;
+      border-left: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+      transform: translateY(0.42rem);
+    }
+  }
   &__desc { flex: 1; color: var(--gray-700, #334155); }
   &__time { font-size: 0.72rem; color: var(--gray-500, #64748B); white-space: nowrap; }
 }
@@ -332,5 +479,4 @@
 
   &--sm { font-size: 0.78rem; padding: 0.35rem 0.85rem; height: 32px; }
 }
-
 

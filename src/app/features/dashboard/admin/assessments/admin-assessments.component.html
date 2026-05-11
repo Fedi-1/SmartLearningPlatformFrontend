@@ -126,7 +126,8 @@
               <td class="at__cell">
                 @if (a.hasSuspiciousActivity) {
                   <span class="suspicious-badge" (click)="goToAntiCheat(a.attemptId)" title="View in Anti-Triche">
-                    ⚠️ {{ a.suspiciousEventsCount }} events
+                    <span class="suspicious-badge__icon" aria-hidden="true"></span>
+                    {{ a.suspiciousEventsCount }} events
                   </span>
                 } @else {
                   <span class="clean-text">Clean</span>

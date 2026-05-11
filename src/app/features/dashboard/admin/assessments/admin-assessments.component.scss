@@ -406,6 +406,23 @@
     background: rgba(217, 119, 6, 0.25);
     text-decoration: underline;
   }
+
+  &__icon {
+    width: 0.78rem;
+    height: 0.78rem;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0.18rem;
+      width: 2px;
+      background: currentColor;
+      margin: auto;
+    }
+  }
 }
 
 .clean-text {

@@ -6,8 +6,7 @@ import { catchError, forkJoin, of } from 'rxjs';
 import {
   GamificationService,
   StudentProfileDTO,
-  getRankColor,
-  getRankIcon
+  getRankColor
 } from '../../../core/services/gamification.service';
 
 @Component({
@@ -53,18 +52,7 @@ export class LeaderboardComponent implements OnInit {
     this.router.navigate(['/dashboard/profile', studentId]);
   }
 
-  medal(position: number): string {
-    if (position === 1) return '🥇';
-    if (position === 2) return '🥈';
-    if (position === 3) return '🥉';
-    return '';
-  }
-
   rankColor(rank: string): string {
     return getRankColor(rank);
-  }
-
-  rankIcon(rank: string): string {
-    return getRankIcon(rank);
   }
 }

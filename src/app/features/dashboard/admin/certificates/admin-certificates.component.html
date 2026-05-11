@@ -133,7 +133,7 @@
             <tr>
               <td colspan="6" class="ct__empty">
                 @if (activeFilter === 'PENDING') {
-                  🎉 No certificates awaiting approval.
+                  No certificates awaiting approval.
                 } @else {
                   No certificates match your filters.
                 }
@@ -163,7 +163,12 @@
 
       <div class="modal-card__header">
         <h3 class="modal-card__title">Verify Certificate by UUID</h3>
-        <button class="modal-card__close" (click)="closeVerifyModal()">✕</button>
+        <button class="modal-card__close" (click)="closeVerifyModal()" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
       </div>
 
       <div class="modal-card__body">
@@ -185,12 +190,12 @@
         @if (verifyResult) {
           @if (!verifyResult.valid) {
             <div class="verify-result verify-result--notfound">
-              <span class="verify-result__icon">🔍</span>
+              <span class="verify-result__icon verify-result__icon--search" aria-hidden="true"></span>
               <p class="verify-result__text">No certificate found with this UUID.</p>
             </div>
           } @else if (verifyResult.status === 'APPROVED') {
             <div class="verify-result verify-result--approved">
-              <span class="verify-result__icon">✅</span>
+              <span class="verify-result__icon verify-result__icon--approved" aria-hidden="true"></span>
               <div class="verify-result__details">
                 <p><strong>Student:</strong> {{ verifyResult.studentName }}</p>
                 <p><strong>Course:</strong> {{ verifyResult.courseTitle }}</p>
@@ -200,12 +205,12 @@
             </div>
           } @else if (verifyResult.status === 'PENDING') {
             <div class="verify-result verify-result--pending">
-              <span class="verify-result__icon">⏳</span>
+              <span class="verify-result__icon verify-result__icon--pending" aria-hidden="true"></span>
               <p class="verify-result__text">This certificate is awaiting admin approval.</p>
             </div>
           } @else if (verifyResult.status === 'REVOKED') {
             <div class="verify-result verify-result--revoked">
-              <span class="verify-result__icon">❌</span>
+              <span class="verify-result__icon verify-result__icon--revoked" aria-hidden="true"></span>
               <p class="verify-result__text">This certificate has been revoked.</p>
             </div>
           }

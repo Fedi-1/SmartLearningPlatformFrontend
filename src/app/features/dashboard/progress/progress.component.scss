@@ -66,12 +66,19 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  font-size: 1.1rem;
 
-  &--primary { background: var(--progress-icon-primary); }
-  &--success { background: var(--progress-icon-success); }
-  &--warning { background: var(--progress-icon-warning); }
-  &--orange { background: var(--progress-icon-orange); }
+  svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &--primary { background: var(--progress-icon-primary); color: #6366f1; }
+  &--success { background: var(--progress-icon-success); color: #10b981; }
+  &--warning { background: var(--progress-icon-warning); color: #f59e0b; }
+  &--orange { background: var(--progress-icon-orange); color: #fb923c; }
 }
 
 .stat-change {
@@ -109,7 +116,19 @@
   text-align: center;
   color: var(--progress-text-muted);
 
-  span { font-size: 2rem; }
+  &__icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    color: #d97706;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  }
 }
 
 .progress-skeleton {

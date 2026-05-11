@@ -44,10 +44,20 @@ export interface LessonItem {
   estimatedReadTime?: number;
 
   recapVideoPath?: string | null;
+  subtitleEnPath?: string | null;
+  subtitleFrPath?: string | null;
+  subtitleArPath?: string | null;
   isLocked: boolean;
   quizId: number | null;
   quiz: QuizQuestionItem[];
   flashcards: FlashcardItem[];
+}
+
+export interface LessonRecapResponse {
+  recapVideoPath: string;
+  subtitleEnPath?: string | null;
+  subtitleFrPath?: string | null;
+  subtitleArPath?: string | null;
 }
 
 export interface CourseDetail {

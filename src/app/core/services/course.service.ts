@@ -7,6 +7,7 @@ import {
   ExamAttemptInfo,
   SubmitExamResponse,
   CertificateInfo,
+  LessonRecapResponse,
 } from '../models/document.model';
 
 export interface LessonProgressResponse {
@@ -208,8 +209,8 @@ export class CourseService {
 
   // ─── Lesson recap ──────────────────────────────────────────────────────────
 
-  generateLessonRecap(lessonId: number): Observable<{ recapVideoPath: string }> {
-    return this.http.post<{ recapVideoPath: string }>(
+  generateLessonRecap(lessonId: number): Observable<LessonRecapResponse> {
+    return this.http.post<LessonRecapResponse>(
       `http://localhost:8069/api/lessons/${lessonId}/generate-recap`,
       {}
     );

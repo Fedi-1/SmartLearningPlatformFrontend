@@ -364,6 +364,10 @@
     align-items: center;
   }
 
+  .sidebar__xp {
+    display: none;
+  }
+
   .sidebar__logout {
     width: 40px;
     padding: 0.4rem;
@@ -423,6 +427,10 @@
   }
 
   .sidebar__user-info {
+    display: none;
+  }
+
+  .sidebar__xp {
     display: none;
   }
 
@@ -639,7 +647,19 @@
     color: var(--sh-text-muted);
     font-size: 0.8rem;
 
-    span { font-size: 1.8rem; }
+    span {
+      width: 2rem;
+      height: 2rem;
+      color: var(--sh-text-muted);
+
+      svg {
+        width: 100%;
+        height: 100%;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+    }
     p { margin: 0; }
   }
 }
@@ -667,10 +687,93 @@
   }
 
   &__icon {
-    font-size: 1.2rem;
-    line-height: 1;
+    width: 1.1rem;
+    height: 1.1rem;
     flex-shrink: 0;
     margin-top: 1px;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    color: #818cf8;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      margin: auto;
+    }
+
+    &--exam::before {
+      width: 0.58rem;
+      height: 2px;
+      background: currentColor;
+      box-shadow: 0 4px 0 currentColor;
+    }
+
+    &--certificate::before {
+      width: 0.58rem;
+      height: 0.58rem;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      transform: translateY(-0.12rem);
+    }
+
+    &--certificate::after {
+      width: 0.55rem;
+      height: 0.42rem;
+      border-left: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+      transform: translateY(0.42rem);
+    }
+
+    &--course::before {
+      width: 0.68rem;
+      height: 0.46rem;
+      border: 2px solid currentColor;
+      border-left: 0;
+      border-radius: 0 3px 3px 0;
+    }
+
+    &--alert {
+      color: #f59e0b;
+      border-radius: 50%;
+    }
+
+    &--alert::before {
+      width: 2px;
+      height: 0.62rem;
+      background: currentColor;
+    }
+
+    &--search::before {
+      width: 0.5rem;
+      height: 0.5rem;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      transform: translate(-0.08rem, -0.08rem);
+    }
+
+    &--search::after {
+      width: 0.42rem;
+      height: 2px;
+      background: currentColor;
+      transform: rotate(45deg) translate(0.34rem, 0.34rem);
+    }
+
+    &--reminder,
+    &--announcement {
+      border-radius: 50%;
+    }
+
+    &--reminder::before,
+    &--announcement::before {
+      width: 0.56rem;
+      height: 0.56rem;
+      border: 2px solid currentColor;
+      border-radius: 50% 50% 45% 45%;
+      transform: translateY(-0.08rem);
+    }
   }
 
   &__body {

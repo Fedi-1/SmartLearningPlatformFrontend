@@ -38,19 +38,19 @@ export class DashboardOverviewComponent implements OnInit {
     this.router.navigate(['/dashboard/flashcards', courseId, 'review']);
   }
 
-  activityIcon(action: string): string {
+  activityIconClass(action: string): string {
     const map: Record<string, string> = {
-      UPLOAD_DOCUMENT:      '📄',
-      GENERATE_COURSE:      '🧠',
-      COMPLETE_LESSON:      '✅',
-      TAKE_QUIZ:            '🎯',
-      TAKE_EXAM:            '📝',
-      PASS_EXAM:            '🏆',
-      FAIL_EXAM:            '❌',
-      REVIEW_FLASHCARD:     '🃏',
-      DOWNLOAD_CERTIFICATE: '🎓'
+      UPLOAD_DOCUMENT:      'activity-item__icon--document',
+      GENERATE_COURSE:      'activity-item__icon--course',
+      COMPLETE_LESSON:      'activity-item__icon--success',
+      TAKE_QUIZ:            'activity-item__icon--quiz',
+      TAKE_EXAM:            'activity-item__icon--exam',
+      PASS_EXAM:            'activity-item__icon--award',
+      FAIL_EXAM:            'activity-item__icon--error',
+      REVIEW_FLASHCARD:     'activity-item__icon--cards',
+      DOWNLOAD_CERTIFICATE: 'activity-item__icon--certificate'
     };
-    return map[action] ?? '📌';
+    return map[action] ?? 'activity-item__icon--default';
   }
 
   relativeTime(ts: string): string {

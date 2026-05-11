@@ -46,12 +46,12 @@ export function getRankColor(rank: string): string {
 
 export function getRankIcon(rank: string): string {
   switch (rank) {
-    case 'BEGINNER': return '🌱';
-    case 'LEARNER':  return '📚';
-    case 'SCHOLAR':  return '🎓';
-    case 'EXPERT':   return '⚡';
-    case 'MASTER':   return '👑';
-    default:         return '🌱';
+    case 'BEGINNER': return 'rank-beginner';
+    case 'LEARNER':  return 'rank-learner';
+    case 'SCHOLAR':  return 'rank-scholar';
+    case 'EXPERT':   return 'rank-expert';
+    case 'MASTER':   return 'rank-master';
+    default:         return 'rank-beginner';
   }
 }
 

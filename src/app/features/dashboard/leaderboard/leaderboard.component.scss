@@ -10,6 +10,18 @@
       font-size: 1.45rem;
       font-weight: 700;
       letter-spacing: 0.01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      svg {
+        width: 1.35rem;
+        height: 1.35rem;
+        color: #b45309;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
     }
   }
 
@@ -67,6 +79,21 @@
     font-weight: 600;
   }
 
+  &__streak {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+
+    svg {
+      width: 0.78rem;
+      height: 0.78rem;
+      color: #f97316;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  }
+
   &__xp,
   &__streak {
     color: var(--sh-text-primary, #0f172a);
@@ -120,9 +147,22 @@
   }
 
   &__medal {
-    font-size: 1.15rem;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+  }
+
+  &__medal-dot {
+    width: 0.95rem;
+    height: 0.95rem;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.1);
+
+    &--gold { background: linear-gradient(135deg, #facc15, #b45309); }
+    &--silver { background: linear-gradient(135deg, #e2e8f0, #64748b); }
+    &--bronze { background: linear-gradient(135deg, #fdba74, #9a3412); }
   }
 
   &__avatar {
@@ -177,6 +217,18 @@
     font-size: 0.74rem;
     color: var(--sh-text-secondary, #64748b);
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.22rem;
+
+    svg {
+      width: 0.74rem;
+      height: 0.74rem;
+      color: #f97316;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
   }
 }
 

@@ -7,12 +7,26 @@
 }
 
 @else if (error) {
-  <div class="state-error"><span>⚠️</span><p>Failed to load courses.</p></div>
+  <div class="state-error">
+    <span class="state-icon state-icon--warning" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M12 9v4" />
+        <path d="M12 17h.01" />
+        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+      </svg>
+    </span>
+    <p>Failed to load courses.</p>
+  </div>
 }
 
 @else if (courses.length === 0) {
   <div class="state-empty">
-    <span>📚</span>
+    <span class="state-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+        <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z" />
+      </svg>
+    </span>
     <h2>No courses yet</h2>
     <p>Upload a document in Documents to generate your first course.</p>
     <a routerLink="/dashboard/documents" class="btn btn--indigo">Go to Documents</a>
@@ -73,7 +87,16 @@
               <div class="course-card__header">
                 <span class="badge">{{ selectedGroup.category }}</span>
                 @if (course.examPassed) {
-                  <span class="badge badge--gold">🏆 Passed</span>
+                  <span class="badge badge--gold">
+                    <svg class="badge__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                      <path d="M8 21h8" />
+                      <path d="M12 17v4" />
+                      <path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" />
+                      <path d="M5 5H3v2a4 4 0 0 0 4 4" />
+                      <path d="M19 5h2v2a4 4 0 0 1-4 4" />
+                    </svg>
+                    Passed
+                  </span>
                 }
               </div>
 
@@ -105,7 +128,24 @@
                   [disabled]="!canTakeExam(course)"
                   [class.btn--disabled]="!canTakeExam(course)"
                   [title]="course.examPassed ? 'Exam passed' : canTakeExam(course) ? 'Take the final exam' : 'Complete all lessons & quizzes first'">
-                  {{ course.examPassed ? '🏆 Passed' : (canTakeExam(course) ? 'Take Exam' : '🔒 Locked') }}
+                  @if (course.examPassed) {
+                    <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                      <path d="M8 21h8" />
+                      <path d="M12 17v4" />
+                      <path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" />
+                      <path d="M5 5H3v2a4 4 0 0 0 4 4" />
+                      <path d="M19 5h2v2a4 4 0 0 1-4 4" />
+                    </svg>
+                    Passed
+                  } @else if (canTakeExam(course)) {
+                    Take Exam
+                  } @else {
+                    <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                      <rect x="4" y="11" width="16" height="9" rx="2" />
+                      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                    </svg>
+                    Locked
+                  }
                 </button>
               </div>
 

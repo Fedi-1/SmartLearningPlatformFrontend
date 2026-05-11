@@ -62,13 +62,32 @@
             <!-- Status icon -->
             <span class="cv-lesson-item__status">
               @if (lesson.isLocked) {
-                <span class="cv-status-icon cv-status-icon--locked">🔒</span>
+                <span class="cv-status-icon cv-status-icon--locked" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="4" y="11" width="16" height="9" rx="2" />
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  </svg>
+                </span>
               } @else if (isSessionActive && selectedLesson?.id !== lesson.id) {
-                <span class="cv-status-icon cv-status-icon--waiting">⏳</span>
+                <span class="cv-status-icon cv-status-icon--waiting" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 2" />
+                  </svg>
+                </span>
               } @else if (isLessonCompleted(lesson.id)) {
-                <span class="cv-status-icon cv-status-icon--done">✓</span>
+                <span class="cv-status-icon cv-status-icon--done" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                </span>
               } @else if (selectedLesson?.id === lesson.id) {
-                <span class="cv-status-icon cv-status-icon--active">→</span>
+                <span class="cv-status-icon cv-status-icon--active" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </span>
               }
             </span>
           </button>
@@ -92,24 +111,44 @@
             <div class="cv-lesson-header__meta">
               @if (selectedLesson.estimatedReadTime) {
                 <span class="cv-meta-chip">
-                  <span class="cv-meta-chip__icon">⏱</span>
+                  <span class="cv-meta-chip__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <circle cx="12" cy="13" r="8" />
+                      <path d="M12 9v4l3 2" />
+                      <path d="M9 2h6" />
+                    </svg>
+                  </span>
                   ~{{ selectedLesson.estimatedReadTime }} min read
                 </span>
               }
 
               @if (alreadyPassed) {
                 <span class="cv-meta-chip cv-meta-chip--success">
-                  <span class="cv-meta-chip__icon">✓</span>
+                  <span class="cv-meta-chip__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  </span>
                   Quiz Passed
                 </span>
               } @else if (attemptsUsed > 0) {
                 <span class="cv-meta-chip cv-meta-chip--warn">
-                  <span class="cv-meta-chip__icon">🎯</span>
+                  <span class="cv-meta-chip__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <circle cx="12" cy="12" r="8" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </span>
                   Quiz Attempted
                 </span>
               } @else {
                 <span class="cv-meta-chip cv-meta-chip--muted">
-                  <span class="cv-meta-chip__icon">🎯</span>
+                  <span class="cv-meta-chip__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <circle cx="12" cy="12" r="8" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </span>
                   Quiz Not Attempted
                 </span>
               }
@@ -120,7 +159,12 @@
           <div class="cv-lesson-header__recap">
             @if (!recapVideoUrl && !recapGenerating) {
               <button class="cv-recap-btn cv-recap-btn--generate" (click)="generateRecap()">
-                <span class="cv-recap-btn__icon">🎬</span>
+                <span class="cv-recap-btn__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <path d="m10 9 5 3-5 3V9Z" />
+                  </svg>
+                </span>
                 <span class="cv-recap-btn__text">
                   <span class="cv-recap-btn__label">Generate Recap</span>
                   <span class="cv-recap-btn__sub">AI video summary</span>
@@ -144,7 +188,12 @@
               </button>
             } @else {
               <button class="cv-recap-btn cv-recap-btn--close" (click)="videoExpanded = false">
-                <span class="cv-recap-btn__icon">✕</span>
+                <span class="cv-recap-btn__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </span>
                 <span class="cv-recap-btn__text">
                   <span class="cv-recap-btn__label">Close Video</span>
                 </span>
@@ -157,10 +206,31 @@
         @if (videoExpanded && recapVideoUrl) {
           <div class="cv-video-player">
             <div class="cv-video-player__bar">
-              <span>📹 Lesson {{ selectedLesson.lessonNumber }} — Recap Video</span>
-              <button class="cv-video-player__close" (click)="videoExpanded = false">✕</button>
+              <span class="cv-video-player__title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="m10 9 5 3-5 3V9Z" />
+                </svg>
+                Lesson {{ selectedLesson.lessonNumber }} - Recap Video
+              </span>
+              <button class="cv-video-player__close" (click)="videoExpanded = false" aria-label="Close video">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
             </div>
-            <video [src]="recapVideoUrl" controls class="cv-video-el" preload="metadata"></video>
+            <video [src]="recapVideoUrl" controls class="cv-video-el" preload="metadata" crossorigin="anonymous">
+              @for (track of recapSubtitleTracks; track track.srclang) {
+                <track
+                  kind="subtitles"
+                  [src]="track.src"
+                  [srclang]="track.srclang"
+                  [label]="track.label"
+                  [default]="track.default"
+                />
+              }
+            </video>
           </div>
         }
 
@@ -171,21 +241,36 @@
                   [class.cv-tab--session-locked]="isSessionActive && activeTab !== 'content'"
                   [disabled]="isSessionActive && activeTab !== 'content'"
                   (click)="setTab('content')">
-            <span class="cv-tab__icon">📖</span> Content
+            <span class="cv-tab__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z" />
+              </svg>
+            </span> Content
           </button>
           <button class="cv-tab"
                   [class.cv-tab--active]="activeTab === 'quiz'"
                   [class.cv-tab--session-locked]="isSessionActive && activeTab !== 'quiz'"
                   [disabled]="isSessionActive && activeTab !== 'quiz'"
                   (click)="setTab('quiz')">
-            <span class="cv-tab__icon">🎯</span> Quiz
+            <span class="cv-tab__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="8" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </span> Quiz
           </button>
           <button class="cv-tab"
                   [class.cv-tab--active]="activeTab === 'flashcards'"
                   [class.cv-tab--session-locked]="isSessionActive && activeTab !== 'flashcards'"
                   [disabled]="isSessionActive && activeTab !== 'flashcards'"
                   (click)="setTab('flashcards')">
-            <span class="cv-tab__icon">🃏</span> Flashcards
+            <span class="cv-tab__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="4" y="5" width="12" height="15" rx="2" />
+                <path d="M8 3h10a2 2 0 0 1 2 2v13" />
+              </svg>
+            </span> Flashcards
 
           </button>
           <button class="cv-tab cv-tab--exam"
@@ -193,7 +278,15 @@
                   [class.cv-tab--session-locked]="isSessionActive && activeTab !== 'exam'"
                   [disabled]="isSessionActive && activeTab !== 'exam'"
                   (click)="setTab('exam')">
-            <span class="cv-tab__icon">🏆</span> Final Exam
+            <span class="cv-tab__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M8 21h8" />
+                <path d="M12 17v4" />
+                <path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" />
+                <path d="M5 5H3v2a4 4 0 0 0 4 4" />
+                <path d="M19 5h2v2a4 4 0 0 1-4 4" />
+              </svg>
+            </span> Final Exam
           </button>
         </div>
 
@@ -301,7 +394,7 @@
                    [class.cv-result-card--pass]="quizPassed"
                    [class.cv-result-card--fail]="!quizPassed">
                 <div class="cv-result-card__score">{{ quizScore }}<span>%</span></div>
-                <p class="cv-result-card__label">{{ quizPassed ? '🎉 Great job! You passed!' : '😕 Keep practising!' }}</p>
+                <p class="cv-result-card__label">{{ quizPassed ? 'Great job! You passed!' : 'Keep practising!' }}</p>
                 <p class="cv-result-card__sub">Passing score: 70%</p>
                 @if (!quizPassed && attemptsRemaining > 0) {
                   <p class="cv-result-card__remaining">{{ attemptsRemaining }} attempt(s) remaining</p>
@@ -343,7 +436,7 @@
                     }
                   }
                   @if (q.explanation) {
-                    <div class="cv-explanation"><span>💡</span> {{ q.explanation }}</div>
+                    <div class="cv-explanation"><span class="cv-explanation__icon">Tip</span> {{ q.explanation }}</div>
                   }
                 </div>
               }
@@ -369,7 +462,7 @@
               </div>
             } @else if (sessionLoaded && totalCards === 0 && !sessionComplete) {
               <div class="cv-state-box cv-state-box--center">
-                <span class="cv-state-box__emoji">🎉</span>
+                <span class="cv-state-box__emoji">Done</span>
                 <p class="cv-state-box__title">All flashcards are up to date!</p>
                 @if (nextUpcomingDate) {
                   <p class="cv-state-box__text">Next review: <strong>{{ nextUpcomingDate }}</strong></p>
@@ -380,21 +473,21 @@
               </div>
             } @else if (sessionComplete) {
               <div class="cv-fc-complete">
-                <div class="cv-fc-complete__emoji">🎉</div>
+                <div class="cv-fc-complete__emoji">Done</div>
                 <h2 class="cv-fc-complete__title">Session Complete!</h2>
                 <p class="cv-fc-complete__sub">You reviewed all due cards. Great work!</p>
                 <div class="cv-fc-summary">
                   <div class="cv-fc-summary__item cv-fc-summary__item--red">
-                    <span>😓</span><strong>{{ sessionSummary.again }}</strong><span>Again</span>
+                    <span class="cv-rating-mark cv-rating-mark--again"></span><strong>{{ sessionSummary.again }}</strong><span>Again</span>
                   </div>
                   <div class="cv-fc-summary__item cv-fc-summary__item--gold">
-                    <span>🤔</span><strong>{{ sessionSummary.good }}</strong><span>Good</span>
+                    <span class="cv-rating-mark cv-rating-mark--good"></span><strong>{{ sessionSummary.good }}</strong><span>Good</span>
                   </div>
                   <div class="cv-fc-summary__item cv-fc-summary__item--green">
-                    <span>✅</span><strong>{{ sessionSummary.easy }}</strong><span>Easy</span>
+                    <span class="cv-rating-mark cv-rating-mark--easy"></span><strong>{{ sessionSummary.easy }}</strong><span>Easy</span>
                   </div>
                 </div>
-                <button class="cv-btn cv-btn--primary" (click)="loadSession()">🔄 New Session</button>
+                <button class="cv-btn cv-btn--primary" (click)="loadSession()">New Session</button>
               </div>
             } @else if (sessionLoaded && currentCard) {
               <div class="cv-fc-progress-wrap">
@@ -418,7 +511,7 @@
                    (click)="flipCard()">
                 <div class="cv-flashcard__inner">
                   <div class="cv-flashcard__front">
-                    <span class="cv-flashcard__hint">✨ Tap to reveal</span>
+                    <span class="cv-flashcard__hint">Tap to reveal</span>
                     <p class="cv-flashcard__text">{{ currentCard.term }}</p>
                   </div>
                   <div class="cv-flashcard__back">
@@ -470,7 +563,7 @@
                   </div>
                 </div>
               } @else {
-                <p class="cv-fc-flip-hint">👆 Click the card to reveal the answer</p>
+                <p class="cv-fc-flip-hint">Click the card to reveal the answer</p>
               }
             }
 
@@ -498,16 +591,24 @@
               </div>
             } @else if (!examInfo && !examAttemptId && !examResult) {
               <div class="cv-exam-gate">
-                <div class="cv-exam-gate__icon">🏆</div>
+                <div class="cv-exam-gate__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M8 21h8" />
+                    <path d="M12 17v4" />
+                    <path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" />
+                    <path d="M5 5H3v2a4 4 0 0 0 4 4" />
+                    <path d="M19 5h2v2a4 4 0 0 1-4 4" />
+                  </svg>
+                </div>
                 <h2 class="cv-exam-gate__title">Final Exam</h2>
                 @if (allLessonsCompleted) {
                   <p class="cv-exam-gate__desc">
                     You've completed all lessons! Generate your AI-powered final exam to earn your certificate.
                   </p>
                   <div class="cv-exam-gate__chips">
-                    <span class="cv-meta-chip">📝 25 questions</span>
-                    <span class="cv-meta-chip">⏱ 3 attempts</span>
-                    <span class="cv-meta-chip">✅ Pass at 70%</span>
+                    <span class="cv-meta-chip">25 questions</span>
+                    <span class="cv-meta-chip">3 attempts</span>
+                    <span class="cv-meta-chip">Pass at 70%</span>
                   </div>
                   <button class="cv-btn cv-btn--primary cv-exam-gate__btn" (click)="generateExam()">
                     Generate Exam
@@ -569,9 +670,9 @@
                 </div>
                 @if (examAlreadyPassed) {
                   <div class="cv-exam-passed-banner">
-                    🎉 You've already passed this exam! You can retake it for practice.
+                    You've already passed this exam! You can retake it for practice.
                     @if (examPastAttempts[0].hasCertificate) {
-                      <div class="cv-exam-cert-note">🏅 Your certificate has been issued.</div>
+                      <div class="cv-exam-cert-note">Your certificate has been issued.</div>
                     }
                   </div>
                 }
@@ -593,8 +694,8 @@
                            [class.cv-exam-history-row--fail]="!attempt.isPassed">
                         <span>Attempt {{ attempt.attemptNumber }}</span>
                         <span>{{ attempt.score ?? '—' }}%</span>
-                        <span>{{ attempt.isPassed ? '✅ Passed' : '❌ Failed' }}</span>
-                        @if (attempt.hasCertificate) { <span>🏅 Certificate</span> }
+                        <span>{{ attempt.isPassed ? 'Passed' : 'Failed' }}</span>
+                        @if (attempt.hasCertificate) { <span>Certificate</span> }
                       </div>
                     }
                   </div>
@@ -715,7 +816,7 @@
               <div class="cv-exam-result"
                    [class.cv-exam-result--pass]="examResult.isPassed"
                    [class.cv-exam-result--fail]="!examResult.isPassed">
-                <div class="cv-exam-result__icon">{{ examResult.isPassed ? '🏆' : '😕' }}</div>
+                <div class="cv-exam-result__icon" [class.cv-exam-result__icon--pass]="examResult.isPassed" [class.cv-exam-result__icon--fail]="!examResult.isPassed" aria-hidden="true"></div>
                 <div class="cv-exam-result__score">{{ examResult.score }}<span>%</span></div>
                 <p class="cv-exam-result__label">
                   {{ examResult.isPassed ? 'Congratulations! You passed!' : 'Keep studying and try again!' }}
@@ -727,7 +828,7 @@
                   <div class="cv-cert-issued">
                     @if (certInfo) {
                       @if (certInfo.status === 'APPROVED') {
-                        <span class="cv-cert-issued__icon">🏅</span>
+                        <span class="cv-cert-issued__icon cv-cert-issued__icon--certificate" aria-hidden="true"></span>
                         <p class="cv-cert-issued__title">Your certificate has been approved!</p>
                         <div class="cv-cert-card">
                           <div class="cv-cert-card__header">
@@ -742,17 +843,17 @@
                                       (click)="generateCertPdf()">
                                 @if (certGenerating) {
                                   <span class="cv-spinner cv-spinner--sm"></span> Generating…
-                                } @else { 📄 Generate PDF }
+                                } @else { Generate PDF }
                               </button>
                             } @else {
                               <button class="cv-btn cv-btn--primary" (click)="downloadCert()">
-                                ⬇️ Download Certificate
+                                Download Certificate
                               </button>
                             }
                           </div>
                         </div>
                       } @else if (certInfo.status === 'PENDING') {
-                        <span class="cv-cert-issued__icon">⏳</span>
+                        <span class="cv-cert-issued__icon cv-cert-issued__icon--pending" aria-hidden="true"></span>
                         <p class="cv-cert-issued__title">Certificate Pending Approval</p>
                         <div class="cv-cert-status-info">
                           <p class="cv-cert-status-info__text">
@@ -761,7 +862,7 @@
                           </p>
                         </div>
                       } @else if (certInfo.status === 'REVOKED') {
-                        <span class="cv-cert-issued__icon">❌</span>
+                        <span class="cv-cert-issued__icon cv-cert-issued__icon--revoked" aria-hidden="true"></span>
                         <p class="cv-cert-issued__title">Certificate Revoked</p>
                         <div class="cv-cert-status-revoked">
                           <p class="cv-cert-status-revoked__text">
@@ -770,7 +871,7 @@
                         </div>
                       }
                     } @else {
-                      <span class="cv-cert-issued__icon">🏅</span>
+                      <span class="cv-cert-issued__icon cv-cert-issued__icon--certificate" aria-hidden="true"></span>
                       <p class="cv-cert-issued__title" style="color: white;">Your certificate has been issued!</p>
                       <div class="cv-cert-card cv-cert-card--loading">
                         <p style="color: white;">Certificate ID: {{ examResult.certificateUuid }}</p>

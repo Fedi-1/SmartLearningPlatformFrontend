@@ -145,7 +145,7 @@ export class DocumentsComponent implements OnInit {
       next: (res: { courseId: number }) => {
         this.uploading    = false;
         this.selectedFile = null;
-        this.toastService.success('Course generated successfully 🎉');
+        this.toastService.success('Course generated successfully.');
         this.loadDocuments();
         this.loadCertificates();
         this.router.navigate(['/dashboard/courses', res.courseId]);

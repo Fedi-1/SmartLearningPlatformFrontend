@@ -6,8 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import {
   GamificationService,
   StudentProfileDTO,
-  getRankColor,
-  getRankIcon
+  getRankColor
 } from '../../../core/services/gamification.service';
 import { XpBarComponent } from '../../../shared/components/xp-bar/xp-bar.component';
 
@@ -29,7 +28,6 @@ export class PublicProfileComponent implements OnInit {
   isMyProfile = signal(false);
 
   rankColor = computed(() => getRankColor(this.profile()?.rank ?? 'BEGINNER'));
-  rankIcon = computed(() => getRankIcon(this.profile()?.rank ?? 'BEGINNER'));
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -72,16 +70,16 @@ export class PublicProfileComponent implements OnInit {
     return map[action] ?? 'Achievement unlocked';
   }
 
-  achievementIcon(action: string): string {
+  achievementIconClass(action: string): string {
     const map: Record<string, string> = {
-      COMPLETE_LESSON: '✅',
-      PASS_QUIZ: '📝',
-      PASS_EXAM: '🎯',
-      GENERATE_COURSE: '🤖',
-      DOWNLOAD_CERTIFICATE: '📜',
-      DAILY_LOGIN: '🌅'
+      COMPLETE_LESSON: 'achievements__icon--success',
+      PASS_QUIZ: 'achievements__icon--exam',
+      PASS_EXAM: 'achievements__icon--target',
+      GENERATE_COURSE: 'achievements__icon--course',
+      DOWNLOAD_CERTIFICATE: 'achievements__icon--certificate',
+      DAILY_LOGIN: 'achievements__icon--login'
     };
 
-    return map[action] ?? '⭐';
+    return map[action] ?? 'achievements__icon--default';
   }
 }

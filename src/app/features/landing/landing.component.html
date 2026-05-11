@@ -339,7 +339,13 @@
 
     <div class="verify-section__header">
       <span class="verify-section__badge">
-        🔍 Certificate Verification
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+          <path d="M11 8v6" />
+          <path d="M8 11h6" />
+        </svg>
+        Certificate Verification
       </span>
       <h2 class="verify-section__title">
         Verify a LearnAI Certificate
@@ -375,7 +381,11 @@
       @if (verifyResult()?.valid) {
         <div class="verify-section__result
                     verify-section__result--valid">
-          <div class="verify-result__icon">✅</div>
+          <div class="verify-result__icon verify-result__icon--valid" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </div>
           <div class="verify-result__content">
             <h3 class="verify-result__title">
               Valid Certificate
@@ -430,7 +440,12 @@
                   !verifyResult()!.valid) {
         <div class="verify-section__result
                     verify-section__result--invalid">
-          <div class="verify-result__icon">❌</div>
+          <div class="verify-result__icon verify-result__icon--invalid" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </div>
           <div class="verify-result__content">
             <h3 class="verify-result__title">
               Invalid Certificate
@@ -444,7 +459,13 @@
       } @else if (verifyError()) {
         <div class="verify-section__result
                     verify-section__result--error">
-          <div class="verify-result__icon">⚠️</div>
+          <div class="verify-result__icon verify-result__icon--error" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M12 9v4" />
+              <path d="M12 17h.01" />
+              <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+            </svg>
+          </div>
           <div class="verify-result__content">
             <p class="verify-result__desc">
               {{ verifyError() }}

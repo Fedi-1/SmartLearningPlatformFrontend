@@ -63,10 +63,23 @@
     font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0.03em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
   }
 
   &__champion {
     display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     margin-top: 0.55rem;
     background: rgba(15, 17, 23, 0.56);
     border: 1px solid rgba(148, 163, 184, 0.28);
@@ -75,6 +88,15 @@
     padding: 0.3rem 0.65rem;
     font-size: 0.75rem;
     font-weight: 600;
+
+    svg {
+      width: 0.95rem;
+      height: 0.95rem;
+      color: #f59e0b;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
   }
 }
 
@@ -102,8 +124,18 @@
   gap: 0.3rem;
 
   &__icon {
-    font-size: 1.15rem;
-    line-height: 1;
+    display: inline-flex;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #a5b4fc;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
   }
 
   &__label {
@@ -160,12 +192,149 @@
   }
 
   &__icon {
-    font-size: 1rem;
-    line-height: 1;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    color: #a5b4fc;
+    position: relative;
+    flex-shrink: 0;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      margin: auto;
+    }
+
+    &--success::before {
+      width: 0.62rem;
+      height: 0.32rem;
+      border-left: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(-45deg) translate(0.02rem, -0.06rem);
+    }
+
+    &--target {
+      border-radius: 50%;
+    }
+
+    &--target::before {
+      width: 0.34rem;
+      height: 0.34rem;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+    }
+
+    &--exam::before {
+      width: 0.55rem;
+      height: 2px;
+      background: currentColor;
+      box-shadow: 0 4px 0 currentColor;
+    }
+
+    &--course::before {
+      width: 0.65rem;
+      height: 0.45rem;
+      border: 2px solid currentColor;
+      border-left: 0;
+      border-radius: 0 3px 3px 0;
+    }
+
+    &--certificate::before {
+      width: 0.55rem;
+      height: 0.55rem;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      transform: translateY(-0.12rem);
+    }
+
+    &--certificate::after {
+      width: 0.55rem;
+      height: 0.45rem;
+      border-left: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+      transform: translateY(0.42rem);
+    }
+
+    &--login {
+      border-radius: 50%;
+    }
+
+    &--login::before {
+      width: 0.58rem;
+      height: 2px;
+      background: currentColor;
+    }
   }
 
   &__empty {
     color: #94a3b8;
     font-size: 0.86rem;
+  }
+}
+
+:host-context(.theme-light) .public-profile {
+  color: #1f2a40;
+
+  &__loading,
+  &__empty {
+    background: #ffffff;
+    border-color: #d6dceb;
+    color: #607198;
+  }
+}
+
+:host-context(.theme-light) .profile-header {
+  background: linear-gradient(130deg, #ffffff, color-mix(in srgb, var(--rank-color) 10%, #f8faff));
+  border-color: color-mix(in srgb, var(--rank-color) 26%, #d6dceb);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+
+  h2 {
+    color: #111827;
+  }
+
+  &__me {
+    color: #64748b;
+  }
+
+  &__champion {
+    background: #f8faff;
+    border-color: #d6dceb;
+    color: #1f2a40;
+  }
+}
+
+:host-context(.theme-light) .stat-card,
+:host-context(.theme-light) .achievements {
+  background: #ffffff;
+  border-color: #d6dceb;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+:host-context(.theme-light) .stat-card {
+  &__label {
+    color: #607198;
+  }
+
+  &__value {
+    color: #111827;
+  }
+}
+
+:host-context(.theme-light) .achievements {
+  h3 {
+    color: #111827;
+  }
+
+  li {
+    background: #f8faff;
+    border-color: #d6dceb;
+    color: #1f2a40;
+  }
+
+  &__empty {
+    color: #607198;
   }
 }

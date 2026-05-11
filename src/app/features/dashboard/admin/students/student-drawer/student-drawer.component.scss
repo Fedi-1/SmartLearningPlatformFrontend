@@ -413,12 +413,49 @@
 }
 
 .exam-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
 
   &--passed { color: #22c55e; }
   &--failed { color: var(--danger); }
   &--none   { color: var(--text-secondary); }
+
+  &__icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      margin: auto;
+    }
+  }
+
+  &--passed &__icon::before {
+    width: 0.42rem;
+    height: 0.22rem;
+    border-left: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg) translate(0.02rem, -0.04rem);
+  }
+
+  &--failed &__icon::before,
+  &--failed &__icon::after {
+    width: 0.42rem;
+    height: 2px;
+    background: currentColor;
+  }
+
+  &--failed &__icon::before { transform: rotate(45deg); }
+  &--failed &__icon::after { transform: rotate(-45deg); }
 }
 
 .exam-score {
