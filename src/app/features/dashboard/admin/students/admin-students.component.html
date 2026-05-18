@@ -116,6 +116,7 @@
     [studentId]="selectedStudentId"
     [open]="drawerOpen"
     (closeDrawer)="closeDrawer()"
-    (statusToggled)="onDrawerToggleStatus($event)">
+    (statusToggled)="onDrawerToggleStatus($event)"
+    (profileUpdated)="onDrawerProfileUpdated($event)">
   </app-student-drawer>
 }

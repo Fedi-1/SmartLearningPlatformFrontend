@@ -364,10 +364,6 @@
     align-items: center;
   }
 
-  .sidebar__xp {
-    display: none;
-  }
-
   .sidebar__logout {
     width: 40px;
     padding: 0.4rem;
@@ -427,10 +423,6 @@
   }
 
   .sidebar__user-info {
-    display: none;
-  }
-
-  .sidebar__xp {
     display: none;
   }
 
@@ -761,12 +753,10 @@
       transform: rotate(45deg) translate(0.34rem, 0.34rem);
     }
 
-    &--reminder,
     &--announcement {
       border-radius: 50%;
     }
 
-    &--reminder::before,
     &--announcement::before {
       width: 0.56rem;
       height: 0.56rem;

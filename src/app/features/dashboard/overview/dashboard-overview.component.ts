@@ -42,7 +42,6 @@ export class DashboardOverviewComponent implements OnInit {
     const map: Record<string, string> = {
       UPLOAD_DOCUMENT:      'activity-item__icon--document',
       GENERATE_COURSE:      'activity-item__icon--course',
-      COMPLETE_LESSON:      'activity-item__icon--success',
       TAKE_QUIZ:            'activity-item__icon--quiz',
       TAKE_EXAM:            'activity-item__icon--exam',
       PASS_EXAM:            'activity-item__icon--award',

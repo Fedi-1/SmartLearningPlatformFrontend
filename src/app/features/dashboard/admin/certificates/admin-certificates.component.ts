@@ -4,8 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   AdminService,
-  AdminCertificateItem,
-  CertificateVerifyResponse
+  AdminCertificateItem
 } from '../../../../core/services/admin.service';
 
 type StatusFilter = 'PENDING' | 'APPROVED' | 'REVOKED' | 'ALL';
@@ -43,12 +42,6 @@ export class AdminCertificatesComponent implements OnInit {
   // Toast queue
   toasts: Toast[] = [];
   private toastCounter = 0;
-
-  // Verify modal
-  verifyModalOpen = false;
-  verifyUuid = '';
-  verifyLoading = false;
-  verifyResult: CertificateVerifyResponse | null = null;
 
   readonly AVATAR_COLORS = [
     '#6366f1', '#8b5cf6', '#06b6d4', '#22c55e',
@@ -144,30 +137,6 @@ export class AdminCertificatesComponent implements OnInit {
   }
 
   // ── Verify modal ───────────────────────────────────────────────────────────
-
-  openVerifyModal(): void {
-    this.verifyModalOpen = true;
-    this.verifyUuid = '';
-    this.verifyResult = null;
-  }
-
-  closeVerifyModal(): void {
-    this.verifyModalOpen = false;
-    this.verifyUuid = '';
-    this.verifyResult = null;
-    this.verifyLoading = false;
-  }
-
-  verify(): void {
-    const uuid = this.verifyUuid.trim();
-    if (!uuid) return;
-    this.verifyLoading = true;
-    this.verifyResult = null;
-    this.adminService.verifyCertificate(uuid).subscribe(res => {
-      this.verifyResult = res;
-      this.verifyLoading = false;
-    });
-  }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 

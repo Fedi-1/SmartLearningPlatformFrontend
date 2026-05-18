@@ -1,0 +1,172 @@
+<div class="content-page">
+  <div class="content-page__header">
+    <div>
+      <h1>Platform Content</h1>
+      <p>Generated courses and their uploaded source documents.</p>
+    </div>
+    <button class="refresh-btn" type="button" (click)="load()" [disabled]="loading">Refresh</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <span class="stat-box__label">Documents</span>
+      <strong>{{ documentsCount }}</strong>
+    </div>
+    <div class="stat-box">
+      <span class="stat-box__label">Generated courses</span>
+      <strong>{{ generatedCount }}</strong>
+    </div>
+    <div class="stat-box">
+      <span class="stat-box__label">Failed documents</span>
+      <strong>{{ failedCount }}</strong>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input type="text" placeholder="Search course, document, or student..." [(ngModel)]="searchQuery" />
+    </div>
+    <select [(ngModel)]="statusFilter">
+      <option value="ALL">All statuses</option>
+      <option value="COMPLETED">Completed</option>
+      <option value="PROCESSING">Processing</option>
+      <option value="FAILED">Failed</option>
+      <option value="UPLOADED">Uploaded</option>
+    </select>
+  </div>
+
+  @if (errorMessage) {
+    <p class="alert alert--error">{{ errorMessage }}</p>
+  }
+  @if (successMessage) {
+    <p class="alert alert--success">{{ successMessage }}</p>
+  }
+
+  @if (loading) {
+    <div class="skeleton-list">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="skeleton-row"></div>
+      }
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="content-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Document</th>
+            <th>Student</th>
+            <th>Status</th>
+            <th>Uploaded</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filtered; track item.documentId) {
+            <tr>
+              <td>
+                <div class="course-cell">
+                  <strong>{{ item.courseTitle ?? 'No course generated' }}</strong>
+                  <span>{{ item.courseCategory ?? item.documentCategory ?? 'Uncategorized' }}</span>
+                  @if (item.courseId !== null) {
+                    <small>{{ item.totalLessons }} lessons</small>
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="document-cell">
+                  <strong>{{ item.documentFileName }}</strong>
+                  <span>{{ item.documentFileType }} · {{ formatSize(item.documentFileSize) }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="student-cell">
+                  <strong>{{ item.studentName }}</strong>
+                  <span>{{ item.studentEmail }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="statusClass(item.documentStatus)">
+                  {{ item.documentStatus }}
+                </span>
+              </td>
+              <td>{{ formatDate(item.documentUploadedAt) }}</td>
+              <td>
+                <div class="actions">
+                  <button class="icon-btn" type="button" title="Download document" (click)="download(item)">
+                    Download
+                  </button>
+                  <button
+                    class="icon-btn icon-btn--danger"
+                    type="button"
+                    title="Delete document and related content"
+                    [disabled]="deletingId === item.documentId"
+                    (click)="deleteDocument(item)">
+                    {{ deletingId === item.documentId ? 'Deleting...' : 'Delete' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if (filtered.length === 0) {
+            <tr>
+              <td colspan="6" class="empty-cell">No content matches your filters.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (pendingDelete) {
+  <div class="modal-backdrop" (click)="closeDeleteModal()">
+    <section class="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-title" (click)="$event.stopPropagation()">
+      <div class="delete-modal__icon" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18"/>
+          <path d="M8 6V4h8v2"/>
+          <path d="M19 6l-1 14H6L5 6"/>
+          <path d="M10 11v5"/>
+          <path d="M14 11v5"/>
+        </svg>
+      </div>
+
+      <div class="delete-modal__content">
+        <p class="delete-modal__eyebrow">Destructive action</p>
+        <h2 id="delete-title">Delete this document?</h2>
+        <p class="delete-modal__copy">
+          This will permanently delete the uploaded document and every generated item attached to it.
+        </p>
+
+        <div class="delete-summary">
+          <div>
+            <span>Document</span>
+            <strong>{{ pendingDelete.documentFileName }}</strong>
+          </div>
+          <div>
+            <span>Generated course</span>
+            <strong>{{ pendingDelete.courseTitle ?? 'No generated course' }}</strong>
+          </div>
+          <div>
+            <span>Owner</span>
+            <strong>{{ pendingDelete.studentName }}</strong>
+          </div>
+        </div>
+
+        <p class="delete-modal__impact">
+          Related lessons, quizzes, exam attempts, certificates, flashcards, and study sessions will also be removed.
+        </p>
+      </div>
+
+      <div class="delete-modal__actions">
+        <button class="modal-btn modal-btn--ghost" type="button" (click)="closeDeleteModal()" [disabled]="deletingId !== null">
+          Cancel
+        </button>
+        <button class="modal-btn modal-btn--danger" type="button" (click)="confirmDelete()" [disabled]="deletingId !== null">
+          {{ deletingId === pendingDelete.documentId ? 'Deleting...' : 'Delete document' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

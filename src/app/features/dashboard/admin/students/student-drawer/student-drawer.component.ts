@@ -1,18 +1,19 @@
 // src/app/features/dashboard/admin/students/student-drawer/student-drawer.component.ts
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   AdminService,
   StudentDetail,
   StudentExamAttemptItem
 } from '../../../../../core/services/admin.service';
 
-type DrawerTab = 'courses' | 'certificates' | 'exams';
+type DrawerTab = 'profile' | 'courses' | 'certificates' | 'exams';
 
 @Component({
   selector: 'app-student-drawer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './student-drawer.component.html',
   styleUrl: './student-drawer.component.scss'
 })
@@ -22,11 +23,22 @@ export class StudentDrawerComponent implements OnChanges {
   @Input() open = false;
   @Output() closeDrawer = new EventEmitter<void>();
   @Output() statusToggled = new EventEmitter<{ studentId: number; newStatus: boolean }>();
+  @Output() profileUpdated = new EventEmitter<StudentDetail>();
 
   detail: StudentDetail | null = null;
   examAttempts: StudentExamAttemptItem[] = [];
   loading = true;
-  activeTab: DrawerTab = 'courses';
+  activeTab: DrawerTab = 'profile';
+  savingProfile = false;
+  profileError = '';
+  profileSuccess = '';
+  profileForm = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    dateOfBirth: ''
+  };
 
   readonly AVATAR_COLORS = [
     '#6366f1', '#8b5cf6', '#06b6d4', '#22c55e',
@@ -45,11 +57,14 @@ export class StudentDrawerComponent implements OnChanges {
     this.loading = true;
     this.detail = null;
     this.examAttempts = [];
-    this.activeTab = 'courses';
+    this.activeTab = 'profile';
+    this.profileError = '';
+    this.profileSuccess = '';
 
     this.adminService.getStudentDetail(this.studentId).subscribe({
       next: detail => {
         this.detail = detail;
+        this.populateProfileForm(detail);
         this.adminService.getStudentExamAttempts(this.studentId).subscribe(attempts => {
           this.examAttempts = attempts;
           this.loading = false;
@@ -57,6 +72,16 @@ export class StudentDrawerComponent implements OnChanges {
       },
       error: () => { this.loading = false; }
     });
+  }
+
+  private populateProfileForm(detail: StudentDetail): void {
+    this.profileForm = {
+      firstName: detail.firstName,
+      lastName: detail.lastName,
+      email: detail.email,
+      phoneNumber: detail.phoneNumber ?? '',
+      dateOfBirth: detail.dateOfBirth ?? ''
+    };
   }
 
   get initials(): string {
@@ -91,6 +116,42 @@ export class StudentDrawerComponent implements OnChanges {
     this.adminService.toggleStudentStatus(this.detail.id).subscribe(newStatus => {
       this.detail!.isActive = newStatus;
       this.statusToggled.emit({ studentId: this.detail!.id, newStatus });
+    });
+  }
+
+  saveProfile(): void {
+    if (!this.detail || this.savingProfile) return;
+    this.profileError = '';
+    this.profileSuccess = '';
+
+    const firstName = this.profileForm.firstName.trim();
+    const lastName = this.profileForm.lastName.trim();
+    const email = this.profileForm.email.trim();
+
+    if (!firstName || !lastName || !email) {
+      this.profileError = 'First name, last name, and email are required.';
+      return;
+    }
+
+    this.savingProfile = true;
+    this.adminService.updateStudentProfile(this.detail.id, {
+      firstName,
+      lastName,
+      email,
+      phoneNumber: this.profileForm.phoneNumber.trim() || null,
+      dateOfBirth: this.profileForm.dateOfBirth || null
+    }).subscribe({
+      next: updated => {
+        this.detail = updated;
+        this.populateProfileForm(updated);
+        this.profileUpdated.emit(updated);
+        this.profileSuccess = 'Profile updated successfully.';
+        this.savingProfile = false;
+      },
+      error: err => {
+        this.profileError = err?.error?.message ?? 'Failed to update profile.';
+        this.savingProfile = false;
+      }
     });
   }
 

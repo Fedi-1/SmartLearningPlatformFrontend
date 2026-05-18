@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   AdminService,
+  StudentDetail,
   StudentSummary
 } from '../../../../core/services/admin.service';
 import { StudentDrawerComponent } from './student-drawer/student-drawer.component';
@@ -119,5 +120,13 @@ export class AdminStudentsComponent implements OnInit {
   onDrawerToggleStatus(event: { studentId: number; newStatus: boolean }): void {
     const s = this.students.find(st => st.id === event.studentId);
     if (s) s.isActive = event.newStatus;
+  }
+
+  onDrawerProfileUpdated(detail: StudentDetail): void {
+    const s = this.students.find(st => st.id === detail.id);
+    if (!s) return;
+    s.firstName = detail.firstName;
+    s.lastName = detail.lastName;
+    s.email = detail.email;
   }
 }

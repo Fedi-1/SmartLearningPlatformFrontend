@@ -7,10 +7,6 @@
       <h1 class="ac__title">Certificates</h1>
       <span class="ac__count">{{ certificates.length }}</span>
     </div>
-    <button class="btn-verify" (click)="openVerifyModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-      Verify by UUID
-    </button>
   </div>
 
   <!-- ── Toolbar ───────────────────────────────────────────────────────────── -->
@@ -155,68 +151,3 @@
     </div>
   }
 </div>
-
-<!-- ── Verify UUID Modal ───────────────────────────────────────────────────── -->
-@if (verifyModalOpen) {
-  <div class="modal-overlay" (click)="closeVerifyModal()">
-    <div class="modal-card" (click)="$event.stopPropagation()">
-
-      <div class="modal-card__header">
-        <h3 class="modal-card__title">Verify Certificate by UUID</h3>
-        <button class="modal-card__close" (click)="closeVerifyModal()" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="modal-card__body">
-        <div class="verify-input-row">
-          <input class="verify-input"
-                 type="text"
-                 placeholder="Paste certificate UUID here…"
-                 [(ngModel)]="verifyUuid"
-                 (keydown.enter)="verify()" />
-          <button class="btn-verify-go" [disabled]="verifyLoading || !verifyUuid.trim()" (click)="verify()">
-            @if (verifyLoading) {
-              <span class="processing-spinner processing-spinner--sm"></span>
-            } @else {
-              Verify
-            }
-          </button>
-        </div>
-
-        @if (verifyResult) {
-          @if (!verifyResult.valid) {
-            <div class="verify-result verify-result--notfound">
-              <span class="verify-result__icon verify-result__icon--search" aria-hidden="true"></span>
-              <p class="verify-result__text">No certificate found with this UUID.</p>
-            </div>
-          } @else if (verifyResult.status === 'APPROVED') {
-            <div class="verify-result verify-result--approved">
-              <span class="verify-result__icon verify-result__icon--approved" aria-hidden="true"></span>
-              <div class="verify-result__details">
-                <p><strong>Student:</strong> {{ verifyResult.studentName }}</p>
-                <p><strong>Course:</strong> {{ verifyResult.courseTitle }}</p>
-                <p><strong>Score:</strong> {{ verifyResult.score }}%</p>
-                <p><strong>Issued:</strong> {{ formatDate(verifyResult.issuedAt) }}</p>
-              </div>
-            </div>
-          } @else if (verifyResult.status === 'PENDING') {
-            <div class="verify-result verify-result--pending">
-              <span class="verify-result__icon verify-result__icon--pending" aria-hidden="true"></span>
-              <p class="verify-result__text">This certificate is awaiting admin approval.</p>
-            </div>
-          } @else if (verifyResult.status === 'REVOKED') {
-            <div class="verify-result verify-result--revoked">
-              <span class="verify-result__icon verify-result__icon--revoked" aria-hidden="true"></span>
-              <p class="verify-result__text">This certificate has been revoked.</p>
-            </div>
-          }
-        }
-      </div>
-
-    </div>
-  </div>
-}

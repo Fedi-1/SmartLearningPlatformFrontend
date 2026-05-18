@@ -197,7 +197,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('courseId'));
-    if (!id) { this.router.navigate(['/documents']); return; }
+    if (!id) { this.router.navigate(['/dashboard/documents']); return; }
 
     const tabParam = this.route.snapshot.queryParamMap.get('tab');
     if (tabParam === 'content' || tabParam === 'quiz' || tabParam === 'flashcards' || tabParam === 'exam') {
@@ -228,7 +228,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
       error: () => {
         this.loading = false;
         this.toastService.error('Failed to load course.');
-        this.router.navigate(['/documents']);
+        this.router.navigate(['/dashboard/documents']);
       }
     });
   }

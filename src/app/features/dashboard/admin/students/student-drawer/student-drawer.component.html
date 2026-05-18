@@ -73,6 +73,7 @@
 
     <!-- Tabs -->
     <div class="drawer__tabs">
+      <button class="tab-btn" [class.tab-btn--active]="activeTab === 'profile'"      (click)="setTab('profile')">Profile</button>
       <button class="tab-btn" [class.tab-btn--active]="activeTab === 'courses'"      (click)="setTab('courses')">Courses</button>
       <button class="tab-btn" [class.tab-btn--active]="activeTab === 'certificates'" (click)="setTab('certificates')">Certificates</button>
       <button class="tab-btn" [class.tab-btn--active]="activeTab === 'exams'"        (click)="setTab('exams')">Exam Scores</button>
@@ -80,6 +81,43 @@
 
     <!-- Tab body -->
     <div class="drawer__body">
+
+      <!-- Tab 0: Profile -->
+      @if (activeTab === 'profile') {
+        <form class="profile-form" (ngSubmit)="saveProfile()">
+          <label class="form-field">
+            <span>First name</span>
+            <input name="firstName" type="text" [(ngModel)]="profileForm.firstName" required />
+          </label>
+          <label class="form-field">
+            <span>Last name</span>
+            <input name="lastName" type="text" [(ngModel)]="profileForm.lastName" required />
+          </label>
+          <label class="form-field">
+            <span>Email</span>
+            <input name="email" type="email" [(ngModel)]="profileForm.email" required />
+          </label>
+          <label class="form-field">
+            <span>Phone number</span>
+            <input name="phoneNumber" type="tel" [(ngModel)]="profileForm.phoneNumber" />
+          </label>
+          <label class="form-field">
+            <span>Date of birth</span>
+            <input name="dateOfBirth" type="date" [(ngModel)]="profileForm.dateOfBirth" />
+          </label>
+
+          @if (profileError) {
+            <p class="form-message form-message--error">{{ profileError }}</p>
+          }
+          @if (profileSuccess) {
+            <p class="form-message form-message--success">{{ profileSuccess }}</p>
+          }
+
+          <button class="btn-save" type="submit" [disabled]="savingProfile">
+            {{ savingProfile ? 'Saving...' : 'Save changes' }}
+          </button>
+        </form>
+      }
 
       <!-- Tab 1: Courses -->
       @if (activeTab === 'courses') {

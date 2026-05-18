@@ -74,15 +74,6 @@ export interface AdminCertificateItem {
   status: 'PENDING' | 'APPROVED' | 'REVOKED';
 }
 
-export interface CertificateVerifyResponse {
-  valid: boolean;
-  studentName?: string;
-  courseTitle?: string;
-  score?: number;
-  issuedAt?: string;
-  status?: 'PENDING' | 'APPROVED' | 'REVOKED';
-}
-
 export interface AdminExamAttemptItem {
   attemptId: number;
   studentId: number;
@@ -116,11 +107,30 @@ export interface ActivityLogPageResponse {
   currentPage: number;
 }
 
+export interface AdminContentItem {
+  documentId: number;
+  documentFileName: string;
+  documentFileType: string;
+  documentStatus: string;
+  documentFileSize: number;
+  documentUploadedAt: string | null;
+  documentCategory: string | null;
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  courseId: number | null;
+  courseTitle: string | null;
+  courseCategory: string | null;
+  totalLessons: number;
+}
+
 export interface StudentDetail {
   id: number;
   firstName: string;
   lastName: string;
   email: string;
+  phoneNumber: string | null;
+  dateOfBirth: string | null;
   isActive: boolean;
   createdAt: string;
   lastLogin: string | null;
@@ -137,6 +147,14 @@ export interface StudentExamAttemptItem {
   isPassed: boolean;
   attemptNumber: number;
   submittedAt: string | null;
+}
+
+export interface UpdateStudentProfileRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string | null;
+  dateOfBirth: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -160,6 +178,20 @@ export class AdminService {
     return this.http.get<CategoryDistributionPoint[]>(`${API}/category-distribution`).pipe(
       catchError(() => of([]))
     );
+  }
+
+  getContentItems(): Observable<AdminContentItem[]> {
+    return this.http.get<AdminContentItem[]>(`${API}/content`).pipe(
+      catchError(() => of([]))
+    );
+  }
+
+  downloadDocument(documentId: number): Observable<Blob> {
+    return this.http.get(`${API}/documents/${documentId}/download`, { responseType: 'blob' });
+  }
+
+  deleteDocument(documentId: number): Observable<void> {
+    return this.http.delete<void>(`${API}/documents/${documentId}`);
   }
 
   getRecentActivity(limit = 5): Observable<RecentActivityEntry[]> {
@@ -188,6 +220,10 @@ export class AdminService {
     return this.http.patch<boolean>(`${API}/students/${studentId}/toggle-status`, {});
   }
 
+  updateStudentProfile(studentId: number, request: UpdateStudentProfileRequest): Observable<StudentDetail> {
+    return this.http.put<StudentDetail>(`${API}/students/${studentId}/profile`, request);
+  }
+
   getAllCertificates(): Observable<AdminCertificateItem[]> {
     return this.http.get<AdminCertificateItem[]>(`${API}/certificates`).pipe(
       catchError(() => of([]))
@@ -200,12 +236,6 @@ export class AdminService {
 
   revokeCertificate(id: number): Observable<void> {
     return this.http.patch<void>(`${API}/certificates/${id}/revoke`, {});
-  }
-
-  verifyCertificate(uuid: string): Observable<CertificateVerifyResponse> {
-    return this.http.get<CertificateVerifyResponse>(`${API}/certificates/verify/${uuid}`).pipe(
-      catchError(() => of({ valid: false } as CertificateVerifyResponse))
-    );
   }
 
   getAllExamAttempts(): Observable<AdminExamAttemptItem[]> {

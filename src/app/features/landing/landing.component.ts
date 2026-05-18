@@ -1,9 +1,8 @@
 // C:/Users/firas/Desktop/PFE Project/SmartLearningPlatformFrontend/src/app/features/landing/landing.component.ts
-import { Component, OnInit, OnDestroy, HostListener, ElementRef, AfterViewInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ChatWidgetComponent } from '../../shared/components/chat-widget/chat-widget.component';
-import { CertificateVerifyResponse, CertificateVerifyService } from '../../core/services/certificate-verify.service';
 
 @Component({
   selector: 'app-landing',
@@ -48,16 +47,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       iconPath: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
       iconViewBox: '0 0 24 24',
     },
-    {
-      value: 'UUID',
-      label: 'Certificate Verification',
-      sublabel: 'Verifiable',
-      gradientFrom: '#10B981',
-      gradientTo: '#16A34A',
-      shadowColor: 'rgba(16,185,129,0.3)',
-      iconPath: 'M8.21 13.89L7 23l5-3 5 3-1.21-9.11M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
-      iconViewBox: '0 0 24 24',
-    },
   ];
 
   features = [
@@ -87,7 +76,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     },
     {
       title: 'Verified Certificates',
-      description: 'Earn certificates upon passing your final exam. Every certificate has a unique UUID that can be verified by anyone instantly.',
+      description: 'Earn certificates upon passing your final exam and keep a clear record of your achievements.',
       gradientFrom: '#F59E0B', gradientTo: '#EAB308', shadowColor: 'rgba(245,158,11,0.2)',
       iconPath: 'M8.21 13.89L7 23l5-3 5 3-1.21-9.11M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
     },
@@ -142,16 +131,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   visibleSteps: boolean[] = [false, false, false, false];
   lineProgress = 0;
 
-  uuidInput = signal('');
-  verifyResult = signal<CertificateVerifyResponse | null>(null);
-  verifying = signal(false);
-  verifyError = signal('');
-  searched = signal(false);
-
-  constructor(
-    private el: ElementRef,
-    private certificateVerifyService: CertificateVerifyService
-  ) {}
+  constructor(private el: ElementRef) {}
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -175,33 +155,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
-  }
-
-  verifyCertificate(): void {
-    const uuid = this.uuidInput().trim();
-    if (!uuid) return;
-
-    this.verifying.set(true);
-    this.searched.set(true);
-    this.verifyResult.set(null);
-    this.verifyError.set('');
-
-    this.certificateVerifyService.verifyCertificate(uuid).subscribe({
-      next: (response) => {
-        this.verifyResult.set(response);
-        this.verifying.set(false);
-      },
-      error: () => {
-        this.verifyError.set('Certificate not found. Please check the UUID.');
-        this.verifying.set(false);
-      }
-    });
-  }
-
-  onVerifyKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      this.verifyCertificate();
-    }
   }
 
   private setupReveal(): void {

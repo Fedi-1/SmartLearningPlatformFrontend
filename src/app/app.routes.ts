@@ -1,17 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
-import { inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-
-// Redirect /courses/:courseId → /dashboard/courses/:courseId
-function courseRedirectGuard() {
-  const route  = inject(ActivatedRoute);
-  const router = inject(Router);
-  const id = route.snapshot.paramMap.get('courseId');
-  router.navigate(['/dashboard/courses', id], { replaceUrl: true });
-  return false;
-}
 
 export const routes: Routes = [
   {
@@ -40,18 +29,17 @@ export const routes: Routes = [
   },
   {
     path: 'student/dashboard',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/student/dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent)
+    redirectTo: '/dashboard/overview',
+    pathMatch: 'full'
   },
   {
     path: 'documents',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/documents/documents.component').then(m => m.DocumentsComponent)
+    redirectTo: '/dashboard/documents',
+    pathMatch: 'full'
   },
   {
     path: 'courses/:courseId',
-    canActivate: [authGuard, courseRedirectGuard],
-    loadComponent: () => import('./features/courses/viewer/course-viewer.component').then(m => m.CourseViewerComponent)
+    redirectTo: '/dashboard/courses/:courseId'
   },
   {
     path: 'dashboard',
@@ -96,14 +84,6 @@ export const routes: Routes = [
         loadComponent: () => import('./dashboard/community/community.component').then(m => m.CommunityComponent)
       },
       {
-        path: 'leaderboard',
-        loadComponent: () => import('./features/dashboard/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent)
-      },
-      {
-        path: 'profile/:studentId',
-        loadComponent: () => import('./features/dashboard/profile/public-profile.component').then(m => m.PublicProfileComponent)
-      },
-      {
         path: 'community/:otherStudentId',
         loadComponent: () => import('./dashboard/community/conversation/conversation.component').then(m => m.ConversationComponent)
       },
@@ -121,6 +101,11 @@ export const routes: Routes = [
         path: 'admin/students',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/dashboard/admin/students/admin-students.component').then(m => m.AdminStudentsComponent)
+      },
+      {
+        path: 'admin/content',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/dashboard/admin/content/admin-content.component').then(m => m.AdminContentComponent)
       },
       {
         path: 'admin/certificates',

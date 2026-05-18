@@ -48,7 +48,6 @@ export class DashboardComponent implements OnInit {
     const icons: Record<string, string> = {
       UPLOAD_DOCUMENT:      '📄',
       GENERATE_COURSE:      '🧠',
-      COMPLETE_LESSON:      '✅',
       TAKE_QUIZ:            '🎯',
       TAKE_EXAM:            '📝',
       PASS_EXAM:            '🏆',
