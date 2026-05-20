@@ -75,7 +75,8 @@
   }
 }
 
-.filter-select {
+.filter-select,
+.date-input {
   padding: 0.55rem 0.875rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -89,6 +90,14 @@
   transition: border-color 0.2s;
 
   &:focus { border-color: var(--accent); }
+}
+
+.date-input {
+  min-width: 150px;
+
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
 }
 
 .search-wrap {

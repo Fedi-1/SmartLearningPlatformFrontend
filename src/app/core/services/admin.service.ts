@@ -244,10 +244,19 @@ export class AdminService {
     );
   }
 
-  getActivityLogs(page: number, size: number, action: string, studentId: number | null): Observable<ActivityLogPageResponse> {
+  getActivityLogs(
+    page: number,
+    size: number,
+    action: string,
+    studentId: number | null,
+    startDate?: string,
+    endDate?: string
+  ): Observable<ActivityLogPageResponse> {
     let params: Record<string, string | number> = { page, size };
     if (action) params['action'] = action;
     if (studentId !== null) params['studentId'] = studentId;
+    if (startDate) params['startDate'] = startDate;
+    if (endDate) params['endDate'] = endDate;
     return this.http.get<ActivityLogPageResponse>(`${API}/activity-logs`, { params }).pipe(
       catchError(() => of({ content: [], totalElements: 0, totalPages: 0, currentPage: 0 }))
     );

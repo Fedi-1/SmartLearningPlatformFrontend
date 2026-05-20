@@ -34,6 +34,8 @@ export class AdminActivityLogsComponent implements OnInit {
 
   actionFilter: ActionFilter = '';
   studentNameFilter = '';
+  startDateFilter = '';
+  endDateFilter = '';
 
   // For student name → id matching (loaded lazily from the already-fetched logs)
   private studentIdByName: Map<string, number> = new Map();
@@ -52,7 +54,14 @@ export class AdminActivityLogsComponent implements OnInit {
   load(): void {
     this.loading = true;
     const studentId = this.resolveStudentId();
-    this.adminService.getActivityLogs(this.currentPage, this.pageSize, this.actionFilter, studentId)
+    this.adminService.getActivityLogs(
+      this.currentPage,
+      this.pageSize,
+      this.actionFilter,
+      studentId,
+      this.startDateFilter,
+      this.endDateFilter
+    )
       .subscribe((resp: ActivityLogPageResponse) => {
         this.logs = resp.content;
         this.totalElements = resp.totalElements;
@@ -74,9 +83,16 @@ export class AdminActivityLogsComponent implements OnInit {
     this.load();
   }
 
+  onDateFilterChange(): void {
+    this.currentPage = 0;
+    this.load();
+  }
+
   clearFilters(): void {
     this.actionFilter = '';
     this.studentNameFilter = '';
+    this.startDateFilter = '';
+    this.endDateFilter = '';
     this.currentPage = 0;
     this.load();
   }

@@ -7,7 +7,7 @@ const STUDY_SESSION_API = 'http://localhost:8069/api/study-sessions';
 export interface StudySessionResponse {
   sessionId: number;
   active: boolean;
-  accumulatedSeconds: number;
+  totalActiveSeconds: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,8 +18,8 @@ export class StudySessionService {
     return this.http.post<StudySessionResponse>(`${STUDY_SESSION_API}/start`, { courseId, lessonId });
   }
 
-  heartbeat(sessionId: number): Observable<StudySessionResponse> {
-    return this.http.post<StudySessionResponse>(`${STUDY_SESSION_API}/heartbeat`, { sessionId });
+  keepSessionActive(sessionId: number): Observable<StudySessionResponse> {
+    return this.http.post<StudySessionResponse>(`${STUDY_SESSION_API}/keep-active`, { sessionId });
   }
 
   stop(sessionId: number): Observable<StudySessionResponse> {

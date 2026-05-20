@@ -129,9 +129,9 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
 
   private chatContextService = inject(ChatContextService);
   private currentStudySessionId: number | null = null;
-  private studyHeartbeatInterval: ReturnType<typeof setInterval> | null = null;
+  private studyActivityInterval: ReturnType<typeof setInterval> | null = null;
   private lastInteractionAt = Date.now();
-  private readonly STUDY_HEARTBEAT_MS = 30000;
+  private readonly STUDY_ACTIVITY_UPDATE_MS = 30000;
   private readonly STUDY_IDLE_THRESHOLD_MS = 60000;
 
   constructor(
@@ -287,7 +287,7 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     this.studySessionService.start(courseId, lessonId).subscribe({
       next: (session) => {
         this.currentStudySessionId = session.sessionId;
-        this.startStudyHeartbeat();
+        this.startStudyActivityTracking();
       },
       error: () => {
         // Keep this silent to avoid noisy UX while navigating lessons.
@@ -295,9 +295,9 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
     });
   }
 
-  private startStudyHeartbeat(): void {
-    this.stopStudyHeartbeat();
-    this.studyHeartbeatInterval = setInterval(() => {
+  private startStudyActivityTracking(): void {
+    this.stopStudyActivityTracking();
+    this.studyActivityInterval = setInterval(() => {
       const sessionId = this.currentStudySessionId;
       if (!sessionId || document.hidden) {
         return;
@@ -308,23 +308,23 @@ export class CourseViewerComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.studySessionService.heartbeat(sessionId).subscribe({
+      this.studySessionService.keepSessionActive(sessionId).subscribe({
         error: () => {
           // Keep this silent and continue local tracking.
         }
       });
-    }, this.STUDY_HEARTBEAT_MS);
+    }, this.STUDY_ACTIVITY_UPDATE_MS);
   }
 
-  private stopStudyHeartbeat(): void {
-    if (this.studyHeartbeatInterval !== null) {
-      clearInterval(this.studyHeartbeatInterval);
-      this.studyHeartbeatInterval = null;
+  private stopStudyActivityTracking(): void {
+    if (this.studyActivityInterval !== null) {
+      clearInterval(this.studyActivityInterval);
+      this.studyActivityInterval = null;
     }
   }
 
   private stopStudySession(onDone?: () => void): void {
-    this.stopStudyHeartbeat();
+    this.stopStudyActivityTracking();
     const sessionId = this.currentStudySessionId;
     this.currentStudySessionId = null;
 

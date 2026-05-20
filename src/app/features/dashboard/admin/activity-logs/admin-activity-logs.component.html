@@ -35,7 +35,25 @@
       </div>
     </div>
 
-    @if (actionFilter || studentNameFilter) {
+    <div class="filter-group">
+      <label class="filter-group__label">From Date</label>
+      <input class="date-input"
+             type="date"
+             [max]="endDateFilter || null"
+             [(ngModel)]="startDateFilter"
+             (ngModelChange)="onDateFilterChange()" />
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-group__label">To Date</label>
+      <input class="date-input"
+             type="date"
+             [min]="startDateFilter || null"
+             [(ngModel)]="endDateFilter"
+             (ngModelChange)="onDateFilterChange()" />
+    </div>
+
+    @if (actionFilter || studentNameFilter || startDateFilter || endDateFilter) {
       <button class="btn-clear" (click)="clearFilters()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
           <path d="M18 6 6 18" />
