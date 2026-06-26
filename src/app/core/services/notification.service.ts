@@ -7,7 +7,7 @@ export interface AppNotification {
   id: number;
   userId: number;
   type: 'EMAIL' | 'IN_APP';
-  category: 'COURSE_COMPLETE' | 'EXAM_RESULT' | 'CERTIFICATE' | 'ALERT' | 'SUSPICIOUS_ACTIVITY';
+  category: 'COURSE_COMPLETE' | 'EXAM_RESULT' | 'CERTIFICATE' | 'ALERT' | 'SUSPICIOUS_ACTIVITY' | 'REMINDER';
   title: string;
   message: string;
   referenceId: number | null;

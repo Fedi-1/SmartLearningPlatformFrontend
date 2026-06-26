@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { ConversationComponent } from './dashboard/community/conversation/conversation.component';
 
 export const routes: Routes = [
   {
@@ -85,7 +86,7 @@ export const routes: Routes = [
       },
       {
         path: 'community/:otherStudentId',
-        loadComponent: () => import('./dashboard/community/conversation/conversation.component').then(m => m.ConversationComponent)
+        component: ConversationComponent
       },
       {
         path: 'admin/activity',
